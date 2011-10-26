@@ -3,10 +3,12 @@ set(CMAKE_BUILD_TYPE Release)
 project(rospack)
 enable_testing()
 
-find_package(Boost 1.40.0 COMPONENTS filesystem system program_options)
+find_package(Boost 1.40.0 COMPONENTS system filesystem program_options)
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "Couldn't find Boost")
 endif()
+message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
 
 include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
@@ -14,6 +16,7 @@ add_library(rospack SHARED src/rospack.cpp
             tinyxml-2.5.3/tinyxml.cpp
             tinyxml-2.5.3/tinyxmlparser.cpp
             tinyxml-2.5.3/tinyxmlerror.cpp)
+target_link_libraries(rospack ${Boost_LIBRARIES})
 add_executable(rospackexe src/rospack_main.cpp)
 set_target_properties(rospackexe PROPERTIES OUTPUT_NAME rospack)
 target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
