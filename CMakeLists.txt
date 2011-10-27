@@ -13,8 +13,6 @@ find_package(Boost 1.40.0 COMPONENTS system filesystem program_options)
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "Couldn't find Boost")
 endif()
-message("Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-message("Boost_LIBRARIES: ${Boost_LIBRARIES}")
 
 include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
