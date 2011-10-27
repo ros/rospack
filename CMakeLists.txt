@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 2.6.0)
 set(CMAKE_BUILD_TYPE Release)
 project(rospack)
-enable_testing()
+
+set(API_BACKCOMPAT_V1 "YES" 
+    CACHE BOOL "Whether to enable backwards compatibility with old C++ API")
+if(API_BACKCOMPAT_V1)
+  add_definitions(-DROSPACK_API_BACKCOMPAT_V1)
+  set(backcompat_source src/rospack_backcompat.cpp)
+endif()
 
 find_package(Boost 1.40.0 COMPONENTS filesystem system program_options)
 if(NOT Boost_FOUND)
@@ -10,7 +16,7 @@ endif()
 
 include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
-add_library(rospack SHARED src/rospack.cpp
+add_library(rospack SHARED src/rospack.cpp ${backcompat_source}
             tinyxml-2.5.3/tinyxml.cpp
             tinyxml-2.5.3/tinyxmlparser.cpp
             tinyxml-2.5.3/tinyxmlerror.cpp)
@@ -36,5 +42,8 @@ configure_file(
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-
-add_subdirectory(test)
+find_package(GTest)
+if(GTEST_FOUND)
+  enable_testing()
+  add_subdirectory(test)
+endif()

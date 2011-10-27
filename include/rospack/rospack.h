@@ -36,6 +36,11 @@
 #include <vector>
 #include <stdexcept>
 
+#ifdef ROSPACK_API_BACKCOMPAT_V1
+  #include "rospack/rospack_backcompat.h"
+#endif
+
+
 namespace rospack
 {
 
