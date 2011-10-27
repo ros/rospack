@@ -306,11 +306,6 @@ class RospackTestCase(unittest.TestCase):
         self.rospack_fail("deps", "list-duplicates")
         self.rospack_fail("deps", "langs")
 
-    def test_invalid_option_order(self):
-        self.rospack_fail("deps", "--lang=cpp --attrib=lflags export")
-        self.rospack_fail("deps", "--lang=cpp export --attrib=lflags")
-        self.rospack_fail("deps", "--deps-only cflags-only-I")
-
     def test_export_bad(self):
         self.rospack_fail("base", "export --lang= --attrib=lflags")
         self.rospack_fail("base", "export --lang=cpp --attrib=")

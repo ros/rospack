@@ -16,7 +16,8 @@ endif()
 
 include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
-add_library(rospack SHARED src/rospack.cpp ${backcompat_source}
+add_library(rospack SHARED src/rospack.cpp src/rospack_cmdline.cpp 
+            ${backcompat_source}
             tinyxml-2.5.3/tinyxml.cpp
             tinyxml-2.5.3/tinyxmlparser.cpp
             tinyxml-2.5.3/tinyxmlerror.cpp)

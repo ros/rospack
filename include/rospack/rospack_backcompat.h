@@ -38,12 +38,14 @@ namespace rospack
 // Backwards-compatibility API
 class ROSPack
 {
+  private:
+    std::string output_;
   public:
-    ROSPack();
+    ROSPack() {}
     int run(int argc, char** argv);
     int run(const std::string& cmd);
-    std::string getOutput();
-    bool is_quiet();
+    std::string getOutput() {return output_;}
+    bool is_quiet() {return true;}
 };
 
 } // namespace rospack

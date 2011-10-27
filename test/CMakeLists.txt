@@ -16,8 +16,8 @@
 # GTEST_* are defined by the find_package(GTest) call in the top-level
 # CMakeLists.txt
 include_directories(${GTEST_INCLUDE_DIRS})
-#add_executable(utest test/utest.cpp)
-#target_link_libraries(utest rospack ${GTEST_LIBRARIES})
+add_executable(utest test/utest.cpp)
+target_link_libraries(utest rospack ${GTEST_LIBRARIES})
 
 # The prepare steps shouldn't really be tests, 
 # but apparently tests can only depend on other tests.

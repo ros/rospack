@@ -49,6 +49,7 @@ TEST(rospack, reentrant)
   unsetenv("ROS_PACKAGE_PATH");
 
   rospack::ROSPack rp;
+  std::string output;
   int ret = rp.run(std::string("plugins --attrib=foo --top=precedence1 roslang"));
   ASSERT_EQ(ret, 0);
   ret = rp.run(std::string("find roslang"));
@@ -56,14 +57,16 @@ TEST(rospack, reentrant)
   ret = rp.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   std::vector<std::string> output_list;
-  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
+  output = rp.getOutput(); 
+  boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
+  output = rp.getOutput(); 
+  boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   std::vector<std::string> path_name;
-  boost::split(output_list[0], path_name, boost::is_any_of(" "));
+  boost::split(path_name, output_list[0], boost::is_any_of(" "));
   ASSERT_EQ((int)path_name.size(), 2);
 }
 
@@ -75,6 +78,7 @@ TEST(rospack, multiple_rospack_objects)
   unsetenv("ROS_PACKAGE_PATH");
 
   rospack::ROSPack rp;
+  std::string output;
   int ret = rp.run(std::string("plugins --attrib=foo --top=precedence1 roslang"));
   ASSERT_EQ(ret, 0);
   ret = rp.run(std::string("find roslang"));
@@ -82,14 +86,16 @@ TEST(rospack, multiple_rospack_objects)
   ret = rp.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   std::vector<std::string> output_list;
-  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
+  output = rp.getOutput(); 
+  boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
+  output = rp.getOutput(); 
+  boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   std::vector<std::string> path_name;
-  boost::split(output_list[0], path_name, boost::is_any_of(" "));
+  boost::split(path_name, output_list[0], boost::is_any_of(" "));
   ASSERT_EQ((int)path_name.size(), 2);
 
   rospack::ROSPack rp2;
@@ -100,23 +106,25 @@ TEST(rospack, multiple_rospack_objects)
   ret = rp2.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   output_list.clear();
-  boost::split(rp2.getOutput(), output_list, boost::is_any_of("\n"));
+  output = rp2.getOutput(); 
+  boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp2.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  boost::split(rp2.getOutput(), output_list, boost::is_any_of("\n"));
+  output = rp2.getOutput(); 
+  boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   path_name.clear();
-  boost::split(output_list[0], path_name, boost::is_any_of(" "));
+  boost::split(path_name, output_list[0], boost::is_any_of(" "));
   ASSERT_EQ((int)path_name.size(), 2);
 }
 
 TEST(rospack, deduplicate_tokens)
 {
-  rospack::ROSPack rp;
   std::string input = "foo foo bar bat bar foobar batbar";
   std::string truth = "foo bar bat foobar batbar";
-  std::string output = rp.deduplicate_tokens(input);
+  std::string output;
+  rospack::deduplicate_tokens(input, false, output);
   ASSERT_EQ(truth, output);
 }
 

@@ -28,36 +28,67 @@
 #include "rospack/rospack_backcompat.h"
 #include "rospack/rospack.h"
 
+#include <boost/algorithm/string.hpp>
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
+
 namespace rospack
 {
-
-ROSPack::ROSPack()
-{
-}
 
 int 
 ROSPack::run(int argc, char** argv)
 {
-  return 0;
+  std::string cmd;
+  for(int i=0; i<argc; i++)
+  {
+    if(i==0)
+      cmd.append(argv[i]);
+    else
+      cmd.append(std::string(" ") + argv[i]);
+  }
+  return run(cmd);
 }
 
 int 
 ROSPack::run(const std::string& cmd)
 {
+  // Callers of this method don't make 'rospack' argv[0].
+  std::string full_cmd = std::string("rospack ") + cmd;
+
+  FILE* p;
+  if(!(p = popen(full_cmd.c_str(), "r")))
+  {
+    std::string errmsg = 
+            std::string("failed to execute rospack command ") + full_cmd + 
+            ": " + strerror(errno);
+    fprintf(stderr, "[rospack] Error: %s\n", errmsg.c_str());
+    return 1;
+  }
+  else
+  {
+    char buf[8192];
+    memset(buf,0,sizeof(buf));
+    // Read the command's output
+    do
+    {
+      clearerr(p);
+      while(fgets(buf + strlen(buf),sizeof(buf)-strlen(buf)-1,p));
+    } while(ferror(p) && errno == EINTR);
+    // Close the subprocess, checking exit status
+    if(pclose(p) != 0)
+    {
+      std::string errmsg = 
+              std::string("got non-zero exit status from executing rospack command ") +
+              cmd;
+      return 1;
+    }
+    else
+    {
+      output_ = buf;
+    }
+  }
   return 0;
 }
-
-std::string 
-ROSPack::getOutput()
-{
-  return "";
-}
-
-bool 
-ROSPack::is_quiet()
-{
-  return false;
-}
-
 
 } // namespace rospack

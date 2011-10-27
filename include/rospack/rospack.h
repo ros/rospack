@@ -44,6 +44,11 @@
 namespace rospack
 {
 
+static const char* ROSPACK_NAME = "rospack";
+static const char* ROSSTACK_NAME = "rosstack";
+static const char* MANIFEST_TAG_PACKAGE = "package";
+static const char* MANIFEST_TAG_STACK = "stack";
+
 typedef enum
 {
   CRAWL_UP,
@@ -67,7 +72,11 @@ class Rosstackage
     crawl_direction_t crawl_dir_;
 
     bool crawled_;
+    std::string name_;
+    std::string tag_;
+    bool quiet_;
     std::tr1::unordered_set<std::string> dups_;
+    void log(const std::string& level, const std::string& msg, bool append_errno);
     void addStackage(const std::string& path);
     void crawlDetail(const std::string& path,
                      bool force,
@@ -101,17 +110,23 @@ class Rosstackage
 
   protected:
     std::tr1::unordered_map<std::string, Stackage*> stackages_;
-    void crawl(const std::vector<std::string>& search_path, bool force);
-    bool inStackage(std::string& name);
 
   public:
-    Rosstackage(std::string manifest_name,
-                std::string cache_name,
+    Rosstackage(const std::string& manifest_name,
+                const std::string& cache_name,
                 crawl_direction_t crawl_dir,
-                bool quiet);
+                const std::string& name,
+                const std::string& tag);
     virtual ~Rosstackage();
 
+    virtual const char* usage() = 0;
+    void crawl(const std::vector<std::string>& search_path, bool force);
+    bool inStackage(std::string& name);
+    void setQuiet(bool quiet);
+    const std::string& getName() {return name_;}
+    bool getSearchPathFromEnv(std::vector<std::string>& sp);
     bool find(const std::string& name, std::string& path); 
+    bool contents(const std::string& name, std::vector<std::string>& packages);
     void list(std::vector<std::pair<std::string, std::string> >& list);
     void listDuplicates(std::vector<std::string>& dups);
     bool deps(const std::string& name, bool direct, std::vector<std::string>& deps);
@@ -137,36 +152,34 @@ class Rosstackage
                  bool zombie_only,
                  int length,
                  std::vector<std::string>& dirs);
+    // Simple console output helpers
+    void log_warn(const std::string& msg,
+                  bool append_errno = false);
+    void log_error(const std::string& msg,
+                   bool append_errno = false);
+
 };
 
 class Rospack : public Rosstackage
 {
   public:
-    Rospack(bool quiet=false);
-    void crawl(const std::vector<std::string>& search_path,
-               bool force);
-    bool inPackage(std::string& name);
+    Rospack();
+    virtual const char* usage();
 };
 
 class Rosstack : public Rosstackage
 {
   public:
-    Rosstack(bool quiet=false);
-    void crawl(const std::vector<std::string>& search_path,
-               bool force);
-    bool inStack(std::string& name);
+    Rosstack();
+    virtual const char* usage();
 };
 
-bool get_search_path_from_env(std::vector<std::string>& sp);
-
-// Simple console output helpers
-void log_warn(const std::string& name, 
-              const std::string& msg,
-              bool append_errno = false);
-void log_error(const std::string& name, 
-               const std::string& msg,
-               bool append_errno = false);
-
+void deduplicate_tokens(const std::string& instring, 
+                        bool last,
+                        std::string& outstring);
+bool rospack_run(int argc, char** argv, 
+                 rospack::Rosstackage& rp, 
+                 std::string& output);
 } // namespace rospack
 
 
