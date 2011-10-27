@@ -13,6 +13,11 @@
 #rosbuild_add_gtest(test/utest test/utest.cpp TIMEOUT 180.0)
 #rosbuild_link_boost(test/utest thread)
 
+# GTEST_* are defined by the find_package(GTest) call in the top-level
+# CMakeLists.txt
+include_directories(${GTEST_INCLUDE_DIRS})
+#add_executable(utest test/utest.cpp)
+#target_link_libraries(utest rospack ${GTEST_LIBRARIES})
 
 # The prepare steps shouldn't really be tests, 
 # but apparently tests can only depend on other tests.
@@ -21,9 +26,11 @@ add_test(NAME copy_test_files
 add_test(NAME make_deep_directories
          COMMAND cmake -E chdir test/deep python deep.py)
 
-add_test(NAME utest
+add_test(NAME utestpy
          COMMAND python test/utest.py)
+add_test(NAME utestcpp
+         COMMAND utest)
 
 set_tests_properties(make_deep_directories PROPERTIES DEPENDS copy_test_files)
 
-set_tests_properties(utest PROPERTIES DEPENDS make_deep_directories)
+set_tests_properties(utestpy PROPERTIES DEPENDS make_deep_directories)

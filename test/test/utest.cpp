@@ -38,99 +38,8 @@
 #include <time.h>
 #include <gtest/gtest.h>
 #include <boost/thread/thread.hpp>
+#include <boost/algorithm/string.hpp>
 #include "rospack/rospack.h"
-
-/////////////////////////////////////////////////////////////
-// Code-level tests against rospack's snarf_flags() method
-TEST(rospack, lflags_embedded_newline)
-{
-  rospack::ROSPack rp;
-  std::string input1("-lloki \n-lfoo");
-  std::string output1("loki foo");
-
-  std::string lflags;
-
-  lflags = rp.snarf_libs(input1);
-  EXPECT_EQ(output1, lflags);
-}
-
-TEST(rospack, lflags_escaped_string)
-{
-  rospack::ROSPack rp;
-  std::string input1("-lloki \\-lfoo");
-  std::string output1("loki");
-
-  std::string lflags;
-
-  lflags = rp.snarf_libs(input1);
-  EXPECT_EQ(output1, lflags);
-}
-
-TEST(rospack, lflags_embedded_whitespace)
-{
-  rospack::ROSPack rp;
-  std::string input1("-lloki -lfoo\\ bar");
-  std::string output1("loki foo\\ bar");
-
-  std::string lflags;
-
-  lflags = rp.snarf_libs(input1);
-  EXPECT_EQ(output1, lflags);
-}
-
-TEST(rospack, lflags_no_trailing_whitespace)
-{
-  rospack::ROSPack rp;
-  std::string input1("-lloki");
-  std::string input2("-lloki -lfoo");
-  std::string output1("loki");
-  std::string output2("loki foo");
-
-  std::string lflags;
-
-  lflags = rp.snarf_libs(input1);
-  EXPECT_EQ(output1, lflags);
-
-  lflags = rp.snarf_libs(input2);
-  EXPECT_EQ(output2, lflags);
-}
-
-TEST(rospack, lflags_embedded_dashl)
-{
-  rospack::ROSPack rp;
-  std::string input("-L/u/wheeler/ros/ros-pkg/3rdparty/loki-lib/loki-svn/lib -lloki ");
-  std::string lib_output("loki");
-  std::string libdir_output("/u/wheeler/ros/ros-pkg/3rdparty/loki-lib/loki-svn/lib");
-
-  std::string lflags;
-
-  lflags = rp.snarf_flags(input, "-L");
-  EXPECT_EQ(libdir_output, lflags);
-
-  lflags = rp.snarf_libs(input);
-  EXPECT_EQ(lib_output, lflags);
-}
-
-TEST(rospack, lflags_static_libs)
-{
-  rospack::ROSPack rp;
-  std::string input("-L/blah/blah -lfoo /bar/baz/bom.a -lzom -Wl,other");
-  std::string lib_output("foo /bar/baz/bom.a zom");
-  std::string libdir_output("/blah/blah");
-  std::string other_output("-Wl,other");
-
-  std::string lflags;
-
-  lflags = rp.snarf_flags(input, "-L");
-  EXPECT_EQ(libdir_output, lflags);
-
-  lflags = rp.snarf_libs(input);
-  EXPECT_EQ(lib_output, lflags);
-
-  lflags = rp.snarf_libs(input, true);
-  lflags = rp.snarf_flags(lflags, "-L", true);
-  EXPECT_EQ(other_output, lflags);
-}
 
 TEST(rospack, reentrant)
 {
@@ -147,14 +56,14 @@ TEST(rospack, reentrant)
   ret = rp.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   std::vector<std::string> output_list;
-  rospack::string_split(rp.getOutput(), output_list, "\n");
+  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  rospack::string_split(rp.getOutput(), output_list, "\n");
+  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   std::vector<std::string> path_name;
-  rospack::string_split(output_list[0], path_name, " ");
+  boost::split(output_list[0], path_name, boost::is_any_of(" "));
   ASSERT_EQ((int)path_name.size(), 2);
 }
 
@@ -173,14 +82,14 @@ TEST(rospack, multiple_rospack_objects)
   ret = rp.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   std::vector<std::string> output_list;
-  rospack::string_split(rp.getOutput(), output_list, "\n");
+  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  rospack::string_split(rp.getOutput(), output_list, "\n");
+  boost::split(rp.getOutput(), output_list, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   std::vector<std::string> path_name;
-  rospack::string_split(output_list[0], path_name, " ");
+  boost::split(output_list[0], path_name, boost::is_any_of(" "));
   ASSERT_EQ((int)path_name.size(), 2);
 
   rospack::ROSPack rp2;
@@ -191,14 +100,14 @@ TEST(rospack, multiple_rospack_objects)
   ret = rp2.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   output_list.clear();
-  rospack::string_split(rp2.getOutput(), output_list, "\n");
+  boost::split(rp2.getOutput(), output_list, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp2.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  rospack::string_split(rp2.getOutput(), output_list, "\n");
+  boost::split(rp2.getOutput(), output_list, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   path_name.clear();
-  rospack::string_split(output_list[0], path_name, " ");
+  boost::split(output_list[0], path_name, boost::is_any_of(" "));
   ASSERT_EQ((int)path_name.size(), 2);
 }
 
@@ -210,9 +119,6 @@ TEST(rospack, deduplicate_tokens)
   std::string output = rp.deduplicate_tokens(input);
   ASSERT_EQ(truth, output);
 }
-
-// Code-level tests against rospack's snarf_flags() method
-/////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
 {
