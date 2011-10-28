@@ -26,6 +26,8 @@
  */
 
 #include "rospack/rospack.h"
+#include "utils.h"
+
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
@@ -41,14 +43,6 @@ namespace rospack
 bool parse_args(int argc, char** argv, 
                 rospack::Rosstackage& rp,
                 po::variables_map& vm);
-void parse_compiler_flags(const std::string& instring, 
-                          const std::string& token,
-                          bool select,
-                          bool last,
-                          std::string& outstring);
-void deduplicate_tokens(const std::string& instring, 
-                        bool last,
-                        std::string& outstring);
 
 bool
 rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output)
@@ -251,7 +245,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
     std::vector<std::string> deps;
-    if(!rp.dependsOn("roslang", true, deps))
+    if(!rp.depsOn("roslang", true, deps))
       return false;
     const char* ros_lang_disable;
     if((ros_lang_disable = getenv("ROS_LANG_DISABLE")))
@@ -460,7 +454,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
     std::vector<std::string> deps;
-    if(!rp.dependsOn(package, (command == "depends-on1"), deps))
+    if(!rp.depsOn(package, (command == "depends-on1"), deps))
       return false;
     for(std::vector<std::string>::const_iterator it = deps.begin();
         it != deps.end();
@@ -670,7 +664,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   }
   // COMMAND: contains [package]
   else if(rp.getName() == ROSSTACK_NAME && 
-          (command == "contains") || (command == "contains-path"))
+          ((command == "contains") || (command == "contains-path")))
   {
     if(!package.size())
     {
@@ -697,96 +691,6 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     rp.log_error(std::string("command ") + command + " not implemented");
     return false;
   }
-}
-
-void
-deduplicate_tokens(const std::string& instring, 
-                   bool last,
-                   std::string& outstring)
-{
-  std::vector<std::string> vec;
-  std::tr1::unordered_set<std::string> set;
-  boost::split(vec, instring,
-               boost::is_any_of("\t "),
-               boost::token_compress_on);
-  if(last)
-    std::reverse(vec.begin(), vec.end());
-  std::vector<std::string> vec_out;
-  for(std::vector<std::string>::const_iterator it = vec.begin();
-      it != vec.end();
-      ++it)
-  {
-    if(set.find(*it) == set.end())
-    {
-      vec_out.push_back(*it);
-      set.insert(*it);
-    }
-  }
-  if(last)
-    std::reverse(vec_out.begin(), vec_out.end());
-  for(std::vector<std::string>::const_iterator it = vec_out.begin();
-      it != vec_out.end();
-      ++it)
-  {
-    if(it == vec_out.begin())
-      outstring.append(*it);
-    else
-      outstring.append(std::string(" ") + *it);
-  }
-}
-
-void
-parse_compiler_flags(const std::string& instring, 
-                     const std::string& token,
-                     bool select,
-                     bool last,
-                     std::string& outstring)
-{
-  std::string intermediate;
-  std::vector<std::string> result_vec;
-  boost::split(result_vec, instring,
-               boost::is_any_of("\t "),
-               boost::token_compress_on);
-  for(std::vector<std::string>::const_iterator it = result_vec.begin();
-      it != result_vec.end();
-      ++it)
-  {
-    // Combined into one arg
-    if(it->size() > token.size() && it->substr(0,token.size()) == token)
-    {
-      if(select)
-        intermediate.append(it->substr(token.size()) + " ");
-    }
-    // Space-separated
-    else if((*it) == token)
-    {
-      std::vector<std::string>::const_iterator iit = it;
-      if(++iit != result_vec.end())
-      {
-        if(it->size() >= token.size() && it->substr(0,token.size()) == token)
-        {
-          // skip it
-        }
-        else
-        {
-          if(select)
-            intermediate.append((*iit) + " ");
-          it = iit;
-        }
-      }
-    }
-    // Special case: if we're told to look for -l, then also find *.a
-    else if(it->size() > 2 && 
-            (*it)[0] == '/' && 
-            it->substr(it->size()-2) == ".a")
-    {
-      if(select)
-        intermediate.append((*it) + " ");
-    }
-    else if(!select)
-      intermediate.append((*it) + " ");
-  }
-  deduplicate_tokens(intermediate, last, outstring);
 }
 
 bool

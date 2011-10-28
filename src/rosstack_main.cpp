@@ -25,7 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rospack/rospack.h"
+#include "rospack_cmdline.h"
 #include <stdio.h>
 
 int

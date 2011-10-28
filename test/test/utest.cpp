@@ -40,6 +40,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "rospack/rospack.h"
+#include "utils.h"
 
 TEST(rospack, reentrant)
 {

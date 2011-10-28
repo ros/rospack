@@ -32,10 +32,8 @@
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
 #include <string>
-#include <map>
 #include <vector>
 #include <list>
-#include <stdexcept>
 
 #ifdef ROSPACK_API_BACKCOMPAT_V1
   #include "rospack/rospack_backcompat.h"
@@ -45,23 +43,13 @@
 namespace rospack
 {
 
-static const char* ROSPACK_NAME = "rospack";
-static const char* ROSSTACK_NAME = "rosstack";
-static const char* MANIFEST_TAG_PACKAGE = "package";
-static const char* MANIFEST_TAG_STACK = "stack";
-
-typedef enum
-{
-  CRAWL_UP,
-  CRAWL_DOWN
-} crawl_direction_t;
-
 typedef enum 
 {
   POSTORDER,
   PREORDER
 } traversal_order_t;
 
+// Forward declarations
 class Stackage;
 class DirectoryCrawlRecord;
 
@@ -70,8 +58,6 @@ class Rosstackage
   private:
     std::string manifest_name_;
     std::string cache_name_;
-    crawl_direction_t crawl_dir_;
-
     bool crawled_;
     std::string name_;
     std::string tag_;
@@ -87,7 +73,7 @@ class Rosstackage
                      bool collect_profile_data,
                      std::vector<DirectoryCrawlRecord*>& profile_data,
                      std::tr1::unordered_set<std::string>& profile_hash);
-    bool dependsOnDetail(const std::string& name, bool direct,
+    bool depsOnDetail(const std::string& name, bool direct,
                          std::vector<Stackage*>& deps);
     bool depsDetail(const std::string& name, bool direct,
                     std::vector<Stackage*>& deps);
@@ -119,7 +105,6 @@ class Rosstackage
   public:
     Rosstackage(const std::string& manifest_name,
                 const std::string& cache_name,
-                crawl_direction_t crawl_dir,
                 const std::string& name,
                 const std::string& tag);
     virtual ~Rosstackage();
@@ -130,6 +115,7 @@ class Rosstackage
     void setQuiet(bool quiet);
     const std::string& getName() {return name_;}
     bool getSearchPathFromEnv(std::vector<std::string>& sp);
+
     bool find(const std::string& name, std::string& path); 
     bool contents(const std::string& name, std::vector<std::string>& packages);
     bool contains(const std::string& name, 
@@ -138,7 +124,7 @@ class Rosstackage
     void list(std::vector<std::pair<std::string, std::string> >& list);
     void listDuplicates(std::vector<std::string>& dups);
     bool deps(const std::string& name, bool direct, std::vector<std::string>& deps);
-    bool dependsOn(const std::string& name, bool direct,
+    bool depsOn(const std::string& name, bool direct,
                    std::vector<std::string>& deps);
     bool depsManifests(const std::string& name, bool direct, 
                        std::vector<std::string>& manifests);
@@ -168,7 +154,6 @@ class Rosstackage
                   bool append_errno = false);
     void log_error(const std::string& msg,
                    bool append_errno = false);
-
 };
 
 class Rospack : public Rosstackage
@@ -185,13 +170,6 @@ class Rosstack : public Rosstackage
     virtual const char* usage();
 };
 
-void deduplicate_tokens(const std::string& instring, 
-                        bool last,
-                        std::string& outstring);
-bool rospack_run(int argc, char** argv, 
-                 rospack::Rosstackage& rp, 
-                 std::string& output);
 } // namespace rospack
-
 
 #endif

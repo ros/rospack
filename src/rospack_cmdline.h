@@ -25,20 +25,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rospack_cmdline.h"
-#include <stdio.h>
+#ifndef ROSPACK_ROSPACK_CMDLINE_H
+#define ROSPACK_ROSPACK_CMDLINE_H
 
-int
-main(int argc, char** argv)
+#include "rospack/rospack.h"
+
+namespace rospack
 {
-  rospack::Rospack rp;
-  std::string output;
-  if(!rospack::rospack_run(argc, argv, rp, output))
-    return 1;
-  else
-  {
-    printf("%s", output.c_str());
-    return 0;
-  }
+
+bool rospack_run(int argc, char** argv, 
+                 rospack::Rosstackage& rp, 
+                 std::string& output);
+
 }
 
+#endif

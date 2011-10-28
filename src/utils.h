@@ -25,20 +25,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rospack_cmdline.h"
-#include <stdio.h>
+#ifndef ROSPACK_UTILS_H
+#define ROSPACK_UTILS_H
 
-int
-main(int argc, char** argv)
+#include <string>
+
+namespace rospack
 {
-  rospack::Rospack rp;
-  std::string output;
-  if(!rospack::rospack_run(argc, argv, rp, output))
-    return 1;
-  else
-  {
-    printf("%s", output.c_str());
-    return 0;
-  }
+
+// Strings that are used in multiple translation units within librospack
+static const char* ROSPACK_NAME = "rospack";
+static const char* ROSSTACK_NAME = "rosstack";
+
+void deduplicate_tokens(const std::string& instring, 
+                        bool last,
+                        std::string& outstring);
+
+void
+parse_compiler_flags(const std::string& instring, 
+                     const std::string& token,
+                     bool select,
+                     bool last,
+                     std::string& outstring);
+
 }
+
+#endif
 

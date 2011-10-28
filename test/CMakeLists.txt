@@ -1,22 +1,7 @@
-#if(ROSBUILD)
-#  # this is for rosbuild2 integration, you can ignore this
-#  include(rosbuild.cmake OPTIONAL)
-#  return()
-#endif()
-#cmake_minimum_required(VERSION 2.4.6)
-#include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-#rosbuild_init()
-#rosbuild_add_boost_directories()
-#rosbuild_add_pyunit(test/utest.py TIMEOUT 180.0)
-#rosbuild_add_pyunit(test/utest_rosstack.py TIMEOUT 180.0)
-#
-#rosbuild_add_gtest(test/utest test/utest.cpp TIMEOUT 180.0)
-#rosbuild_link_boost(test/utest thread)
-
 # GTEST_* are defined by the find_package(GTest) call in the top-level
 # CMakeLists.txt
-include_directories(${GTEST_INCLUDE_DIRS})
-add_executable(utest test/utest.cpp)
+include_directories(${GTEST_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/src)
+add_executable(utest test/utest.cpp ${PROJECT_SOURCE_DIR}/src/rospack_cmdline.cpp ${PROJECT_SOURCE_DIR}/src/utils.cpp)
 target_link_libraries(utest rospack ${GTEST_LIBRARIES})
 
 # The prepare steps shouldn't really be tests, 

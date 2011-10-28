@@ -26,10 +26,12 @@
  */
 
 #include "rospack/rospack.h"
+#include "utils.h"
 #include "tinyxml-2.5.3/tinyxml.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <stdexcept>
 
 #if defined(WIN32)
   #include <direct.h>
@@ -59,6 +61,8 @@ namespace fs = boost::filesystem;
 
 namespace rospack
 {
+static const char* MANIFEST_TAG_PACKAGE = "package";
+static const char* MANIFEST_TAG_STACK = "stack";
 static const char* ROSPACK_MANIFEST_NAME = "manifest.xml";
 static const char* ROSSTACK_MANIFEST_NAME = "stack.xml";
 static const char* ROSPACK_CACHE_NAME = "rospack_cache";
@@ -148,12 +152,10 @@ bool cmpDirectoryCrawlRecord(DirectoryCrawlRecord* i,
 /////////////////////////////////////////////////////////////
 Rosstackage::Rosstackage(const std::string& manifest_name,
                          const std::string& cache_name,
-                         crawl_direction_t crawl_dir,
                          const std::string& name,
                          const std::string& tag) :
         manifest_name_(manifest_name),
         cache_name_(cache_name),
-        crawl_dir_(crawl_dir),
         crawled_(false),
         name_(name),
         tag_(tag)
@@ -429,11 +431,11 @@ Rosstackage::deps(const std::string& name, bool direct,
 }
 
 bool
-Rosstackage::dependsOn(const std::string& name, bool direct,
+Rosstackage::depsOn(const std::string& name, bool direct,
                        std::vector<std::string>& deps)
 {
   std::vector<Stackage*> stackages;
-  if(!dependsOnDetail(name, direct, stackages))
+  if(!depsOnDetail(name, direct, stackages))
     return false;
   for(std::vector<Stackage*>::const_iterator it = stackages.begin();
       it != stackages.end();
@@ -707,7 +709,7 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
 {
   // Find everybody who depends directly on the package in question
   std::vector<Stackage*> stackages;
-  if(!dependsOnDetail(name, true, stackages))
+  if(!depsOnDetail(name, true, stackages))
     return false;
   // If top was given, filter to include only those package on which top
   // depends.
@@ -876,7 +878,7 @@ Rosstackage::depsWhyDetail(Stackage* from,
 }
 
 bool
-Rosstackage::dependsOnDetail(const std::string& name, bool direct,
+Rosstackage::depsOnDetail(const std::string& name, bool direct,
                              std::vector<Stackage*>& deps)
 {
   if(!stackages_.count(name))
@@ -1026,35 +1028,25 @@ Rosstackage::crawlDetail(const std::string& path,
     }
   }
 
-  if(crawl_dir_ == CRAWL_DOWN)
+  for(fs::directory_iterator dit = fs::directory_iterator(path);
+      dit != fs::directory_iterator();
+      ++dit)
   {
-    for(fs::directory_iterator dit = fs::directory_iterator(path);
-        dit != fs::directory_iterator();
-        ++dit)
+    if(fs::is_directory(dit->path()))
     {
-      if(fs::is_directory(dit->path()))
-      {
 #if !defined(BOOST_FILESYSTEM_VERSION) || (BOOST_FILESYSTEM_VERSION == 2)
-        std::string name = dit->path().filename();
+      std::string name = dit->path().filename();
 #else
-        // in boostfs3, filename() returns a path, which needs to be stringified
-        std::string name = dit->path().filename().string();
+      // in boostfs3, filename() returns a path, which needs to be stringified
+      std::string name = dit->path().filename().string();
 #endif
-        // Ignore directories starting with '.'
-        if(name.size() == 0 || name[0] == '.')
-          continue;
+      // Ignore directories starting with '.'
+      if(name.size() == 0 || name[0] == '.')
+        continue;
 
-        crawlDetail(dit->path().string(), force, depth+1,
-                    collect_profile_data, profile_data, profile_hash);
-      }
-    }
-  }
-  else // dir == CRAWL_UP
-  {
-    std::string parent = boost::filesystem::path(path).parent_path().string();
-    if(parent.size())
-      crawlDetail(parent, force, depth+1,
+      crawlDetail(dit->path().string(), force, depth+1,
                   collect_profile_data, profile_data, profile_hash);
+    }
   }
 
   if(collect_profile_data && dcr != NULL)
@@ -1528,7 +1520,6 @@ Rosstackage::expandExportString(Stackage* stackage,
 Rospack::Rospack() :
         Rosstackage(ROSPACK_MANIFEST_NAME,
                     ROSPACK_CACHE_NAME,
-                    CRAWL_DOWN,
                     ROSPACK_NAME,
                     MANIFEST_TAG_PACKAGE)
 {
@@ -1550,7 +1541,6 @@ Rosstackage::~Rosstackage()
 Rosstack::Rosstack() :
         Rosstackage(ROSSTACK_MANIFEST_NAME,
                     ROSSTACK_CACHE_NAME,
-                    CRAWL_DOWN,
                     ROSSTACK_NAME,
                     MANIFEST_TAG_STACK)
 {

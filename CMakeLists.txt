@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6.0)
 set(CMAKE_BUILD_TYPE Release)
 project(rospack)
 
+add_definitions(-Wall)
+
 set(API_BACKCOMPAT_V1 "YES" 
     CACHE BOOL "Whether to enable backwards compatibility with old C++ API")
 if(API_BACKCOMPAT_V1)
@@ -16,16 +18,16 @@ endif()
 
 include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
-add_library(rospack SHARED src/rospack.cpp src/rospack_cmdline.cpp 
-            ${backcompat_source}
+add_library(rospack SHARED src/rospack.cpp ${backcompat_source}
+            src/utils.cpp
             tinyxml-2.5.3/tinyxml.cpp
             tinyxml-2.5.3/tinyxmlparser.cpp
             tinyxml-2.5.3/tinyxmlerror.cpp)
 target_link_libraries(rospack ${Boost_LIBRARIES})
-add_executable(rospackexe src/rospack_main.cpp)
+add_executable(rospackexe src/rospack_main.cpp src/rospack_cmdline.cpp)
 set_target_properties(rospackexe PROPERTIES OUTPUT_NAME rospack)
 target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
-add_executable(rosstackexe src/rosstack_main.cpp)
+add_executable(rosstackexe src/rosstack_main.cpp src/rospack_cmdline.cpp)
 target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
 set_target_properties(rosstackexe PROPERTIES OUTPUT_NAME rosstack)
 
