@@ -34,6 +34,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <list>
 #include <stdexcept>
 
 #ifdef ROSPACK_API_BACKCOMPAT_V1
@@ -109,6 +110,9 @@ class Rosstackage
     bool expandExportString(Stackage* stackage,
                             const std::string& instring,
                             std::string& outstring);
+    void depsWhyDetail(Stackage* from,
+                       Stackage* to,
+                       std::list<std::list<Stackage*> >& acc_list);
 
   protected:
 
@@ -142,6 +146,9 @@ class Rosstackage
                     std::vector<std::string>& gens);
     bool depsIndent(const std::string& name, bool direct,
                     std::vector<std::string>& deps);
+    bool depsWhy(const std::string& from,
+                 const std::string& to,
+                 std::string& output);
     bool rosdeps(const std::string& name, bool direct,
                  std::vector<std::string>& rosdeps);
     bool vcs(const std::string& name, bool direct, 

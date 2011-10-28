@@ -373,6 +373,26 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       output.append(*it + "\n");
     return true;
   }
+  // COMMAND: depends-why [package] (alias: deps-why)
+  else if(command == "depends-why" || command == "deps-why")
+  {
+    if(!package.size() || !target.size())
+    {
+      rp.log_error( "no package/stack or target given");
+      return false;
+    }
+    if(top.size() || length_str.size() || 
+       zombie_only || deps_only || lang.size() || attrib.size())
+    {
+      rp.log_error( "invalid option(s) given");
+      return false;
+    }
+    std::string why_output;
+    if(!rp.depsWhy(package, target, why_output))
+      return false;
+    output.append(why_output);
+    return true;
+  }
   // COMMAND: rosdep [package] (alias: rosdeps)
   // COMMAND: rosdep0 [package] (alias: rosdeps0)
   else if(rp.getName() == ROSPACK_NAME && 
@@ -853,6 +873,7 @@ Rosstack::usage()
           "    depends-manifests [stack] (alias: deps-manifests)\n"
           "    depends1 [stack] (alias: deps1)\n"
           "    depends-indent [stack] (alias: deps-indent)\n"
+          "    depends-why --target=<target> [stack] (alias: deps-why)\n"
           "    depends-on [stack]\n"
           "    depends-on1 [stack]\n"
           "    contains [package]\n"

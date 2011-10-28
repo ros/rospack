@@ -473,6 +473,46 @@ Rosstackage::depsIndent(const std::string& name, bool direct,
 }
 
 bool
+Rosstackage::depsWhy(const std::string& from,
+                     const std::string& to,
+                     std::string& output)
+{
+  std::tr1::unordered_map<std::string, Stackage*>::const_iterator from_it = stackages_.find(from);
+  std::tr1::unordered_map<std::string, Stackage*>::const_iterator to_it = stackages_.find(to);
+  if(from_it == stackages_.end())
+  {
+    log_error(std::string("no such stack/package ") + from);
+    return false;
+  }
+  if(to_it == stackages_.end())
+  {
+    log_error(std::string("no such stack/package ") + to);
+    return false;
+  }
+
+  std::list<std::list<Stackage*> > acc_list;
+  depsWhyDetail(from_it->second, to_it->second, acc_list);
+  output.append(std::string("Dependency chains from ") + 
+                from + " to " + to + ":\n");
+  for(std::list<std::list<Stackage*> >::const_iterator it = acc_list.begin();
+      it != acc_list.end();
+      ++it)
+  {
+    output.append("* ");
+    for(std::list<Stackage*>::const_iterator iit = it->begin();
+        iit != it->end();
+        ++iit)
+    {
+      if(iit != it->begin())
+        output.append("-> ");
+      output.append((*iit)->name_ + " ");
+    }
+    output.append("\n");
+  }
+  return true;
+}
+
+bool
 Rosstackage::depsManifests(const std::string& name, bool direct, 
                            std::vector<std::string>& manifests)
 {
@@ -801,6 +841,38 @@ Rosstackage::depsDetail(const std::string& name, bool direct,
     return false;
   }
   return true;
+}
+
+void
+Rosstackage::depsWhyDetail(Stackage* from,
+                           Stackage* to,
+                           std::list<std::list<Stackage*> >& acc_list)
+{
+  computeDeps(from);
+  for(std::vector<Stackage*>::const_iterator it = from->deps_.begin();
+      it != from->deps_.end();
+      ++it)
+  {
+    if((*it)->name_ == to->name_)
+    {
+      std::list<Stackage*> acc;
+      acc.push_back(from);
+      acc.push_back(to);
+      acc_list.push_back(acc);
+    }
+    else
+    {
+      std::list<std::list<Stackage*> > l;
+      depsWhyDetail(*it, to, l);
+      for(std::list<std::list<Stackage*> >::iterator iit = l.begin();
+          iit != l.end();
+          ++iit)
+      {
+        iit->push_front(from);
+        acc_list.push_back(*iit);
+      }
+    }
+  }
 }
 
 bool
