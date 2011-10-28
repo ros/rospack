@@ -42,6 +42,7 @@ from subprocess import Popen, PIPE
 ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
+ROSSTACK_PATH = os.path.join(os.getcwd(), "..", "rosstack")
 
 aliases = {
     'deps': 'depends',
@@ -69,7 +70,7 @@ class RosstackTestCase(unittest.TestCase):
         # components; otherwise you get multiple words as one element of
         # argv.
         #args = ["rospack", command, pkgname]
-        args = ["rosstack"]
+        args = [ROSSTACK_PATH]
         if command:
           for s in command.split():
             args.append(s)

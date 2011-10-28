@@ -436,7 +436,7 @@ class RospackTestCase(unittest.TestCase):
         test2p = os.path.abspath('test2')
         test3p = os.path.abspath('test3')                
         self.erospack_succeed(testp, None, None, 'list-duplicates')
-        self.erospack_fail(testp, '%s:%s'%(test2p,test3p), None, 'list-duplicates')
+        self.erospack_succeed(testp, '%s:%s'%(test2p,test3p), None, 'list-duplicates')
 
     # test ability to point ros_package_path directly at package
     def test_ros_package_path_direct_package(self):

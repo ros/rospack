@@ -127,6 +127,9 @@ class Rosstackage
     bool getSearchPathFromEnv(std::vector<std::string>& sp);
     bool find(const std::string& name, std::string& path); 
     bool contents(const std::string& name, std::vector<std::string>& packages);
+    bool contains(const std::string& name, 
+                  std::string& stack,
+                  std::string& path);
     void list(std::vector<std::pair<std::string, std::string> >& list);
     void listDuplicates(std::vector<std::string>& dups);
     bool deps(const std::string& name, bool direct, std::vector<std::string>& deps);

@@ -235,12 +235,12 @@ void
 Rosstackage::crawl(const std::vector<std::string>& search_path,
                    bool force)
 {
-  if(crawled_)
-    return;
   if(!force)
   {
     if(readCache())
        return;
+    if(crawled_)
+      return;
   }
 
   std::vector<DirectoryCrawlRecord*> dummy;
@@ -298,19 +298,19 @@ bool
 Rosstackage::contents(const std::string& name, 
                       std::vector<std::string>& packages)
 {
+  Rospack rp2;
   std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
   if(it != stackages_.end())
   {
-    Rospack rp2;
     std::vector<std::string> search_paths;
     search_paths.push_back(it->second->path_);
     rp2.crawl(search_paths, true);
     std::vector<std::pair<std::string, std::string> > names_paths;
     rp2.list(names_paths);
-    for(std::vector<std::pair<std::string, std::string> >::const_iterator it = names_paths.begin();
-        it != names_paths.end();
-        ++it)
-      packages.push_back(it->first);
+    for(std::vector<std::pair<std::string, std::string> >::const_iterator iit = names_paths.begin();
+        iit != names_paths.end();
+        ++iit)
+      packages.push_back(iit->first);
     return true;
   }
   else
@@ -318,6 +318,38 @@ Rosstackage::contents(const std::string& name,
     log_error(std::string("stack ") + name + " not found");
     return false;
   }
+}
+
+bool
+Rosstackage::contains(const std::string& name, 
+                      std::string& stack,
+                      std::string& path)
+{
+  Rospack rp2;
+  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+      it != stackages_.end();
+      ++it)
+  {
+    std::vector<std::string> search_paths;
+    search_paths.push_back(it->second->path_);
+    rp2.crawl(search_paths, true);
+    std::vector<std::pair<std::string, std::string> > names_paths;
+    rp2.list(names_paths);
+    for(std::vector<std::pair<std::string, std::string> >::const_iterator iit = names_paths.begin();
+        iit != names_paths.end();
+        ++iit)
+    {
+      if(iit->first == name)
+      {
+        stack = it->first;
+        path = it->second->path_;
+        return true;
+      }
+    }
+  }
+
+  log_error(std::string("stack containing package ") + name + " not found");
+  return false;
 }
 
 void 

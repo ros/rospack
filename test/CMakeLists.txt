@@ -28,6 +28,8 @@ add_test(NAME make_deep_directories
 
 add_test(NAME utestpy
          COMMAND python test/utest.py)
+add_test(NAME uteststackpy
+         COMMAND python test/utest_rosstack.py)
 add_test(NAME utestcpp
          COMMAND utest)
 

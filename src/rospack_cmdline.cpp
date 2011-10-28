@@ -649,7 +649,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     return true;
   }
   // COMMAND: contains [package]
-  else if(rp.getName() == ROSSTACK_NAME && command == "contains")
+  else if(rp.getName() == ROSSTACK_NAME && 
+          (command == "contains") || (command == "contains-path"))
   {
     if(!package.size())
     {
@@ -662,27 +663,14 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.log_error( "invalid option(s) given");
       return false;
     }
-
-    rp.log_error("command not implemented");
-    return false;
-  }
-  // COMMAND: contains-path [package]
-  else if(rp.getName() == ROSSTACK_NAME && command == "contains-path")
-  {
-    if(!package.size())
-    {
-      rp.log_error( "no package given");
+    std::string name, path;
+    if(!rp.contains(package, name, path))
       return false;
-    }
-    if(target.size() || top.size() || length_str.size() || 
-       zombie_only || deps_only || lang.size() || attrib.size())
-    {
-      rp.log_error( "invalid option(s) given");
-      return false;
-    }
-
-    rp.log_error("command not implemented");
-    return false;
+    if(command == "contains")
+      output.append(name + "\n");
+    else // command == "contains-path"
+      output.append(path + "\n");
+    return true;
   }
   else
   {
