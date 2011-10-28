@@ -26,18 +26,18 @@
  */
 
 #include "rospack/rospack.h"
-#include <boost/program_options.hpp>
+#include <stdio.h>
 
 int
 main(int argc, char** argv)
 {
   rospack::Rosstack rs;
-
-  std::vector<std::string> search_path;
-  search_path.push_back("/Users/gerkey/code/ros/ros");
-  search_path.push_back("/Users/gerkey/code/ros/ros/tools/rospack");
-  search_path.push_back("/Users/gerkey/code/ros/ros_comm");
-  rs.crawl(search_path, false);
-
-  return 0;
+  std::string output;
+  if(!rospack::rospack_run(argc, argv, rs, output))
+    return 1;
+  else
+  {
+    printf("%s", output.c_str());
+    return 0;
+  }
 }
