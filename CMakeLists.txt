@@ -46,6 +46,7 @@ add_custom_target(uninstall
 
 find_package(GTest)
 if(GTEST_FOUND)
+  message("Found gtest; building C++ unit tests")
   enable_testing()
   add_subdirectory(test)
 endif()
