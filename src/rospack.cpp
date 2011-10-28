@@ -239,9 +239,42 @@ Rosstackage::crawl(const std::vector<std::string>& search_path,
   {
     if(readCache())
        return;
-    if(crawled_)
+  }
+
+  if(crawled_)
+  {
+    bool same_paths = true;
+    if(search_paths_.size() == search_path.size())
+      same_paths = false;
+    else
+    {
+      for(unsigned int i=0; i<search_paths_.size(); i++)
+      {
+        if(search_paths_[i] != search_path[i])
+        {
+          same_paths = false;
+          break;
+        }
+      }
+    }
+
+    if(same_paths)
       return;
   }
+
+  std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+  while(it != stackages_.end())
+  {
+    delete it->second;
+    it = stackages_.erase(it);
+  }
+  dups_.clear();
+  search_paths_.clear();
+  for(std::vector<std::string>::const_iterator it = search_path.begin();
+      it != search_path.end();
+      ++it)
+    search_paths_.push_back(*it);
+  
 
   std::vector<DirectoryCrawlRecord*> dummy;
   std::tr1::unordered_set<std::string> dummy2;
@@ -1062,6 +1095,15 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
                             bool get_indented_deps,
                             std::vector<std::string>& indented_deps)
 {
+  if(direct)
+  {
+    for(std::vector<Stackage*>::const_iterator it = stackage->deps_.begin();
+        it != stackage->deps_.end();
+        ++it)
+      deps.push_back(*it);
+    return;
+  }
+
   if(depth > MAX_DEPENDENCY_DEPTH)
     throw Exception("maximum dependency depth exceeded (likely circular dependency)");
 
@@ -1069,31 +1111,33 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
       it != stackage->deps_.end();
       ++it)
   {
-    bool first = (deps_hash.find(*it) == deps_hash.end());
-    if(get_indented_deps || first)
+    if(get_indented_deps)
     {
-      if(get_indented_deps)
-      {
-        std::string indented_dep;
-        for(int i=0; i<depth; i++)
-          indented_dep.append("  ");
-        indented_dep.append((*it)->name_);
+      std::string indented_dep;
+      for(int i=0; i<depth; i++)
+        indented_dep.append("  ");
+      indented_dep.append((*it)->name_);
         indented_deps.push_back(indented_dep);
-      }
+    }
 
-      if(first)
-      {
-        deps_hash.insert(*it);
-        // We maintain the vector because the original rospack guaranteed
-        // ordering in dep reporting.
-        if(order == PREORDER)
-          deps.push_back(*it);
-        if(!direct)
-          gatherDepsFull(*it, direct, order, depth+1, deps_hash, deps,
-                         get_indented_deps, indented_deps);
-        if(order == POSTORDER)
-          deps.push_back(*it);
-      }
+    bool first = (deps_hash.find(*it) == deps_hash.end());
+    if(first)
+    {
+      deps_hash.insert(*it);
+      // We maintain the vector because the original rospack guaranteed
+      // ordering in dep reporting.
+      if(order == PREORDER)
+        deps.push_back(*it);
+    }
+    // We always descend, even if we're encountering this stackage for the
+    // nth time, so that we'll throw an error on recursive dependencies
+    // (detected via max stack depth being exceeded).
+    gatherDepsFull(*it, direct, order, depth+1, deps_hash, deps,
+                   get_indented_deps, indented_deps);
+    if(first)
+    {
+      if(order == POSTORDER)
+        deps.push_back(*it);
     }
   }
 }

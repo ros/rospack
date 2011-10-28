@@ -75,7 +75,9 @@ class Rosstackage
     std::string name_;
     std::string tag_;
     bool quiet_;
+    std::vector<std::string> search_paths_;
     std::tr1::unordered_set<std::string> dups_;
+    std::tr1::unordered_map<std::string, Stackage*> stackages_;
     void log(const std::string& level, const std::string& msg, bool append_errno);
     void addStackage(const std::string& path);
     void crawlDetail(const std::string& path,
@@ -109,7 +111,6 @@ class Rosstackage
                             std::string& outstring);
 
   protected:
-    std::tr1::unordered_map<std::string, Stackage*> stackages_;
 
   public:
     Rosstackage(const std::string& manifest_name,

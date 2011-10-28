@@ -705,10 +705,7 @@ class RospackTestCase(unittest.TestCase):
         self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend1", "deps")
         self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend2", "deps")
         self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend3", "deps")
-
-        # Interestingly, depends-on succeeds in the face of circular
-        # dependency
-        self.erospack_succeed(testp, os.path.abspath("test_circular/cycle2"), "friend3", "depends-on")
+        self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend3", "depends-on")
 
     def test_lflags_backquote(self):
         self.rospack_succeed("backquote", "libs-only-l")
