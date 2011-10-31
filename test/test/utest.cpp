@@ -37,7 +37,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <gtest/gtest.h>
-#include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include "rospack/rospack.h"
 #include "utils.h"
@@ -137,6 +136,10 @@ TEST(rospack, deduplicate_tokens)
 
 int main(int argc, char **argv)
 {
+  // Quiet some warnings
+  (void)rospack::ROSPACK_NAME;
+  (void)rospack::ROSSTACK_NAME;
+
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
