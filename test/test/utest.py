@@ -37,6 +37,7 @@ import unittest
 import tempfile
 import shutil
 import sys
+import platform
 from subprocess import Popen, PIPE
 
 ROS_ROOT = 'ROS_ROOT'
@@ -738,6 +739,20 @@ class RospackTestCase(unittest.TestCase):
 
     def test_cflags_backquote(self):
         self.rospack_succeed("backquote", "cflags-only-I")
+        self.assertEquals("blah backquote", self.strip_opt_ros(self.run_rospack("backquote", "cflags-only-I")))
+
+    def test_cflags_platform_specific(self):
+        self.rospack_succeed("platform_specific_exports", "cflags-only-other")
+        myos = platform.system()
+        if myos == 'Linux':
+          self.assertEquals("-DLINUX", self.run_rospack("platform_specific_exports", "cflags-only-other"))
+        elif myos == 'Darwin':
+          self.assertEquals("-DAPPLE", self.run_rospack("platform_specific_exports", "cflags-only-other"))
+        elif myos == 'Windows':
+          self.assertEquals("-DWINDOWS", self.run_rospack("platform_specific_exports", "cflags-only-other"))
+        else:
+          self.assertEquals("-DOTHER", self.run_rospack("platform_specific_exports", "cflags-only-other"))
+
         self.assertEquals("blah backquote", self.strip_opt_ros(self.run_rospack("backquote", "cflags-only-I")))
 
     def test_lflags_archive(self):

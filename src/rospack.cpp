@@ -87,6 +87,16 @@ static const double DEFAULT_MAX_CACHE_AGE = 60.0;
 rospack_tinyxml::TiXmlElement* get_manifest_root(Stackage* stackage);
 double time_since_epoch();
 
+#ifdef __APPLE__
+  static const std::string g_ros_os = "osx";
+#else
+  #if defined(WIN32)
+    static const std::string g_ros_os = "win32";
+  #else
+    static const std::string g_ros_os = "linux";
+  #endif
+#endif
+
 class Exception : public std::runtime_error
 {
   public:
@@ -673,18 +683,41 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
           ele;
           ele = ele->NextSiblingElement(MANIFEST_TAG_EXPORT))
       {
+        bool os_match = false;
+        const char *best_match = NULL;
         for(rospack_tinyxml::TiXmlElement* ele2 = ele->FirstChildElement(lang);
             ele2;
             ele2 = ele2->NextSiblingElement(lang))
         {
-          const char *att_str;
-          if((att_str = ele2->Attribute(attrib.c_str())))
+          const char *os_str;
+          if ((os_str = ele2->Attribute("os")))
           {
-            std::string expanded_str;
-            if(!expandExportString(*it, att_str, expanded_str))
-              return false;
-            flags.push_back(expanded_str);
+            if(g_ros_os == std::string(os_str))
+            {
+              if(os_match)
+                logWarn(std::string("ignoring duplicate ") + lang + " tag with os=" + os_str + " in export block");
+              else
+              {
+                best_match = ele2->Attribute(attrib.c_str());
+                os_match = true;
+              }
+            }
           }
+          if(!os_match)
+          {
+            if(!best_match)
+              best_match = ele2->Attribute(attrib.c_str());
+            else
+              logWarn(std::string("ignoring duplicate ") + lang + " tag in export block");
+          }
+
+        }
+        if(best_match)
+        {
+          std::string expanded_str;
+          if(!expandExportString(*it, best_match, expanded_str))
+            return false;
+          flags.push_back(expanded_str);
         }
       }
 
