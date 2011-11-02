@@ -53,6 +53,11 @@ typedef enum
 class Stackage;
 class DirectoryCrawlRecord;
 
+/**
+ * @brief The base class for package/stack ("stackage") crawlers.  Users of the library should
+ * use the functionality provided here through one of the derived classes, 
+ * Rosstack or Rospack.
+ */
 class Rosstackage
 {
   private:
@@ -101,23 +106,89 @@ class Rosstackage
                        std::list<std::list<Stackage*> >& acc_list);
 
   protected:
-
-  public:
+    /**
+     * @brief Constructor, only used by derived classes.
+     * @param manifest_name What the manifest is called (e.g., "manifest.xml or stack.xml")
+     * @param cache_name What the cache is called (e.g., "rospack_cache" or "rosstack_cache")
+     * @param name Name of the tool we're building (e.g., "rospack" or "rosstack")
+     * @param tag Name of the attribute we look for in a "depend" tag in a
+     *            manifest (e.g., "package" or "stack")
+     */
     Rosstackage(const std::string& manifest_name,
                 const std::string& cache_name,
                 const std::string& name,
                 const std::string& tag);
+
+  public:
+    /**
+     * @brief Destructor.
+     */
     virtual ~Rosstackage();
 
-    virtual const char* usage() = 0;
+    /**
+     * @brief Usage string, to be overridden by derived classes.
+     * @return Command-line usage statement.
+     */
+    virtual const char* usage() { return ""; }
+    /**
+     * @brief Crawl the filesystem, accumulating a database of
+     *        stackages.  May read results from a cache file instead
+     *        of crawling.  This method should be called before any 
+     *        making any queries (find, list, etc.).
+     * @param search_path List of directories to crawl, in precenence
+     *                    order.  Directories should be absolute paths.
+     * @param force If true, then crawl even if the cache looks valid
+     */
     void crawl(const std::vector<std::string>& search_path, bool force);
+    /**
+     * @brief Is the current working directory a stackage?
+     * @param name If in a stackage, then the stackage's name is written here.
+     * @return True if the current working directory contains a manifest
+     *         file
+     */
     bool inStackage(std::string& name);
+    /**
+     * @brief Control warning and error console output.
+     * @param quiet If true, then don't output any warnings or errors to
+     *              console.  If false, then output warnings and errors to
+     *              stderr (default behavior).
+     */
     void setQuiet(bool quiet);
+    /**
+     * @brief Get the name of the tool that's in use (e.g., "rospack" or "rosstack")
+     * @return The name of the tool.
+     */
     const std::string& getName() {return name_;}
+    /**
+     * @brief Helper method to construct a directory search path by looking
+     *        at relevant environment variables.  The value of ROS_ROOT goes
+     *        first, followed by each element of a colon-separated
+     *        ROS_PACKAGE_PATH.
+     * @param sp The computed search path is written here.
+     * @return True if a search path was computed, false otherwise (e.g., ROS_ROOT not set).
+     */
     bool getSearchPathFromEnv(std::vector<std::string>& sp);
-
+    /**
+     * @brief Look for a stackage.
+     * @param name The stackage to look for.
+     * @param path If found, the absolute path to the stackage is written here.
+     * @return True if the stackage is found, false otherwise.
+     */
     bool find(const std::string& name, std::string& path); 
+    /**
+     * @brief Compute the packages that are contained in a stack.
+     * @param name The stack to work on.
+     * @param packages The stack's constituent packages are written here.
+     * @return True if the contents could be computed, false otherwise.
+     */
     bool contents(const std::string& name, std::vector<std::string>& packages);
+    /**
+     * @brief Find the stack that contains a package.
+     * @param name The package to work on.
+     * @param stack If the containing stack is found, its name is written here.
+     * @param path If the containing stack is found, its absolute path is written here.
+     * @return True if the containing stack could be found, false otherwise.
+     */
     bool contains(const std::string& name, 
                   std::string& stack,
                   std::string& path);
