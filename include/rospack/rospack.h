@@ -146,6 +146,7 @@ class Rosstackage
     std::vector<std::string> search_paths_;
     std::tr1::unordered_set<std::string> dups_;
     std::tr1::unordered_map<std::string, Stackage*> stackages_;
+    Stackage* findWithRecrawl(const std::string& name);
     void log(const std::string& level, const std::string& msg, bool append_errno);
     void addStackage(const std::string& path);
     void crawlDetail(const std::string& path,
@@ -213,9 +214,11 @@ class Rosstackage
      *        making any queries (find, list, etc.).
      * @param search_path List of directories to crawl, in precenence
      *                    order.  Directories should be absolute paths.
+     *                    It's passed by value to allow callers (e.g.,
+     *                    find()) to safely pass in search_paths_.
      * @param force If true, then crawl even if the cache looks valid
      */
-    void crawl(const std::vector<std::string>& search_path, bool force);
+    void crawl(std::vector<std::string> search_path, bool force);
     /**
      * @brief Is the current working directory a stackage?
      * @param name If in a stackage, then the stackage's name is written here.

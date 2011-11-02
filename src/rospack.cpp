@@ -241,13 +241,23 @@ Rosstackage::isStackage(const std::string& path)
 }
 
 void
-Rosstackage::crawl(const std::vector<std::string>& search_path,
+Rosstackage::crawl(std::vector<std::string> search_path,
                    bool force)
 {
   if(!force)
   {
     if(readCache())
-       return;
+    {
+      // If the cache was valid, then the paths in the cache match the ones
+      // we've been asked to crawl.  Store them, so that later, methods
+      // like find() can refer to them when recrawling.
+      search_paths_.clear();
+      for(std::vector<std::string>::const_iterator it = search_path.begin();
+          it != search_path.end();
+          ++it)
+        search_paths_.push_back(*it);
+      return;
+    }
   }
 
   if(crawled_)
@@ -271,6 +281,7 @@ Rosstackage::crawl(const std::vector<std::string>& search_path,
       return;
   }
 
+
   std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
   while(it != stackages_.end())
   {
@@ -283,16 +294,13 @@ Rosstackage::crawl(const std::vector<std::string>& search_path,
       it != search_path.end();
       ++it)
     search_paths_.push_back(*it);
-  
 
   std::vector<DirectoryCrawlRecord*> dummy;
   std::tr1::unordered_set<std::string> dummy2;
-  for(std::vector<std::string>::const_iterator p = search_path.begin();
-      p != search_path.end();
+  for(std::vector<std::string>::const_iterator p = search_paths_.begin();
+      p != search_paths_.end();
       ++p)
-  {
     crawlDetail(*p, force, 1, false, dummy, dummy2);
-  }
   
   crawled_ = true;
 
@@ -323,17 +331,14 @@ Rosstackage::inStackage(std::string& name)
 bool
 Rosstackage::find(const std::string& name, std::string& path)
 {
-  std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
-  if(it != stackages_.end())
+  Stackage* s = findWithRecrawl(name);
+  if(s)
   {
-    path = it->second->path_;
+    path = s->path_;
     return true;
   }
   else
-  {
-    logError(std::string("package ") + name + " not found");
     return false;
-  }
 }
 
 bool
@@ -428,8 +433,19 @@ Rosstackage::deps(const std::string& name, bool direct,
                   std::vector<std::string>& deps)
 {
   std::vector<Stackage*> stackages;
+  // Disable errors for the first try
+  bool old_quiet = quiet_;
+  setQuiet(true);
   if(!depsDetail(name, direct, stackages))
-    return false;
+  {
+    // Recrawl
+    crawl(search_paths_, true);
+    stackages.clear();
+    setQuiet(old_quiet);
+    if(!depsDetail(name, direct, stackages))
+      return false;
+  }
+  setQuiet(old_quiet);
   for(std::vector<Stackage*>::const_iterator it = stackages.begin();
       it != stackages.end();
       ++it)
@@ -455,12 +471,9 @@ bool
 Rosstackage::depsIndent(const std::string& name, bool direct,
                         std::vector<std::string>& deps)
 {
-  if(!stackages_.count(name))
-  {
-    logError(std::string("no such package ") + name);
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
     return false;
-  }
-  Stackage* stackage = stackages_[name];
   try
   {
     computeDeps(stackage);
@@ -486,21 +499,23 @@ Rosstackage::depsWhy(const std::string& from,
                      const std::string& to,
                      std::string& output)
 {
-  std::tr1::unordered_map<std::string, Stackage*>::const_iterator from_it = stackages_.find(from);
-  std::tr1::unordered_map<std::string, Stackage*>::const_iterator to_it = stackages_.find(to);
-  if(from_it == stackages_.end())
-  {
-    logError(std::string("no such stack/package ") + from);
+  Stackage* from_s = findWithRecrawl(from);
+  if(!from_s)
     return false;
-  }
-  if(to_it == stackages_.end())
-  {
-    logError(std::string("no such stack/package ") + to);
+  Stackage* to_s = findWithRecrawl(to);
+  if(!to_s)
     return false;
-  }
 
   std::list<std::list<Stackage*> > acc_list;
-  depsWhyDetail(from_it->second, to_it->second, acc_list);
+  try
+  {
+    depsWhyDetail(from_s, to_s, acc_list);
+  }
+  catch(Exception& e)
+  {
+    logError(e.what());
+    return true;
+  }
   output.append(std::string("Dependency chains from ") + 
                 from + " to " + to + ":\n");
   for(std::list<std::list<Stackage*> >::const_iterator it = acc_list.begin();
@@ -525,12 +540,9 @@ bool
 Rosstackage::depsManifests(const std::string& name, bool direct, 
                            std::vector<std::string>& manifests)
 {
-  if(!stackages_.count(name))
-  {
-    logError(std::string("no such package ") + name);
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
     return false;
-  }
-  Stackage* stackage = stackages_[name];
   try
   {
     computeDeps(stackage);
@@ -553,12 +565,9 @@ bool
 Rosstackage::rosdeps(const std::string& name, bool direct, 
                      std::vector<std::string>& rosdeps)
 {
-  if(!stackages_.count(name))
-  {
-    logError(std::string("no such package ") + name);
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
     return false;
-  }
-  Stackage* stackage = stackages_[name];
   try
   {
     computeDeps(stackage);
@@ -596,12 +605,9 @@ bool
 Rosstackage::vcs(const std::string& name, bool direct, 
                  std::vector<std::string>& vcs)
 {
-  if(!stackages_.count(name))
-  {
-    logError(std::string("no such package ") + name);
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
     return false;
-  }
-  Stackage* stackage = stackages_[name];
   try
   {
     computeDeps(stackage);
@@ -648,12 +654,9 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
                      const std::string& attrib, bool deps_only,
                      std::vector<std::string>& flags)
 {
-  if(!stackages_.count(name))
-  {
-    logError(std::string("no such package ") + name);
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
     return false;
-  }
-  Stackage* stackage = stackages_[name];
   try
   {
     computeDeps(stackage);
@@ -772,12 +775,9 @@ bool
 Rosstackage::depsMsgSrv(const std::string& name, bool direct, 
                         std::vector<std::string>& gens)
 {
-  if(!stackages_.count(name))
-  {
-    logError(std::string("no such package ") + name);
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
     return false;
-  }
-  Stackage* stackage = stackages_[name];
   try
   {
     computeDeps(stackage);
@@ -811,9 +811,10 @@ Rosstackage::depsMsgSrv(const std::string& name, bool direct,
 // Rosstackage methods (private)
 /////////////////////////////////////////////////////////////
 
-void Rosstackage::log(const std::string& level,
-                      const std::string& msg,
-                      bool append_errno)
+void 
+Rosstackage::log(const std::string& level,
+                 const std::string& msg,
+                 bool append_errno)
 {
   if(quiet_)
     return;
@@ -824,10 +825,30 @@ void Rosstackage::log(const std::string& level,
   fprintf(stderr, "\n");
 }
 
+
+Stackage*
+Rosstackage::findWithRecrawl(const std::string& name)
+{
+  if(stackages_.count(name))
+    return stackages_[name];
+  else
+  {
+    // Try to recrawl, in case we loaded from cache
+    crawl(search_paths_, true);
+    if(stackages_.count(name))
+      return stackages_[name];
+  }
+
+  logError(std::string("stack/package ") + name + " not found");
+  return NULL;
+}
+
 bool
 Rosstackage::depsDetail(const std::string& name, bool direct,
                         std::vector<Stackage*>& deps)
 {
+  // No recrawl here, because we're in a recursive function.  Rely on the
+  // top level to do it.
   if(!stackages_.count(name))
   {
     logError(std::string("no such package ") + name);
@@ -888,6 +909,8 @@ bool
 Rosstackage::depsOnDetail(const std::string& name, bool direct,
                              std::vector<Stackage*>& deps)
 {
+  // No recrawl here, because depends-on always forces a crawl at the
+  // start.
   if(!stackages_.count(name))
     logWarn(std::string("no such package ") + name);
   try
