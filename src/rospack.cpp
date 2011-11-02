@@ -220,15 +220,22 @@ Rosstackage::isStackage(const std::string& path)
   if(!fs::is_directory(path))
     return false;
 
-  for(fs::directory_iterator dit = fs::directory_iterator(path);
-      dit != fs::directory_iterator();
-      ++dit)
+  try
   {
-    if(!fs::is_regular_file(dit->path()))
-      continue;
-    
-    if(dit->path().filename() == manifest_name_)
-      return true;
+    for(fs::directory_iterator dit = fs::directory_iterator(path);
+        dit != fs::directory_iterator();
+        ++dit)
+    {
+      if(!fs::is_regular_file(dit->path()))
+        continue;
+
+      if(dit->path().filename() == manifest_name_)
+        return true;
+    }
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("error while crawling ") + path + ": " + e.what());
   }
   return false;
 }
@@ -1012,8 +1019,15 @@ Rosstackage::crawlDetail(const std::string& path,
   }
 
   fs::path nosubdirs = fs::path(path) / ROSPACK_NOSUBDIRS;
-  if(fs::is_regular_file(nosubdirs))
-    return;
+  try
+  {
+    if(fs::is_regular_file(nosubdirs))
+      return;
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("error while looking for ") + nosubdirs.string() + ": " + e.what());
+  }
 
   DirectoryCrawlRecord* dcr = NULL;
   if(collect_profile_data)
@@ -1028,25 +1042,32 @@ Rosstackage::crawlDetail(const std::string& path,
     }
   }
 
-  for(fs::directory_iterator dit = fs::directory_iterator(path);
-      dit != fs::directory_iterator();
-      ++dit)
+  try
   {
-    if(fs::is_directory(dit->path()))
+    for(fs::directory_iterator dit = fs::directory_iterator(path);
+        dit != fs::directory_iterator();
+        ++dit)
     {
+      if(fs::is_directory(dit->path()))
+      {
 #if !defined(BOOST_FILESYSTEM_VERSION) || (BOOST_FILESYSTEM_VERSION == 2)
-      std::string name = dit->path().filename();
+        std::string name = dit->path().filename();
 #else
-      // in boostfs3, filename() returns a path, which needs to be stringified
-      std::string name = dit->path().filename().string();
+        // in boostfs3, filename() returns a path, which needs to be stringified
+        std::string name = dit->path().filename().string();
 #endif
-      // Ignore directories starting with '.'
-      if(name.size() == 0 || name[0] == '.')
-        continue;
+        // Ignore directories starting with '.'
+        if(name.size() == 0 || name[0] == '.')
+          continue;
 
-      crawlDetail(dit->path().string(), force, depth+1,
-                  collect_profile_data, profile_data, profile_hash);
+        crawlDetail(dit->path().string(), force, depth+1,
+                    collect_profile_data, profile_data, profile_hash);
+      }
     }
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("error while crawling ") + path + ": " + e.what());
   }
 
   if(collect_profile_data && dcr != NULL)

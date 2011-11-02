@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6.0)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 project(rospack)
 
 add_definitions(-Wall)
