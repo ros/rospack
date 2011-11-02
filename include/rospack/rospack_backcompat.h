@@ -34,17 +34,48 @@
 namespace rospack
 {
 
-///////////////////////////////////////
-// Backwards-compatibility API
+/**
+ * @brief Backward compatibility API for librospack (DEPRECATED).
+ * @deprecated Used by roslib.  Don't use in new code.
+ */
 class ROSPack
 {
   private:
     std::string output_;
   public:
+    /**
+     * @brief Constructor
+     * @deprecated Used by roslib.  Don't use in new code.
+     */
     ROSPack() {}
+    /**
+     * @brief Run rospack with the given arguments.  Call getOutput() to
+     * get the result.
+     * @param argc Number of arguments in argv.
+     * @param argv List of arguments.
+     * @return Zero if the call succeeded, non-zero otherwise.
+     * @deprecated Used by roslib.  Don't use in new code.
+     */
     int run(int argc, char** argv);
+    /**
+     * @brief Run rospack with the given arguments.  Call getOutput() to
+     * get the result.
+     * @param cmd Space-separated list of arguments.
+     * @return Zero if the call succeeded, non-zero otherwise.
+     * @deprecated Used by roslib.  Don't use in new code.
+     */
     int run(const std::string& cmd);
+    /**
+     * @brief Get the output from the last successful run() call.
+     * @return The result string.
+     * @deprecated Used by roslib.  Don't use in new code.
+     */
     std::string getOutput() {return output_;}
+    /**
+     * @brief Are we operating in quiet mode?
+     * @return Always true.
+     * @deprecated Used by roslib.  Don't use in new code.
+     */
     bool is_quiet() {return true;}
 };
 

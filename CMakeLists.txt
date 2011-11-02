@@ -52,3 +52,11 @@ if(GTEST_FOUND)
   enable_testing()
   add_subdirectory(test)
 endif()
+
+find_program(DOXYGEN doxygen)
+if(DOXYGEN)
+  message("Found doxygen; 'make docs' to build documentation")
+  add_custom_target(docs
+                    COMMAND doxygen Doxyfile
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+endif()

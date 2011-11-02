@@ -163,14 +163,14 @@ Rosstackage::Rosstackage(const std::string& manifest_name,
 }
 
 void 
-Rosstackage::log_warn(const std::string& msg,
-                      bool append_errno)
+Rosstackage::logWarn(const std::string& msg,
+                     bool append_errno)
 {
   log("Warning", msg, append_errno);
 }
 void
-Rosstackage::log_error(const std::string& msg,
-                       bool append_errno)
+Rosstackage::logError(const std::string& msg,
+                      bool append_errno)
 {
   log("Error", msg, append_errno);
 }
@@ -185,7 +185,7 @@ Rosstackage::getSearchPathFromEnv(std::vector<std::string>& sp)
   {
     // Test suite checks that we return non-zero on bad ROS_ROOT.  This'll
     // probably be removed when we get rid of ROS_ROOT.
-    log_error("bad / non-existent ROS_ROOT");
+    logError("bad / non-existent ROS_ROOT");
     return false;
   }
   else
@@ -324,7 +324,7 @@ Rosstackage::find(const std::string& name, std::string& path)
   }
   else
   {
-    log_error(std::string("package ") + name + " not found");
+    logError(std::string("package ") + name + " not found");
     return false;
   }
 }
@@ -350,7 +350,7 @@ Rosstackage::contents(const std::string& name,
   }
   else
   {
-    log_error(std::string("stack ") + name + " not found");
+    logError(std::string("stack ") + name + " not found");
     return false;
   }
 }
@@ -383,7 +383,7 @@ Rosstackage::contains(const std::string& name,
     }
   }
 
-  log_error(std::string("stack containing package ") + name + " not found");
+  logError(std::string("stack containing package ") + name + " not found");
   return false;
 }
 
@@ -450,7 +450,7 @@ Rosstackage::depsIndent(const std::string& name, bool direct,
 {
   if(!stackages_.count(name))
   {
-    log_error(std::string("no such package ") + name);
+    logError(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -468,7 +468,7 @@ Rosstackage::depsIndent(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -483,12 +483,12 @@ Rosstackage::depsWhy(const std::string& from,
   std::tr1::unordered_map<std::string, Stackage*>::const_iterator to_it = stackages_.find(to);
   if(from_it == stackages_.end())
   {
-    log_error(std::string("no such stack/package ") + from);
+    logError(std::string("no such stack/package ") + from);
     return false;
   }
   if(to_it == stackages_.end())
   {
-    log_error(std::string("no such stack/package ") + to);
+    logError(std::string("no such stack/package ") + to);
     return false;
   }
 
@@ -520,7 +520,7 @@ Rosstackage::depsManifests(const std::string& name, bool direct,
 {
   if(!stackages_.count(name))
   {
-    log_error(std::string("no such package ") + name);
+    logError(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -536,7 +536,7 @@ Rosstackage::depsManifests(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -548,7 +548,7 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
 {
   if(!stackages_.count(name))
   {
-    log_error(std::string("no such package ") + name);
+    logError(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -579,7 +579,7 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -591,7 +591,7 @@ Rosstackage::vcs(const std::string& name, bool direct,
 {
   if(!stackages_.count(name))
   {
-    log_error(std::string("no such package ") + name);
+    logError(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -630,7 +630,7 @@ Rosstackage::vcs(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -643,7 +643,7 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
 {
   if(!stackages_.count(name))
   {
-    log_error(std::string("no such package ") + name);
+    logError(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -696,7 +696,7 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -767,7 +767,7 @@ Rosstackage::depsMsgSrv(const std::string& name, bool direct,
 {
   if(!stackages_.count(name))
   {
-    log_error(std::string("no such package ") + name);
+    logError(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -794,7 +794,7 @@ Rosstackage::depsMsgSrv(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -823,7 +823,7 @@ Rosstackage::depsDetail(const std::string& name, bool direct,
 {
   if(!stackages_.count(name))
   {
-    log_error(std::string("no such package ") + name);
+    logError(std::string("no such package ") + name);
     return false;
   }
   Stackage* stackage = stackages_[name];
@@ -839,7 +839,7 @@ Rosstackage::depsDetail(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -882,7 +882,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
                              std::vector<Stackage*>& deps)
 {
   if(!stackages_.count(name))
-    log_warn(std::string("no such package ") + name);
+    logWarn(std::string("no such package ") + name);
   try
   {
     for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
@@ -906,7 +906,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
   }
   catch(Exception& e)
   {
-    log_error(e.what());
+    logError(e.what());
     return false;
   }
   return true;
@@ -1246,7 +1246,7 @@ Rosstackage::getCachePath()
     }
     catch(fs::filesystem_error& e)
     {
-      log_warn(std::string("cannot create rospack cache directory ") +
+      logWarn(std::string("cannot create rospack cache directory ") +
                    cache_path.string() + ": " + e.what());
     }
   }
@@ -1293,7 +1293,7 @@ Rosstackage::writeCache()
   std::string cache_path = getCachePath();
   if(!cache_path.size())
   {
-    log_warn("no location available to write cache file. Try setting ROS_HOME or HOME.");
+    logWarn("no location available to write cache file. Try setting ROS_HOME or HOME.");
   }
   else
   {
@@ -1321,7 +1321,7 @@ Rosstackage::writeCache()
     int fd = open(tmp_cache_path, O_RDWR | O_EXCL | _O_CREAT, 0644);
     if (fd < 0)
     {
-      log_warn(std::string("unable to create temporary cache file ") +
+      logWarn(std::string("unable to create temporary cache file ") +
                    tmp_cache_path, true);
     }
     else
@@ -1480,7 +1480,7 @@ Rosstackage::expandExportString(Stackage* stackage,
             std::string("failed to execute backquote expression ") +
             cmd + " in " +
             stackage->manifest_path_;
-    log_warn(errmsg, true);
+    logWarn(errmsg, true);
     return false;
   }
   else

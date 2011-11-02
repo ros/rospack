@@ -193,52 +193,246 @@ class Rosstackage
                   std::string& stack,
                   std::string& path);
 
+    /**
+     * @brief List names and paths of all stackages.
+     * @param list Pairs of (name,path) are written here.
+     */
     void list(std::vector<std::pair<std::string, std::string> >& list);
+    /**
+     * @brief Identify duplicate stackages.  Forces crawl.
+     * @param dups Names of stackages that are found more than once while
+     *             crawling are written here.
+     */
     void listDuplicates(std::vector<std::string>& dups);
+    /**
+     * @brief Compute dependencies of a stackage (i.e., stackages that this
+     *        stackages depends on).
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param deps If dependencies are computed, then they're written here.
+     * @return True if dependencies were computed, false otherwise.
+     */
     bool deps(const std::string& name, bool direct, std::vector<std::string>& deps);
+    /**
+     * @brief Compute reverse dependencies of a stackage (i.e., stackages
+     *        that depend on this stackage).  Forces crawl.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param deps If dependencies are computed, then they're written here.
+     * @return True if dependencies were computed, false otherwise.
+     */
     bool depsOn(const std::string& name, bool direct,
                    std::vector<std::string>& deps);
+    /**
+     * @brief List the manifests of a stackage's dependencies.  Used by
+     *        rosbuild.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param manifests The list of absolute paths to manifests of stackages
+     *                  that the given stackage depends on is written here.
+     * @return True if the manifest list was computed, false otherwise.
+     */
     bool depsManifests(const std::string& name, bool direct, 
                        std::vector<std::string>& manifests);
+    /**
+     * @brief List the marker files in a packages's dependencies that
+     * indicate that those packages contain auto-generated message
+     * and/or service code.  Used by rosbuild.
+     * @param name The package to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param gens The list of absolute paths to marker files (e.g.,
+     * "/opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated")
+     * is written here.
+     * @return True if the list of files was generated, false otherwise.
+     */
     bool depsMsgSrv(const std::string& name, bool direct, 
                     std::vector<std::string>& gens);
+    /**
+     * @brief Generate indented list of a stackage's dependencies,
+     * including duplicates.  Intended for visual debugging of dependency
+     * structures.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param deps List of the stackage's dependencies, with leading spaces
+     * to indicate depth, is written here.  Print this list to console,
+     * with newlines separating each element.  Example output:
+@verbatim
+roscpp_traits
+  cpp_common
+cpp_common
+rostime
+  cpp_common
+@endverbatim
+     * @return True if the indented dependencies were computed, false
+     * otherwise.
+     */
     bool depsIndent(const std::string& name, bool direct,
                     std::vector<std::string>& deps);
+    /**
+     * @brief Compute all dependency chains from one stackage to another.
+     * Intended for visual debugging of dependency structures.
+     * @param from The stackage that depends on.
+     * @param to The stackage that is depended on.
+     * @param output A list of dependency chains. Print this list to console,
+     * with newlines separating each element.  Example output:
+@verbatim
+Dependency chains from roscpp to roslib:
+* roscpp -> roslib 
+* roscpp -> std_msgs -> roslib 
+* roscpp -> rosgraph_msgs -> std_msgs -> roslib 
+@endverbatim
+     * @return True if the dependency chains were computed, false
+     * otherwise.
+     */
     bool depsWhy(const std::string& from,
                  const std::string& to,
                  std::string& output);
+    /**
+     * @brief Compute rosdep entries that are declared in manifest of a package 
+     * and its dependencies.  Used by rosmake.
+     * @param name The package to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param rosdeps List of rosdep entries found in the package and its
+     * dependencies is written here.
+     * @return True if the rosdep list is computed, false otherwise.
+     */
     bool rosdeps(const std::string& name, bool direct,
                  std::vector<std::string>& rosdeps);
+    /**
+     * @brief Compute vcs entries that are declared in manifest of a package 
+     * and its dependencies.  Was used by Hudson build scripts; might not
+     * be needed.
+     * @param name The package to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param vcs List of vcs entries found in the package and its
+     * dependencies is written here.
+     * @return True if the vcs list is computed, false otherwise.
+     */
     bool vcs(const std::string& name, bool direct, 
              std::vector<std::string>& vcs);
+    /**
+     * @brief Compute exports declared in a package and its dependencies.
+     * Used by rosbuild.
+     * @param name The package to work on.
+     * @param lang The value of the 'lang' attribute to search for.
+     * @param attrib The value of the 'attrib' attribute to search for.
+     * @param deps_only If true, then only return information from the
+     * pacakge's dependencies; if false, then also include the package's
+     * own export information.
+     * @param flags The accumulated flags are written here.
+     * @return True if the flags were computed, false otherwise.
+     */
     bool exports(const std::string& name, const std::string& lang,
                  const std::string& attrib, bool deps_only,
                  std::vector<std::string>& flags);
+    /**
+     * @brief Compute exported plugins declared in packages that depend
+     * on a package.  Forces crawl. Used by rosbuild and roslib.
+     * @param name The package to work on.
+     * @param attrib The value of the 'attrib' attribute to search for.
+     * @param top If non-empty, then limit the reverse dependency search to
+     * packages that 'top' depends on.  Otherwise, examine all packages
+     * that depend on 'name'.
+     * @param flags The accumulated flags are written here.
+     * @return True if the flags were computed, false otherwise.
+     */
     bool plugins(const std::string& name, const std::string& attrib, 
                  const std::string& top,
                  std::vector<std::string>& flags);
+    /**
+     * @brief Report on time taken to crawl for stackages.  Intended for
+     * use in debugging misconfigured stackage trees.  Forces crawl.
+     * @param search_path Directories to search; passed to crawl().
+     * @param zombie_only If false, then produce formatted output, with
+     * timing information.  Example output:
+@verbatim
+Full tree crawl took 0.014954 seconds.
+Directories marked with (*) contain no manifest.  You may
+want to delete these directories.
+To get just of list of directories without manifests,
+re-run the profile with --zombie-only
+-------------------------------------------------------------
+0.013423   /opt/ros/electric/stacks
+0.002989   /opt/ros/electric/stacks/ros_comm
+@endverbatim If true, then produce a list of absolute paths that contain no stackages ("zombies"); these directories can likely be safely deleted.  Example output:
+@verbatim
+/opt/ros/electric/stacks/pr2_controllers/trajectory_msgs
+/opt/ros/electric/stacks/pr2_controllers/trajectory_msgs/msg
+@endverbatim
+     * @param length Limit on how many directories to include in report
+     * (ordered in decreasing order of time taken to crawl).
+     * @param dirs Profile output. Print this list to console,
+     * with newlines separating each element.
+     */
     bool profile(const std::vector<std::string>& search_path,
                  bool zombie_only,
                  int length,
                  std::vector<std::string>& dirs);
-    // Simple console output helpers
-    void log_warn(const std::string& msg,
+    /**
+     * @brief Log a warning (usually goes to stderr).
+     * @param msg The warning.
+     * @param append_errno If true, then append a colon, a space, and 
+     * the return from 'sterror(errno)'.
+     */
+    void logWarn(const std::string& msg,
+                 bool append_errno = false);
+    /**
+     * @brief Log a error (usually goes to stderr).
+     * @param msg The error.
+     * @param append_errno If true, then append a colon, a space, and 
+     * the return from 'sterror(errno)'.
+     */
+    void logError(const std::string& msg,
                   bool append_errno = false);
-    void log_error(const std::string& msg,
-                   bool append_errno = false);
 };
 
+/**
+ * @brief Package crawler.  Create one of these to operate on a package
+ * tree.  Call public methods inherited from Rosstackage.
+ */
 class Rospack : public Rosstackage
 {
   public:
+    /**
+     * @brief Constructor
+     */
     Rospack();
+    /**
+     * @brief Usage statement.
+     * @return Command-line usage for the rospack tool.
+     */
     virtual const char* usage();
 };
 
+/**
+ * @brief Stack crawler.  Create one of these to operate on a stack
+ * tree.  Call public methods inherited from Rosstackage.
+ */
 class Rosstack : public Rosstackage
 {
   public:
+    /**
+     * @brief Constructor
+     */
     Rosstack();
+    /**
+     * @brief Usage statement.
+     * @return Command-line usage for the rosstack tool.
+     */
     virtual const char* usage();
 };
 
