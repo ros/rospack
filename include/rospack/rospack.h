@@ -192,6 +192,7 @@ class Rosstackage
     bool contains(const std::string& name, 
                   std::string& stack,
                   std::string& path);
+
     void list(std::vector<std::pair<std::string, std::string> >& list);
     void listDuplicates(std::vector<std::string>& dups);
     bool deps(const std::string& name, bool direct, std::vector<std::string>& deps);
