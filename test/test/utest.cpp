@@ -38,8 +38,10 @@
 #include <time.h>
 #include <gtest/gtest.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include "rospack/rospack.h"
 #include "utils.h"
+
 
 TEST(rospack, reentrant)
 {
@@ -47,6 +49,13 @@ TEST(rospack, reentrant)
   std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test2";
   setenv("ROS_ROOT", rr.c_str(), 1);
   unsetenv("ROS_PACKAGE_PATH");
+  char path[PATH_MAX];
+  if(getcwd(path,sizeof(path)))
+  {
+    boost::filesystem::path p(path);
+    p = p.parent_path();
+    setenv("PATH", p.string().c_str(), 1);
+  }
 
   rospack::ROSPack rp;
   std::string output;
@@ -78,6 +87,13 @@ TEST(rospack, multiple_rospack_objects)
   std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test2";
   setenv("ROS_ROOT", rr.c_str(), 1);
   unsetenv("ROS_PACKAGE_PATH");
+  char path[PATH_MAX];
+  if(getcwd(path,sizeof(path)))
+  {
+    boost::filesystem::path p(path);
+    p = p.parent_path();
+    setenv("PATH", p.string().c_str(), 1);
+  }
 
   rospack::ROSPack rp;
   std::string output;

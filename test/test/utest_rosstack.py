@@ -32,9 +32,6 @@
 #
 # Author: Brian Gerkey/Ken Conley
 
-PKG = 'test_rospack'
-import roslib; roslib.load_manifest(PKG)
-
 import os
 import unittest
 from subprocess import Popen, PIPE
@@ -705,5 +702,4 @@ class RosstackTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    import rosunit
-    rosunit.unitrun(PKG, 'rospack_exe_process', RosstackTestCase)
+    unittest.main()

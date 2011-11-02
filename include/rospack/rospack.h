@@ -25,6 +25,82 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+
+\mainpage
+
+\section overview Overview
+
+\b librospack is the ROS stackage (stack/package) management library.
+
+librospack is part dpkg, part pkg-config.  The main function of librospack is
+to crawl through the stackages in ROS_ROOT and ROS_PACKAGE_PATH, read and
+parse the \b manifest for each stackage, and assemble a complete
+dependency tree for all stackages.
+
+Using this tree, librospack can answer a number of queries about stackages and
+their dependencies.  Common queries include:
+ - find : return the absolute path to a stackage
+ - depends : return a list of all of a stackage's dependencies
+ - depends-on : return a list of stackages that depend on the given stackage
+ - export : return flags necessary for building and linking against a package
+
+librospack is intended to be cross-platform.
+
+\subsection crawling Crawling algorithm
+librospack crawls in the following order: the directory ROS_ROOT, followed by
+the colon-separated list of directories ROS_PACKAGE_PATH, in the order they
+are listed.
+
+During the crawl, librospack examines the contents of each directory, looking
+for a file called @b manifest.xml (for packages) or @b stack.xml (for stacks).
+If such a file is found, the directory
+containing it is considered to be a ROS stackage, with the stackage name
+equal to the directory name.  The crawl does not descend further once a
+manifest is found (i.e., stackages cannot be nested inside one another).  
+
+If a manifest is not found in a given directory, each subdirectory
+is searched.  This subdirectory search is prevented if a file called @b
+rospack_nosubdirs is found.  The directory itself is still searched for a
+manifest, but its subdirectories are not crawled.
+
+If multiple stackages by the same name exist within the search path, the
+first one found wins.  It is strongly recommended that you keep stackages by
+the same name in separate trees, each having its own element within
+ROS_PACKAGE_PATH.  That way, you can deterministically control the search
+order by the way that you specify ROS_PACKAGE_PATH.  The search order
+within a given element of ROS_PACKAGE_PATH can be unpredictably affected by
+the details of how files are laid out on disk.
+
+\subsection efficiency Efficiency considerations
+librospack re-parses the manifest files and rebuilds the dependency tree
+on each execution.  However, it maintains a cache of stackage directories in
+ROS_HOME/rospack_cache (or ROS_HOME/rosstack_cache).
+This cache is updated whenever there is a cache
+miss, or when the cache is 60 seconds old.  You can change this timeout by
+setting the environment variable ROS_CACHE_TIMEOUT, in seconds.  Set it to
+0.0 to force a cache rebuild on every invocation of librospack.
+
+librospack's performance can be adversely affected by the presence of very
+broad and/or deep directory structures that don't contain manifest files.
+If such directories are in librospack's search path, it can spend a lot of
+time crawling them only to discover that there are no stackages to be found.
+You can prevent this latency by creating a @b rospack_nosubdirs file in
+such directories. If librospack seems to be running annoyingly slowly, you
+can call profile(), which will print out the slowest trees
+to crawl.
+
+\subsection dependencies Minimal dependencies
+Because librospack is the tool that determines dependencies, it must
+have minimal dependencies.  librospack contains a copy of the TinyXML library,
+and depends on Boost.  If gtest is available, then tests can be run.
+
+\section codeapi Code API
+
+librospack is used primarily in command-line tools (rospack and rosstack),
+but can be used in other contexts.  See the API documentation for Rospack
+and Rosstack.
+*/
 
 #ifndef ROSPACK_ROSPACK_H
 #define ROSPACK_ROSPACK_H
