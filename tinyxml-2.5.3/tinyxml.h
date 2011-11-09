@@ -83,7 +83,7 @@ distribution.
 #endif	
 
 #if defined(WIN32)
-  #if defined(ROS_STATIC)
+  #if defined(ROS_BUILD_STATIC_LIBS)
     #define TINYXML_EXPORT
   #elif defined(rospack_EXPORTS) || defined(rosstack_EXPORTS)
     #define TINYXML_EXPORT __declspec(dllexport)
@@ -93,7 +93,6 @@ distribution.
 #else
   #define TINYXML_EXPORT
 #endif
-
 
 namespace rospack_tinyxml {
 

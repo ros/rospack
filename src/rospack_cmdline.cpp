@@ -251,8 +251,15 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     if((ros_lang_disable = getenv("ROS_LANG_DISABLE")))
     {
       std::vector<std::string> disable_langs;
+    // I can't see that boost filesystem has an elegant cross platform
+    // representation for this anywhere like qt/python have.
+    #if defined(WIN32)
+      const char *path_delim = ";";
+    #else //!defined(WIN32)
+      const char *path_delim = ":";
+    #endif
       boost::split(disable_langs, ros_lang_disable,
-                   boost::is_any_of(":"),
+                   boost::is_any_of(path_delim),
                    boost::token_compress_on);
       std::vector<std::string>::iterator it = deps.begin();
       while(it != deps.end())

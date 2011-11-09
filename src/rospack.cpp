@@ -34,7 +34,10 @@
 #include <stdexcept>
 
 #if defined(WIN32)
+  #include <windows.h>
   #include <direct.h>
+  #include <libgen.h> // for dirname
+  #include <fcntl.h>  // for O_RDWR, O_EXCL, O_CREAT
   #define getcwd _getcwd
 #else //!defined(WIN32)
   #include <sys/types.h>
@@ -204,9 +207,17 @@ Rosstackage::getSearchPathFromEnv(std::vector<std::string>& sp)
   }
   if(rpp)
   {
+    // I can't see that boost filesystem has an elegant cross platform
+    // representation for this anywhere like qt/python have.
+    #if defined(WIN32)
+      const char *path_delim = ";";
+    #else //!defined(WIN32)
+      const char *path_delim = ":";
+    #endif
+
     std::vector<std::string> rpp_strings;
     boost::split(rpp_strings, rpp, 
-                 boost::is_any_of(":"),
+                 boost::is_any_of(path_delim),
                  boost::token_compress_on);
     for(std::vector<std::string>::const_iterator it = rpp_strings.begin();
         it != rpp_strings.end();
