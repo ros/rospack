@@ -38,7 +38,6 @@
   #include <direct.h>
   #include <libgen.h> // for dirname
   #include <fcntl.h>  // for O_RDWR, O_EXCL, O_CREAT
-  #define getcwd _getcwd
 #else //!defined(WIN32)
   #include <sys/types.h>
   #include <libgen.h>
@@ -331,21 +330,36 @@ Rosstackage::crawl(std::vector<std::string> search_path,
 bool 
 Rosstackage::inStackage(std::string& name)
 {
-  char path[PATH_MAX];
-  if(getcwd(path,sizeof(path)))
+  fs::path path;
+  try
   {
-    if(Rosstackage::isStackage(path))
+    // Search upward, as suggested in #3697.  This method is only used when
+    // a package is not given on the command-line, and so should not have
+    // performance impact in common usage.
+    for(fs::path path = fs::current_path();
+        !path.empty();
+        path = path.parent_path())
     {
+      if(Rosstackage::isStackage(path.string()))
+      {
 #if !defined(BOOST_FILESYSTEM_VERSION) || (BOOST_FILESYSTEM_VERSION == 2)
-      name = fs::path(path).filename();
+        name = fs::path(path).filename();
 #else
-      // in boostfs3, filename() returns a path, which needs to be stringified
-      name = fs::path(path).filename().string();
+        // in boostfs3, filename() returns a path, which needs to be stringified
+        name = fs::path(path).filename().string();
 #endif
-      return true;
+        return true;
+      }
     }
+    // Search failed.
+    return false;
   }
-  return false;
+  catch(fs::filesystem_error& e)
+  {
+    // can't determine current directory, or encountered trouble while
+    // searching upward; too bad
+    return false;
+  }
 }
 
 
