@@ -122,7 +122,7 @@ class RospackTestCase(unittest.TestCase):
 	  # change it back to the original value afterward.  If we're going 
 	  # to fail here, we need to set it back first.
 	  os.chdir(initial_cwd)
-	  self.fail('rospack returned non-zero exit code, indicating a crash')
+	  self.fail('rospack returned non-zero exit code (%d), indicating a crash'%(p.returncode))
 
         return p.returncode, stdout.strip(), stderr
 
@@ -379,13 +379,12 @@ class RospackTestCase(unittest.TestCase):
 
     def test_no_ros_root(self):
         testp = os.path.abspath('test')
-        self.erospack_fail(None, testp, "deps", "deps")
+        self.erospack_succeed(None, testp, "deps", "deps")
 
     def test_bad_ros_root(self):
-        # #468 test. this is the chosen exit code, distinguish against segfault
         non_existent1 = os.path.abspath('non_existent1')
         testp = os.path.abspath("test")        
-        self.assertNotEquals(0, self.erun_rospack_status(non_existent1, testp, "deps", "deps"))
+        self.erospack_succeed(non_existent1, testp, "deps", "deps")
 
     ## test rospack with ROS_ROOT=ROS_PACKAGE_PATH 
     def test_ros_root_ros_package_path_identical(self):

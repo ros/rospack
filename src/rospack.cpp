@@ -193,16 +193,13 @@ Rosstackage::getSearchPathFromEnv(std::vector<std::string>& sp)
   char* rr = getenv("ROS_ROOT");
   char* rpp = getenv("ROS_PACKAGE_PATH");
 
-  if(!rr || !fs::is_directory(rr))
+  // ROS_ROOT is optional, and will be phased out
+  if(rr)
   {
-    // Test suite checks that we return non-zero on bad ROS_ROOT.  This'll
-    // probably be removed when we get rid of ROS_ROOT.
-    logError("bad / non-existent ROS_ROOT");
-    return false;
-  }
-  else
-  {
-    sp.push_back(rr);
+    if(fs::is_directory(rr))
+      sp.push_back(rr);
+    else
+      logWarn(std::string("ROS_ROOT=") + rr + " is not a directory");
   }
   if(rpp)
   {
@@ -1459,7 +1456,7 @@ Rosstackage::writeCache()
       {
         // TODO: remove writing of ROS_ROOT
         char *rr = getenv("ROS_ROOT");
-        fprintf(cache, "#ROS_ROOT=%s\n", rr);
+        fprintf(cache, "#ROS_ROOT=%s\n", (rr ? rr : ""));
 
         char *rpp = getenv("ROS_PACKAGE_PATH");
         fprintf(cache, "#ROS_PACKAGE_PATH=%s\n", (rpp ? rpp : ""));
@@ -1521,7 +1518,12 @@ Rosstackage::validateCache()
     {
       if (!strncmp("#ROS_ROOT=", linebuf, 10))
       {
-        if (!strcmp(linebuf+10, ros_root))
+        if(!ros_root)
+        {
+          if(!strlen(linebuf+10))
+            ros_root_ok = true;
+        }
+        else if (!strcmp(linebuf+10, ros_root))
           ros_root_ok = true;
       }
       else if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
@@ -1531,7 +1533,7 @@ Rosstackage::validateCache()
           if(!strlen(linebuf+18))
             ros_package_path_ok = true;
         }
-        else if(!strcmp(linebuf+18, getenv("ROS_PACKAGE_PATH")))
+        else if(!strcmp(linebuf+18, ros_package_path))
           ros_package_path_ok = true;
       }
     }
