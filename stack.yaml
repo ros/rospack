@@ -1,0 +1,10 @@
+Catkin-ProjectName: rospack
+Version: 2.0.0
+Depends: catkin, libboost-dev, libboost-all-dev
+Description: ROSPack Communications
+Author: Brian Gerkey
+Maintainer: Troy Straszheim <straszheim@willowgarage.com>
+Homepage: http://www.ros.org
+
+Catkin-CopyrightType:  willowgarage
+Catkin-DebRulesType: cmake
