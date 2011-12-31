@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008, Willow Garage, Inc.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -57,7 +57,7 @@ for a file called @b manifest.xml (for packages) or @b stack.xml (for stacks).
 If such a file is found, the directory
 containing it is considered to be a ROS stackage, with the stackage name
 equal to the directory name.  The crawl does not descend further once a
-manifest is found (i.e., stackages cannot be nested inside one another).  
+manifest is found (i.e., stackages cannot be nested inside one another).
 
 If a manifest is not found in a given directory, each subdirectory
 is searched.  This subdirectory search is prevented if a file called @b
@@ -111,7 +111,8 @@ and Rosstack.
 #include <vector>
 #include <list>
 
-#ifdef ROSPACK_API_BACKCOMPAT_V1
+//#ifdef ROSPACK_API_BACKCOMPAT_V1
+#if 1 // def ROSPACK_API_BACKCOMPAT_V1
   #include "rospack/rospack_backcompat.h"
 #endif
 
@@ -119,7 +120,7 @@ and Rosstack.
 namespace rospack
 {
 
-typedef enum 
+typedef enum
 {
   POSTORDER,
   PREORDER
@@ -131,7 +132,7 @@ class DirectoryCrawlRecord;
 
 /**
  * @brief The base class for package/stack ("stackage") crawlers.  Users of the library should
- * use the functionality provided here through one of the derived classes, 
+ * use the functionality provided here through one of the derived classes,
  * Rosstack or Rospack.
  */
 class Rosstackage
@@ -162,11 +163,11 @@ class Rosstackage
     bool isStackage(const std::string& path);
     void loadManifest(Stackage* stackage);
     void computeDeps(Stackage* stackage, bool ignore_errors=false);
-    void gatherDeps(Stackage* stackage, bool direct, 
+    void gatherDeps(Stackage* stackage, bool direct,
                     traversal_order_t order,
                     std::vector<Stackage*>& deps);
-    void gatherDepsFull(Stackage* stackage, bool direct, 
-                        traversal_order_t order, int depth, 
+    void gatherDepsFull(Stackage* stackage, bool direct,
+                        traversal_order_t order, int depth,
                         std::tr1::unordered_set<Stackage*>& deps_hash,
                         std::vector<Stackage*>& deps,
                         bool get_indented_deps,
@@ -210,7 +211,7 @@ class Rosstackage
     /**
      * @brief Crawl the filesystem, accumulating a database of
      *        stackages.  May read results from a cache file instead
-     *        of crawling.  This method should be called before any 
+     *        of crawling.  This method should be called before any
      *        making any queries (find, list, etc.).
      * @param search_path List of directories to crawl, in precenence
      *                    order.  Directories should be absolute paths.
@@ -253,7 +254,7 @@ class Rosstackage
      * @param path If found, the absolute path to the stackage is written here.
      * @return True if the stackage is found, false otherwise.
      */
-    bool find(const std::string& name, std::string& path); 
+    bool find(const std::string& name, std::string& path);
     /**
      * @brief Compute the packages that are contained in a stack.
      * @param name The stack to work on.
@@ -268,7 +269,7 @@ class Rosstackage
      * @param path If the containing stack is found, its absolute path is written here.
      * @return True if the containing stack could be found, false otherwise.
      */
-    bool contains(const std::string& name, 
+    bool contains(const std::string& name,
                   std::string& stack,
                   std::string& path);
 
@@ -317,7 +318,7 @@ class Rosstackage
      *                  that the given stackage depends on is written here.
      * @return True if the manifest list was computed, false otherwise.
      */
-    bool depsManifests(const std::string& name, bool direct, 
+    bool depsManifests(const std::string& name, bool direct,
                        std::vector<std::string>& manifests);
     /**
      * @brief List the marker files in a packages's dependencies that
@@ -332,7 +333,7 @@ class Rosstackage
      * is written here.
      * @return True if the list of files was generated, false otherwise.
      */
-    bool depsMsgSrv(const std::string& name, bool direct, 
+    bool depsMsgSrv(const std::string& name, bool direct,
                     std::vector<std::string>& gens);
     /**
      * @brief Generate indented list of a stackage's dependencies,
@@ -366,9 +367,9 @@ rostime
      * with newlines separating each element.  Example output:
 @verbatim
 Dependency chains from roscpp to roslib:
-* roscpp -> roslib 
-* roscpp -> std_msgs -> roslib 
-* roscpp -> rosgraph_msgs -> std_msgs -> roslib 
+* roscpp -> roslib
+* roscpp -> std_msgs -> roslib
+* roscpp -> rosgraph_msgs -> std_msgs -> roslib
 @endverbatim
      * @return True if the dependency chains were computed, false
      * otherwise.
@@ -377,7 +378,7 @@ Dependency chains from roscpp to roslib:
                  const std::string& to,
                  std::string& output);
     /**
-     * @brief Compute rosdep entries that are declared in manifest of a package 
+     * @brief Compute rosdep entries that are declared in manifest of a package
      * and its dependencies.  Used by rosmake.
      * @param name The package to work on.
      * @param direct If true, then compute only direct dependencies.  If
@@ -390,7 +391,7 @@ Dependency chains from roscpp to roslib:
     bool rosdeps(const std::string& name, bool direct,
                  std::vector<std::string>& rosdeps);
     /**
-     * @brief Compute vcs entries that are declared in manifest of a package 
+     * @brief Compute vcs entries that are declared in manifest of a package
      * and its dependencies.  Was used by Hudson build scripts; might not
      * be needed.
      * @param name The package to work on.
@@ -401,7 +402,7 @@ Dependency chains from roscpp to roslib:
      * dependencies is written here.
      * @return True if the vcs list is computed, false otherwise.
      */
-    bool vcs(const std::string& name, bool direct, 
+    bool vcs(const std::string& name, bool direct,
              std::vector<std::string>& vcs);
     /**
      * @brief Compute exports declared in a package and its dependencies.
@@ -429,7 +430,7 @@ Dependency chains from roscpp to roslib:
      * @param flags The accumulated flags are written here.
      * @return True if the flags were computed, false otherwise.
      */
-    bool plugins(const std::string& name, const std::string& attrib, 
+    bool plugins(const std::string& name, const std::string& attrib,
                  const std::string& top,
                  std::vector<std::string>& flags);
     /**
@@ -464,7 +465,7 @@ re-run the profile with --zombie-only
     /**
      * @brief Log a warning (usually goes to stderr).
      * @param msg The warning.
-     * @param append_errno If true, then append a colon, a space, and 
+     * @param append_errno If true, then append a colon, a space, and
      * the return from 'sterror(errno)'.
      */
     void logWarn(const std::string& msg,
@@ -472,7 +473,7 @@ re-run the profile with --zombie-only
     /**
      * @brief Log a error (usually goes to stderr).
      * @param msg The error.
-     * @param append_errno If true, then append a colon, a space, and 
+     * @param append_errno If true, then append a colon, a space, and
      * the return from 'sterror(errno)'.
      */
     void logError(const std::string& msg,

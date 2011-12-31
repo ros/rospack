@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.6.0)
 set(CMAKE_BUILD_TYPE Debug)
 project(rospack)
 
+find_package(catkin)
+
+
 # These get set in the mingw cmake toolchain file, but are also oft used
 # in other ros packages to identify as static or shared
 if(ROS_BUILD_STATIC_LIBS OR BUILD_STATIC)
@@ -16,7 +19,7 @@ endif()
 
 add_definitions(-Wall)
 
-set(API_BACKCOMPAT_V1 "YES" 
+set(API_BACKCOMPAT_V1 "YES"
     CACHE BOOL "Whether to enable backwards compatibility with old C++ API")
 if(API_BACKCOMPAT_V1)
   add_definitions(-DROSPACK_API_BACKCOMPAT_V1)
@@ -81,3 +84,9 @@ if(DOXYGEN)
                     COMMAND doxygen Doxyfile
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
+
+install_cmake_infrastructure(rospack
+  VERSION 1.0.0
+  INCLUDE_DIRS include
+  )
+
