@@ -84,7 +84,7 @@ if(DOXYGEN)
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
 
-install(DIRECTORY include
+install(DIRECTORY include/
   DESTINATION include)
 
 catkin_project(rospack
