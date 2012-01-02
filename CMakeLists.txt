@@ -84,7 +84,10 @@ if(DOXYGEN)
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
 
-install_cmake_infrastructure(rospack
+install(DIRECTORY include
+  DESTINATION include)
+
+catkin_project(rospack
   VERSION 1.0.0
   INCLUDE_DIRS include
   )
