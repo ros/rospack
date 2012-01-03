@@ -89,6 +89,7 @@ install(DIRECTORY include
 
 catkin_project(rospack
   VERSION 1.0.0
+  LIBRARIES rospack
   INCLUDE_DIRS include
   )
 
