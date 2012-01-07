@@ -892,6 +892,3 @@ class RospackTestCase(unittest.TestCase):
         status_code, stdout, stderr = self._run_rospack(ros_root, None, 'nonexistentpackage', 'find')
         self.assertNotEquals(0, status_code)
         self.assertNotEquals(0, len(stderr))
-
-if __name__ == "__main__":
-    unittest.main()

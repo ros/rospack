@@ -699,7 +699,3 @@ class RosstackTestCase(unittest.TestCase):
 #        retcode, retval = self._rospack_langs(rr, None, None)
 #        self.assertEquals(0, retcode)
 #        self.failIf(retval, "rospack langs on empty directory returned value %s"%retval)
-
-
-if __name__ == "__main__":
-    unittest.main()

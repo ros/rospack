@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 2.6.0)
 project(rospack)
-
 find_package(catkin)
-
+catkin_project(rospack
+  VERSION 1.0.0
+  LIBRARIES rospack
+  INCLUDE_DIRS include
+  )
 
 # These get set in the mingw cmake toolchain file, but are also oft used
 # in other ros packages to identify as static or shared
@@ -48,11 +51,17 @@ else()
 endif()
 target_link_libraries(rospack ${Boost_LIBRARIES})
 add_executable(rospackexe src/rospack_main.cpp src/rospack_cmdline.cpp)
-set_target_properties(rospackexe PROPERTIES OUTPUT_NAME rospack)
+# Set the name, and make it a "global" executable
+set_target_properties(rospackexe 
+                      PROPERTIES OUTPUT_NAME rospack
+                                 RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
 add_executable(rosstackexe src/rosstack_main.cpp src/rospack_cmdline.cpp)
 target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
-set_target_properties(rosstackexe PROPERTIES OUTPUT_NAME rosstack)
+# Set the name, and make it a "global" executable
+set_target_properties(rosstackexe 
+                      PROPERTIES OUTPUT_NAME rosstack
+                                 RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 install(TARGETS rospack rospackexe rosstackexe
         ARCHIVE DESTINATION lib
@@ -86,10 +95,4 @@ endif()
 
 install(DIRECTORY include/
   DESTINATION include)
-
-catkin_project(rospack
-  VERSION 1.0.0
-  LIBRARIES rospack
-  INCLUDE_DIRS include
-  )
 
