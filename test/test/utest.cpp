@@ -45,18 +45,6 @@
 
 TEST(rospack, reentrant)
 {
-  char buf[1024];
-  std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test2";
-  setenv("ROS_ROOT", rr.c_str(), 1);
-  unsetenv("ROS_PACKAGE_PATH");
-  char path[PATH_MAX];
-  if(getcwd(path,sizeof(path)))
-  {
-    boost::filesystem::path p(path);
-    p = p.parent_path();
-    setenv("PATH", p.string().c_str(), 1);
-  }
-
   rospack::ROSPack rp;
   std::string output;
   int ret = rp.run(std::string("plugins --attrib=foo --top=precedence1 roslang"));
@@ -83,18 +71,6 @@ TEST(rospack, reentrant)
 
 TEST(rospack, multiple_rospack_objects)
 {
-  char buf[1024];
-  std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test2";
-  setenv("ROS_ROOT", rr.c_str(), 1);
-  unsetenv("ROS_PACKAGE_PATH");
-  char path[PATH_MAX];
-  if(getcwd(path,sizeof(path)))
-  {
-    boost::filesystem::path p(path);
-    p = p.parent_path();
-    setenv("PATH", p.string().c_str(), 1);
-  }
-
   rospack::ROSPack rp;
   std::string output;
   int ret = rp.run(std::string("plugins --attrib=foo --top=precedence1 roslang"));
@@ -155,6 +131,22 @@ int main(int argc, char **argv)
   // Quiet some warnings
   (void)rospack::ROSPACK_NAME;
   (void)rospack::ROSSTACK_NAME;
+
+  char buf[1024];
+  std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test2";
+  setenv("ROS_ROOT", rr.c_str(), 1);
+  unsetenv("ROS_PACKAGE_PATH");
+  char path[PATH_MAX];
+  if(getcwd(path,sizeof(path)))
+  {
+    boost::filesystem::path p(path);
+    p = p.parent_path();
+    std::string newpath = p.string();
+    char* oldpath = getenv("PATH");
+    if(oldpath)
+      newpath += std::string(":") + oldpath;
+    setenv("PATH", newpath.c_str(), 1);
+  }
 
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
