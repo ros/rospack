@@ -52,14 +52,14 @@ endif()
 target_link_libraries(rospack ${Boost_LIBRARIES})
 add_executable(rospackexe src/rospack_main.cpp src/rospack_cmdline.cpp)
 # Set the name, and make it a "global" executable
-set_target_properties(rospackexe 
+set_target_properties(rospackexe
                       PROPERTIES OUTPUT_NAME rospack
                                  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
 add_executable(rosstackexe src/rosstack_main.cpp src/rospack_cmdline.cpp)
 target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
 # Set the name, and make it a "global" executable
-set_target_properties(rosstackexe 
+set_target_properties(rosstackexe
                       PROPERTIES OUTPUT_NAME rosstack
                                  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -78,17 +78,13 @@ configure_file(
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-find_package(GTest)
 if(GTEST_FOUND)
-  message("Found gtest; building C++ unit tests")
   enable_testing()
   add_subdirectory(test)
 endif()
 
-find_program(DOXYGEN doxygen)
-if(DOXYGEN)
-  message("Found doxygen; 'make docs' to build documentation")
-  add_custom_target(docs
+if(DOXYGEN_FOUND)
+  add_custom_target(rospack-docs
                     COMMAND doxygen Doxyfile
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
