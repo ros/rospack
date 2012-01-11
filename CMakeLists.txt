@@ -67,8 +67,10 @@ install(TARGETS rospack rospackexe rosstackexe
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
-install(DIRECTORY include/rospack
-        DESTINATION include)
+install(DIRECTORY include/
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN ".svn" EXCLUDE)
 # uninstall target
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
@@ -88,7 +90,3 @@ if(DOXYGEN_FOUND)
                     COMMAND doxygen Doxyfile
                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 endif()
-
-install(DIRECTORY include/
-  DESTINATION include)
-
