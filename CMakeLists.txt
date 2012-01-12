@@ -71,6 +71,8 @@ install(DIRECTORY include/
         DESTINATION include
         FILES_MATCHING PATTERN "*.h"
         PATTERN ".svn" EXCLUDE)
+install(FILES manifest.xml
+        DESTINATION share/rospack)
 # uninstall target
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
