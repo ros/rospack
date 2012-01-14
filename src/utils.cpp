@@ -89,7 +89,11 @@ parse_compiler_flags(const std::string& instring,
     if(it->size() > token.size() && it->substr(0,token.size()) == token)
     {
       if(select)
-        intermediate.append(it->substr(token.size()) + " ");
+      {
+        if(intermediate.size())
+          intermediate.append(" ");
+        intermediate.append(it->substr(token.size()));
+      }
     }
     // Space-separated
     else if((*it) == token)
@@ -104,7 +108,11 @@ parse_compiler_flags(const std::string& instring,
         else
         {
           if(select)
-            intermediate.append((*iit) + " ");
+          {
+            if(intermediate.size())
+              intermediate.append(" ");
+            intermediate.append((*iit));
+          }
           it = iit;
         }
       }
@@ -115,10 +123,18 @@ parse_compiler_flags(const std::string& instring,
             it->substr(it->size()-2) == ".a")
     {
       if(select)
-        intermediate.append((*it) + " ");
+      {
+        if(intermediate.size())
+          intermediate.append(" ");
+        intermediate.append((*it));
+      }
     }
     else if(!select)
-      intermediate.append((*it) + " ");
+    {
+      if(intermediate.size())
+        intermediate.append(" ");
+      intermediate.append((*it));
+    }
   }
   deduplicate_tokens(intermediate, last, outstring);
 }

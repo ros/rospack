@@ -39,7 +39,7 @@ from subprocess import Popen, PIPE
 ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
-ROSSTACK_PATH = os.path.join(os.getcwd(), "..", "rosstack")
+ROSSTACK_PATH = os.path.join(os.getcwd(), "..", "bin", "rosstack")
 
 aliases = {
     'deps': 'depends',
