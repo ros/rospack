@@ -82,10 +82,7 @@ configure_file(
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-if(GTEST_FOUND)
-  enable_testing()
-  add_subdirectory(test)
-endif()
+add_subdirectory(test)
 
 if(DOXYGEN_FOUND)
   add_custom_target(rospack-docs

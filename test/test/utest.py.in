@@ -43,7 +43,7 @@ from subprocess import Popen, PIPE
 ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
-ROSPACK_PATH = os.path.join(os.getcwd(), "..", "bin", "rospack")
+ROSPACK_PATH = "@CMAKE_BINARY_DIR@/bin/rospack"
 
 _structure_test_p = os.path.abspath('structure_test')
 # expected layout of the structure_test directory, used for rospack find and list tests
@@ -894,4 +894,5 @@ class RospackTestCase(unittest.TestCase):
         self.assertNotEquals(0, len(stderr))
 
 if __name__ == "__main__":
-    unittest.main()
+    import rosunit
+    rosunit.unitrun('rospack', 'rospack_exe_process', RospackTestCase)

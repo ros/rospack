@@ -39,7 +39,7 @@ from subprocess import Popen, PIPE
 ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
-ROSSTACK_PATH = os.path.join(os.getcwd(), "..", "bin", "rosstack")
+ROSSTACK_PATH = "@CMAKE_BINARY_DIR@/bin/rosstack"
 
 aliases = {
     'deps': 'depends',
@@ -702,4 +702,5 @@ class RosstackTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    import rosunit
+    rosunit.unitrun('rosstack', 'rosstack_exe_process', RosstackTestCase)
