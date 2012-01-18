@@ -274,7 +274,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = deps.begin();
         it != deps.end();
         ++it)
-      output.append(*it + " ");
+    {
+      if(it != deps.begin())
+        output.append(" ");
+      output.append(*it);
+    }
     output.append("\n");
     return true;
   }
@@ -322,7 +326,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = manifests.begin();
         it != manifests.end();
         ++it)
-        output.append(*it + " ");
+    {
+      if(it != manifests.begin())
+        output.append(" ");
+      output.append(*it);
+    }
     output.append("\n");
     return true;
   }
@@ -347,7 +355,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = gens.begin();
         it != gens.end();
         ++it)
-      output.append(*it + " ");
+    {
+      if(it != gens.begin())
+        output.append(" ");
+      output.append(*it);
+    }
     output.append("\n");
     return true;
   }
@@ -488,7 +500,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = flags.begin();
         it != flags.end();
         ++it)
-      output.append(*it + " ");
+    {
+      if(it != flags.begin())
+        output.append(" ");
+      output.append(*it);
+    }
     output.append("\n");
     return true;
   }
@@ -534,7 +550,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = flags.begin();
         it != flags.end();
         ++it)
-      combined.append(*it + " ");
+    {
+      if(it != flags.begin())
+        combined.append(" ");
+      combined.append(*it);
+    }
     std::string result;
     parse_compiler_flags(combined, "-I", true, false, result);
     output.append(result + "\n");
@@ -560,7 +580,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = flags.begin();
         it != flags.end();
         ++it)
-      combined.append(*it + " ");
+    {
+      if(it != flags.begin())
+        combined.append(" ");
+      combined.append(*it);
+    }
     std::string result;
     parse_compiler_flags(combined, "-I", false, false, result);
     output.append(result + "\n");
@@ -586,7 +610,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = flags.begin();
         it != flags.end();
         ++it)
-      combined.append(*it + " ");
+    {
+      if(it != flags.begin())
+        combined.append(" ");
+      combined.append(*it);
+    }
     std::string result;
     parse_compiler_flags(combined, "-L", true, false, result);
     output.append(result + "\n");
@@ -612,7 +640,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = flags.begin();
         it != flags.end();
         ++it)
-      combined.append(*it + " ");
+    {
+      if(it != flags.begin())
+        combined.append(" ");
+      combined.append(*it);
+    }
     std::string result;
     parse_compiler_flags(combined, "-l", true, true, result);
     output.append(result + "\n");
@@ -638,7 +670,11 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     for(std::vector<std::string>::const_iterator it = flags.begin();
         it != flags.end();
         ++it)
-      combined.append(*it + " ");
+    {
+      if(it != flags.begin())
+        combined.append(" ");
+      combined.append(*it);
+    }
     std::string intermediate;
     parse_compiler_flags(combined, "-L", false, false, intermediate);
     std::string result;

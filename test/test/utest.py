@@ -43,7 +43,7 @@ from subprocess import Popen, PIPE
 ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
-ROSPACK_PATH = os.path.join(os.getcwd(), "..", "rospack")
+ROSPACK_PATH = os.path.join(os.getcwd(), "..", "bin", "rospack")
 
 _structure_test_p = os.path.abspath('structure_test')
 # expected layout of the structure_test directory, used for rospack find and list tests
@@ -75,6 +75,10 @@ initial_cwd = os.getcwd()
 
 ## Process-level tests of rospack executable
 class RospackTestCase(unittest.TestCase):
+
+    def setUp(self):
+      # Some tests change CWD
+      os.chdir(initial_cwd)
     
     ## runs rospack with ROS_ROOT set to ./test and ROS_PACKAGE_PATH unset
     ## @return int, str: return code, stdout
@@ -118,10 +122,6 @@ class RospackTestCase(unittest.TestCase):
 	# return code indicates a crash (e.g., SIGSEGV, SIGABORT), which is
 	# never ok.
 	if p.returncode < 0:
-	  # Some tests change CWD before calling _run_rospack(), then
-	  # change it back to the original value afterward.  If we're going 
-	  # to fail here, we need to set it back first.
-	  os.chdir(initial_cwd)
 	  self.fail('rospack returned non-zero exit code (%d), indicating a crash'%(p.returncode))
 
         return p.returncode, stdout.strip(), stderr
@@ -534,7 +534,7 @@ class RospackTestCase(unittest.TestCase):
     def test_rospack_depends_on_not_a_package(self):
         pwd = os.getcwd()
         ros_root = os.path.abspath('test')
-        os.chdir(os.path.abspath('test_empty'))
+        os.chdir(os.path.abspath('/'))
         self.erospack_fail(ros_root, None, None, 'depends-on1')
         os.chdir(pwd)
         

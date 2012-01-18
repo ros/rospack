@@ -41,11 +41,12 @@
 #else //!defined(WIN32)
   #include <sys/types.h>
   #include <libgen.h>
-  #include <limits.h>
   #include <pwd.h>
   #include <unistd.h>
   #include <sys/time.h>
 #endif
+
+#include <climits>
 
 #include <sys/stat.h>
 #include <stdio.h>
