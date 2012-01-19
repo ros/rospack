@@ -1108,6 +1108,20 @@ Rosstackage::crawlDetail(const std::string& path,
     logWarn(std::string("error while looking for ") + nosubdirs.string() + ": " + e.what());
   }
 
+  // We've already checked above whether CWD contains the kind of manifest
+  // we're looking for.  Don't recurse if we encounter a rospack manifest,
+  // to avoid having rosstack finding stacks inside packages, #3816.
+  fs::path rospack_manifest = fs::path(path) / ROSPACK_MANIFEST_NAME;
+  try
+  {
+    if(fs::is_regular_file(rospack_manifest))
+      return;
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("error while looking for ") + rospack_manifest.string() + ": " + e.what());
+  }
+
   DirectoryCrawlRecord* dcr = NULL;
   if(collect_profile_data)
   {
