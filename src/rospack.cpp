@@ -197,10 +197,17 @@ Rosstackage::getSearchPathFromEnv(std::vector<std::string>& sp)
   // ROS_ROOT is optional, and will be phased out
   if(rr)
   {
-    if(fs::is_directory(rr))
-      sp.push_back(rr);
-    else
-      logWarn(std::string("ROS_ROOT=") + rr + " is not a directory");
+    try 
+    {
+      if(fs::is_directory(rr))
+        sp.push_back(rr);
+      else
+        logWarn(std::string("ROS_ROOT=") + rr + " is not a directory");
+    }
+    catch(fs::filesystem_error& e)
+    {
+      logWarn(std::string("error while looking at ROS_ROOT ") + rr + ": " + e.what());
+    }
   }
   if(rpp)
   {
@@ -235,8 +242,16 @@ Rosstackage::setQuiet(bool quiet)
 bool
 Rosstackage::isStackage(const std::string& path)
 {
-  if(!fs::is_directory(path))
+  try
+  {
+    if(!fs::is_directory(path))
+      return false;
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("error while looking at ") + path + ": " + e.what());
     return false;
+  }
 
   try
   {
@@ -1088,8 +1103,16 @@ Rosstackage::crawlDetail(const std::string& path,
   if(depth > MAX_CRAWL_DEPTH)
     throw Exception("maximum depth exceeded during crawl");
 
-  if(!fs::is_directory(path))
+  try
+  {
+    if(!fs::is_directory(path))
+      return;
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("error while looking at ") + path + ": " + e.what());
     return;
+  }
 
   if(isStackage(path))
   {
@@ -1352,17 +1375,17 @@ Rosstackage::getCachePath()
   }
 
   // If it doesn't exist, create the directory that will hold the cache
-  if(!fs::is_directory(cache_path))
+  try
   {
-    try
+    if(!fs::is_directory(cache_path))
     {
       fs::create_directory(cache_path);
     }
-    catch(fs::filesystem_error& e)
-    {
-      logWarn(std::string("cannot create rospack cache directory ") +
-                   cache_path.string() + ": " + e.what());
-    }
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("cannot create rospack cache directory ") +
+            cache_path.string() + ": " + e.what());
   }
   cache_path /= cache_name_;
   return cache_path.string();
