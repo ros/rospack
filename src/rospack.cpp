@@ -792,6 +792,13 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
   std::vector<Stackage*> stackages;
   if(!depsOnDetail(name, true, stackages))
     return false;
+  // Also look in the package itself
+  std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
+  if(it != stackages_.end())
+  {
+    // don't warn here; it was done in depsOnDetail()
+    stackages.push_back(it->second);
+  }
   // If top was given, filter to include only those package on which top
   // depends.
   if(top.size())
