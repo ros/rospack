@@ -136,7 +136,10 @@ parse_compiler_flags(const std::string& instring,
       intermediate.append((*it));
     }
   }
-  deduplicate_tokens(intermediate, last, outstring);
+  if(select)
+    deduplicate_tokens(intermediate, last, outstring);
+  else
+    outstring = intermediate;
 }
 
 }
