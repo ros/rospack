@@ -144,13 +144,13 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       else if(command == "depends1" || command == "deps1")
         output.append("[package]\n\nPrint newline-separated, ordered list of immediate dependencies of the package.");
       else if(command == "depends-manifest" || command == "deps-manifest")
-        output.append("[package]\n\nPrint space-separated, ordered list of manifest.xml files for all dependencies of the package.");
+        output.append("[package]\n\nPrint space-separated, ordered list of manifest.xml files for all dependencies of the package. Used internally by rosbuild.");
       else if(command == "depends-indent" || command == "deps-indent")
         output.append("[package]\n\nPrint newline-separated, indented list of the entire dependency chain for the package.");
       else if(command == "depends-why" || command == "deps-why")
         output.append("--target=TARGET [package]\n\nPrint newline-separated presentation of all dependency chains from the package to TARGET. ");
       else if(command == "depends-msgsrv" || command == "deps-msgsrv")
-        output.append("[package]\n\n");
+        output.append("[package]\n\nPrint space-separated list of message-generation marker files for all dependencies of the package.  Used internally by rosbuild.");
       else if(command == "rosdep" || command == "rosdeps")
         output.append("[package]\n\nPrint newline-separated list of all [rosdep] tags from the manifest.xml of the package and all of its dependencies.");
       else if(command == "rosdep0" || command == "rosdeps0")
