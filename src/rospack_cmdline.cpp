@@ -117,17 +117,72 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     else
       length = 20;
   }
-  
+
   // COMMAND: help
-  if(command == "help")
+  if(command == "help" || vm.count("help"))
   {
-    if(package_given || top.size() || length_str.size() || 
-       zombie_only || deps_only || lang.size() || attrib.size())
-    {
-      rp.logError( "invalid option(s) given");
-      return false;
+    if(package_given || (command != "help" && vm.count("help"))) {
+      if (command == "help") {
+        command = vm["package"].as<std::string>();
+      }
+      output.append("Usage: rospack ");
+      output.append(command);
+      if(command == "help")
+        output.append("[command]\n\nPrint help message.");
+      else if(command == "find")
+        output.append("\n\nPrint absolute path to the package");
+      else if(command == "list")
+        output.append("\n\nPrint newline-separated list <package-name> <package-dir> for all packages.");
+      else if(command == "list-names")
+        output.append("\n\nPrint newline-separated list of packages names for all packages.");
+      else if(command == "list-duplicates")
+        output.append("\n\nPrint newline-separated list of names of packages that are found more than once during the search.");
+      else if(command == "langs")
+        output.append("\n\nPrint space-separated list of available language-specific client libraries.");
+      else if(command == "depends" || command == "deps")
+        output.append("[package]\n\nPrint newline-separated, ordered list of all dependencies of the package.");
+      else if(command == "depends1" || command == "deps1")
+        output.append("[package]\n\nPrint newline-separated, ordered list of immediate dependencies of the package.");
+      else if(command == "depends-manifest" || command == "deps-manifest")
+        output.append("[package]\n\nPrint space-separated, ordered list of manifest.xml files for all dependencies of the package.");
+      else if(command == "depends-indent" || command == "deps-indent")
+        output.append("[package]\n\nPrint newline-separated, indented list of the entire dependency chain for the package.");
+      else if(command == "depends-why" || command == "deps-why")
+        output.append("--target=TARGET [package]\n\nPrint newline-separated presentation of all dependency chains from the package to TARGET. ");
+      else if(command == "depends-msgsrv" || command == "deps-msgsrv")
+        output.append("[package]\n\n");
+      else if(command == "rosdep" || command == "rosdeps")
+        output.append("[package]\n\nPrint newline-separated list of all [rosdep] tags from the manifest.xml of the package and all of its dependencies.");
+      else if(command == "rosdep0" || command == "rosdeps0")
+        output.append("[package]\n\nPrint newline-separated list of all [rosdep] tags from the manifest.xml of just the package itself.");
+      else if(command == "vcs")
+        output.append("[package]\n\nPrint newline-separated list of all [versioncontrol] tags from the manifest.xml of the package and all of its dependencies.");
+      else if(command == "vcs0")
+        output.append("[package]\n\nPrint newline-separated list of all [versioncontrol] tags from the manifest.xml of just the package itself.");
+      else if(command == "depends-on")
+        output.append("[package]\n\nPrint newline-separated list of all packages that depend on the package. ");
+      else if(command == "depends-on1")
+        output.append("[package]\n\nPrint newline-separated list of all packages that directly depend on the package.");
+      else if(command == "export")
+        output.append("[--deps-only] --lang=<lang> --attrib=<attrib> [package]\n\nPrint Space-separated list of [export][LANGUAGE ATTRIBUTE=\"\"/][/export] values from the manifest.xml of the package and its dependencies.\n\nIf --deps-only is provided, then the package itself is excluded.");
+      else if(command == "plugins")
+        output.append("--attrib=<attrib> [--top=<toppkg>] [package]\n\nExamine packages that depend directly on the given package, giving name and the exported attribute with the name <attrib>\n\nIf --top=<toppkg> is given, then in addition to depending directly on the given package, to be scanned for exports, a package must also be a dependency of <toppkg>, or be <toppkg> itself.");
+      else if(command == "cflags-only-I")
+        output.append("[--deps-only] [package]\n\nPrint Space-separated list of [export][LANGUAGE ATTRIBUTE=\"\"/][/export] values from the manifest.xml of the package and its dependencies.\n\nIf --deps-only is provided, then the package itself is excluded.");
+      else if(command == "cflags-only-other")
+        output.append("[--deps-only] [package]\n\nPrint space-separated list of export/cpp/cflags that don't start with -I.\n\nIf --deps-only is provided, then the package itself is excluded.");
+      else if(command == "libs-only-L")
+        output.append("[--deps-only] [package]\n\nPrint space-separated list of export/cpp/libs that start with -L.\n\nIf --deps-only is provided, then the package itself is excluded.");
+      else if(command == "libs-only-l")
+        output.append("[--deps-only] [package]\n\nPrint space-separated list of export/cpp/libs that start with -l.\n\nIf --deps-only is provided, then the package itself is excluded.");
+      else if(command == "libs-only-other")
+        output.append("[--deps-only] [package]\n\nPrint space-separated list of export/cpp/libs that don't start with -l or -L.\n\nIf --deps-only is provided, then the package itself is excluded.");
+      else if(command == "profile")
+        output.append("[--length=<length>] [--zombie-only]\n\nForce a full crawl of package directories and report the directories that took the longest time to crawl.\n\n--length=N how many directories to display\n\n--zombie-only Only print directories that do not have any manifests.");
+      output.append("\n");
+    } else {
+        output.append(rp.usage());
     }
-    output.append(rp.usage());
     return true;
   }
 
@@ -751,6 +806,7 @@ parse_args(int argc, char** argv,
           ("top", po::value<std::string>(), "top")
           ("length", po::value<std::string>(), "length")
           ("zombie-only", "zombie-only")
+          ("help", "help")
           ("quiet,q", "quiet");
 
   po::positional_options_description pd;
