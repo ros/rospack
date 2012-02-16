@@ -84,7 +84,6 @@ configure_file(
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-find_package(GTest QUIET)
 if(GTEST_FOUND)
   add_subdirectory(test)
 endif()
