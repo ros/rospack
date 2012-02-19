@@ -8,16 +8,14 @@ catkin_project(rospack
   INCLUDE_DIRS include
   )
 
-# These get set in the mingw cmake toolchain file, but are also oft used
-# in other ros packages to identify as static or shared
-if(ROS_BUILD_STATIC_LIBS OR BUILD_STATIC)
-  message(STATUS "A global ROS_BUILD_STATIC or BUILD_STATIC found.")
+# BUILD_SHARED_LIBS is a global cmake variable (usually defaults to on) that determines
+# the build type of libraries:
+#   http://www.cmake.org/cmake/help/cmake-2-8-docs.html#variable:BUILD_SHARED_LIBS
+if(BUILD_SHARED_LIBS)
+  message(STATUS "Rospack building shared objects.")
+else()
   message(STATUS "Rospack building static objects.")
   add_definitions(-DROS_BUILD_STATIC_LIBS) # tinyxml.h:86
-  set(ROSPACK_BUILD_STATIC TRUE CACHE BOOL "Build static libs (as opposed to shared libs)")
-else()
-  message(STATUS "Rospack building shared objects.")
-  set(ROSPACK_BUILD_STATIC FALSE CACHE BOOL "Build static libs (as opposed to shared libs)")
 endif()
 
 add_definitions(-Wall)
@@ -37,19 +35,12 @@ endif()
 include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
 
-if(ROSPACK_BUILD_STATIC)
-  add_library(rospack STATIC src/rospack.cpp ${backcompat_source}
+add_library(rospack src/rospack.cpp ${backcompat_source}
             src/utils.cpp
             tinyxml-2.5.3/tinyxml.cpp
             tinyxml-2.5.3/tinyxmlparser.cpp
             tinyxml-2.5.3/tinyxmlerror.cpp)
-else()
-  add_library(rospack SHARED src/rospack.cpp ${backcompat_source}
-            src/utils.cpp
-            tinyxml-2.5.3/tinyxml.cpp
-            tinyxml-2.5.3/tinyxmlparser.cpp
-            tinyxml-2.5.3/tinyxmlerror.cpp)
-endif()
+
 target_link_libraries(rospack ${Boost_LIBRARIES})
 add_executable(rospackexe src/rospack_main.cpp src/rospack_cmdline.cpp)
 # Set the name, and make it a "global" executable
