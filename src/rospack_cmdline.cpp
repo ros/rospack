@@ -241,9 +241,9 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "invalid option(s) given");
       return false;
     }
-    std::vector<std::pair<std::string, std::string> > list;
+    std::set<std::pair<std::string, std::string> > list;
     rp.list(list);
-    for(std::vector<std::pair<std::string, std::string> >::const_iterator it = list.begin();
+    for(std::set<std::pair<std::string, std::string> >::const_iterator it = list.begin();
         it != list.end();
         ++it)
     {
@@ -260,9 +260,9 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "invalid option(s) given");
       return false;
     }
-    std::vector<std::pair<std::string, std::string> > list;
+    std::set<std::pair<std::string, std::string> > list;
     rp.list(list);
-    for(std::vector<std::pair<std::string, std::string> >::const_iterator it = list.begin();
+    for(std::set<std::pair<std::string, std::string> >::const_iterator it = list.begin();
         it != list.end();
         ++it)
     {
@@ -478,10 +478,10 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "invalid option(s) given");
       return false;
     }
-    std::vector<std::string> rosdeps;
+    std::set<std::string> rosdeps;
     if(!rp.rosdeps(package, (command == "rosdep0" || command == "rosdeps0"), rosdeps))
       return false;
-    for(std::vector<std::string>::const_iterator it = rosdeps.begin();
+    for(std::set<std::string>::const_iterator it = rosdeps.begin();
         it != rosdeps.end();
         ++it)
       output.append(*it + "\n");
@@ -752,9 +752,9 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
 
-    std::vector<std::string> packages;
+    std::set<std::string> packages;
     rp.contents(package, packages);
-    for(std::vector<std::string>::const_iterator it = packages.begin();
+    for(std::set<std::string>::const_iterator it = packages.begin();
         it != packages.end();
         ++it)
       output.append(*it + "\n");

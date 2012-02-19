@@ -109,6 +109,7 @@ and Rosstack.
 #include <boost/tr1/unordered_map.hpp>
 #include <string>
 #include <vector>
+#include <set>
 #include <list>
 
 //#ifdef ROSPACK_API_BACKCOMPAT_V1
@@ -261,7 +262,7 @@ class Rosstackage
      * @param packages The stack's constituent packages are written here.
      * @return True if the contents could be computed, false otherwise.
      */
-    bool contents(const std::string& name, std::vector<std::string>& packages);
+    bool contents(const std::string& name, std::set<std::string>& packages);
     /**
      * @brief Find the stack that contains a package.
      * @param name The package to work on.
@@ -277,7 +278,7 @@ class Rosstackage
      * @brief List names and paths of all stackages.
      * @param list Pairs of (name,path) are written here.
      */
-    void list(std::vector<std::pair<std::string, std::string> >& list);
+    void list(std::set<std::pair<std::string, std::string> >& list);
     /**
      * @brief Identify duplicate stackages.  Forces crawl.
      * @param dups Names of stackages that are found more than once while
@@ -389,7 +390,7 @@ Dependency chains from roscpp to roslib:
      * @return True if the rosdep list is computed, false otherwise.
      */
     bool rosdeps(const std::string& name, bool direct,
-                 std::vector<std::string>& rosdeps);
+                 std::set<std::string>& rosdeps);
     /**
      * @brief Compute vcs entries that are declared in manifest of a package
      * and its dependencies.  Was used by Hudson build scripts; might not

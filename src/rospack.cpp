@@ -391,7 +391,7 @@ Rosstackage::find(const std::string& name, std::string& path)
 
 bool
 Rosstackage::contents(const std::string& name, 
-                      std::vector<std::string>& packages)
+                      std::set<std::string>& packages)
 {
   Rospack rp2;
   std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
@@ -400,12 +400,12 @@ Rosstackage::contents(const std::string& name,
     std::vector<std::string> search_paths;
     search_paths.push_back(it->second->path_);
     rp2.crawl(search_paths, true);
-    std::vector<std::pair<std::string, std::string> > names_paths;
+    std::set<std::pair<std::string, std::string> > names_paths;
     rp2.list(names_paths);
-    for(std::vector<std::pair<std::string, std::string> >::const_iterator iit = names_paths.begin();
+    for(std::set<std::pair<std::string, std::string> >::const_iterator iit = names_paths.begin();
         iit != names_paths.end();
         ++iit)
-      packages.push_back(iit->first);
+      packages.insert(iit->first);
     return true;
   }
   else
@@ -428,9 +428,9 @@ Rosstackage::contains(const std::string& name,
     std::vector<std::string> search_paths;
     search_paths.push_back(it->second->path_);
     rp2.crawl(search_paths, true);
-    std::vector<std::pair<std::string, std::string> > names_paths;
+    std::set<std::pair<std::string, std::string> > names_paths;
     rp2.list(names_paths);
-    for(std::vector<std::pair<std::string, std::string> >::const_iterator iit = names_paths.begin();
+    for(std::set<std::pair<std::string, std::string> >::const_iterator iit = names_paths.begin();
         iit != names_paths.end();
         ++iit)
     {
@@ -448,17 +448,16 @@ Rosstackage::contains(const std::string& name,
 }
 
 void 
-Rosstackage::list(std::vector<std::pair<std::string, std::string> >& list)
+Rosstackage::list(std::set<std::pair<std::string, std::string> >& list)
 {
-  list.resize(stackages_.size());
-  int i = 0;
   for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
       it != stackages_.end();
       ++it)
   {
-    list[i].first = it->first;
-    list[i].second = it->second->path_;
-    i++;
+    std::pair<std::string, std::string> item; 
+    item.first = it->first; 
+    item.second = it->second->path_; 
+    list.insert(item); 
   }
 }
 
@@ -611,7 +610,7 @@ Rosstackage::depsManifests(const std::string& name, bool direct,
 
 bool
 Rosstackage::rosdeps(const std::string& name, bool direct, 
-                     std::vector<std::string>& rosdeps)
+                     std::set<std::string>& rosdeps)
 {
   Stackage* stackage = findWithRecrawl(name);
   if(!stackage)
@@ -636,7 +635,7 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
         const char *att_str;
         if((att_str = ele->Attribute(MANIFEST_ATTR_NAME)))
         {
-          rosdeps.push_back(std::string("name: ") + att_str);
+          rosdeps.insert(std::string("name: ") + att_str);
         }
       }
     }
