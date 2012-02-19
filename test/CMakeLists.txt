@@ -105,12 +105,11 @@ add_custom_target(${PROJECT_NAME}-prepare_test
                   COMMAND cmake -E chdir test/deep python deep.py)
 add_dependencies(tests ${PROJECT_NAME}-prepare_test)
 
-message("TODO: enable rospack's pyunit tests")
-#configure_file(test/utest.py.in
-#               ${CMAKE_CURRENT_BINARY_DIR}/test/utest.py)
-#rospack_add_pyunit(${CMAKE_CURRENT_BINARY_DIR}/test/utest.py
-#           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-#configure_file(test/utest_rosstack.py.in
-#               ${CMAKE_CURRENT_BINARY_DIR}/test/utest_rosstack.py)
-#rospack_add_pyunit(${CMAKE_CURRENT_BINARY_DIR}/test/utest_rosstack.py
-#           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+configure_file(test/utest.py.in
+               ${CMAKE_CURRENT_BINARY_DIR}/test/utest.py)
+rospack_add_pyunit(${CMAKE_CURRENT_BINARY_DIR}/test/utest.py
+           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+configure_file(test/utest_rosstack.py.in
+               ${CMAKE_CURRENT_BINARY_DIR}/test/utest_rosstack.py)
+rospack_add_pyunit(${CMAKE_CURRENT_BINARY_DIR}/test/utest_rosstack.py
+           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

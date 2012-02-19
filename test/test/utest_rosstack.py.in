@@ -197,7 +197,6 @@ class RosstackTestCase(unittest.TestCase):
         self.rosstack_succeed(None, "list-names")
 
     def test_no_package_allowed_bad(self):
-        self.rosstack_fail("deps", "help")
         self.rosstack_fail("deps", "profile")
         self.rosstack_fail("deps", "list")
         self.rosstack_fail("deps", "list-names")
