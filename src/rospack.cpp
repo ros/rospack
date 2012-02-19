@@ -1401,11 +1401,7 @@ Rosstackage::getCachePath()
 bool
 Rosstackage::readCache()
 {
-  if(!validateCache())
-    return false;
-
-  std::string cache_path = getCachePath();
-  FILE *cache = fopen(cache_path.c_str(), "r");
+  FILE* cache = validateCache();
   if(cache)
   {
     char linebuf[30000];
@@ -1522,7 +1518,7 @@ Rosstackage::writeCache()
   }
 }
 
-bool
+FILE*
 Rosstackage::validateCache()
 {
   std::string cache_path = getCachePath();
@@ -1532,7 +1528,7 @@ Rosstackage::validateCache()
   if(user_cache_time_str)
     cache_max_age = atof(user_cache_time_str);
   if(cache_max_age == 0.0)
-    return false;
+    return NULL;
   struct stat s;
   if(stat(cache_path.c_str(), &s) == 0)
   {
@@ -1540,12 +1536,12 @@ Rosstackage::validateCache()
     // Negative cache_max_age means it's always new enough.  It's dangerous
     // for the user to set this, but rosbash uses it.
     if ((cache_max_age > 0.0) && (dt > cache_max_age))
-      return false;
+      return NULL;
   }
   // try to open it 
   FILE* cache = fopen(cache_path.c_str(), "r");
   if(!cache)
-    return false; // it's not readable by us. sad.
+    return NULL; // it's not readable by us. sad.
 
   // see if ROS_PACKAGE_PATH matches
   char linebuf[30000];
@@ -1585,8 +1581,18 @@ Rosstackage::validateCache()
     else
       break; // we're out of the header. nothing more matters to this check.
   }
-  fclose(cache);
-  return ros_root_ok && ros_package_path_ok;
+  if(ros_root_ok && ros_package_path_ok)
+  {
+    // seek to the beginning and pass back the stream (instead of closing
+    // and later reopening, which is a race condition, #1666)
+    fseek(cache, 0, SEEK_SET);
+    return cache;
+  }
+  else
+  {
+    fclose(cache);
+    return NULL;
+  }
 }
 
 bool

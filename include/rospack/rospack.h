@@ -175,7 +175,7 @@ class Rosstackage
     std::string getCachePath();
     bool readCache();
     void writeCache();
-    bool validateCache();
+    FILE* validateCache();
     bool expandExportString(Stackage* stackage,
                             const std::string& instring,
                             std::string& outstring);
