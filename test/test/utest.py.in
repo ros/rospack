@@ -292,7 +292,6 @@ class RospackTestCase(unittest.TestCase):
         os.environ = env
 
     def test_no_package_allowed(self):
-        self.rospack_succeed(None, "help")
         self.rospack_succeed(None, "profile")
         self.rospack_succeed(None, "list")
         self.rospack_succeed(None, "list-names")
