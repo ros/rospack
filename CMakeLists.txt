@@ -36,19 +36,19 @@ include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
 
 add_library(rospack src/rospack.cpp ${backcompat_source}
-            src/utils.cpp
+            src/utils.cpp src/rospack_cmdline.cpp
             tinyxml-2.5.3/tinyxml.cpp
             tinyxml-2.5.3/tinyxmlparser.cpp
             tinyxml-2.5.3/tinyxmlerror.cpp)
 
 target_link_libraries(rospack ${Boost_LIBRARIES})
-add_executable(rospackexe src/rospack_main.cpp src/rospack_cmdline.cpp)
+add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
 set_target_properties(rospackexe
                       PROPERTIES OUTPUT_NAME rospack
                                  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
-add_executable(rosstackexe src/rosstack_main.cpp src/rospack_cmdline.cpp)
+add_executable(rosstackexe src/rosstack_main.cpp)
 target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
 # Set the name, and make it a "global" executable
 set_target_properties(rosstackexe

@@ -27,6 +27,7 @@
 
 #include "rospack/rospack_backcompat.h"
 #include "rospack/rospack.h"
+#include "rospack_cmdline.h"
 
 #include <boost/algorithm/string.hpp>
 #include <string.h>
@@ -39,15 +40,14 @@ namespace rospack
 int 
 ROSPack::run(int argc, char** argv)
 {
-  std::string cmd;
-  for(int i=0; i<argc; i++)
+  rospack::Rospack rp;
+  bool success = rospack::rospack_run(argc, argv, rp, output_);
+  if(!success)
   {
-    if(i==0)
-      cmd.append(argv[i]);
-    else
-      cmd.append(std::string(" ") + argv[i]);
+    fprintf(stderr, "[librospack]: error while executing command\n");
+    return 1;
   }
-  return run(cmd);
+  return 0;
 }
 
 int 
@@ -56,39 +56,32 @@ ROSPack::run(const std::string& cmd)
   // Callers of this method don't make 'rospack' argv[0].
   std::string full_cmd = std::string("rospack ") + cmd;
 
-  FILE* p;
-  if(!(p = popen(full_cmd.c_str(), "r")))
+  int argc;
+  char** argv;
+  std::vector<std::string> full_cmd_split;
+  boost::split(full_cmd_split, full_cmd, 
+               boost::is_any_of(" "),
+               boost::token_compress_on);
+  argc = full_cmd_split.size();
+  argv = new char*[argc];
+  int i = 0;
+  for(std::vector<std::string>::const_iterator it = full_cmd_split.begin();
+      it != full_cmd_split.end();
+      ++it)
   {
-    std::string errmsg = 
-            std::string("failed to execute rospack command ") + full_cmd + 
-            ": " + strerror(errno);
-    fprintf(stderr, "[rospack] Error: %s\n", errmsg.c_str());
-    return 1;
+    argv[i] = new char[it->size()+1];
+    memset(argv[i], 0, it->size()+1);
+    memcpy(argv[i], it->c_str(), it->size());
+    i++;
   }
-  else
-  {
-    char buf[8192];
-    memset(buf,0,sizeof(buf));
-    // Read the command's output
-    do
-    {
-      clearerr(p);
-      while(fgets(buf + strlen(buf),sizeof(buf)-strlen(buf)-1,p));
-    } while(ferror(p) && errno == EINTR);
-    // Close the subprocess, checking exit status
-    if(pclose(p) != 0)
-    {
-      std::string errmsg = 
-              std::string("got non-zero exit status from executing rospack command ") +
-              cmd;
-      return 1;
-    }
-    else
-    {
-      output_ = buf;
-    }
-  }
-  return 0;
+
+  int ret = run(argc, argv);
+
+  for(int i=0; i<argc; i++)
+    delete[] argv[i];
+  delete[] argv;
+  
+  return ret;
 }
 
 } // namespace rospack
