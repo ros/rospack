@@ -3,7 +3,6 @@ project(rospack)
 find_package(catkin)
 catkin_stack()
 catkin_project(rospack
-  VERSION 1.0.0
   LIBRARIES rospack
   INCLUDE_DIRS include
   )
