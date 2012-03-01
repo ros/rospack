@@ -1,5 +1,5 @@
 Catkin-ProjectName: rospack
-Version: 2.0.9
+Version: 2.0.10
 Depends: catkin, boost, gtest
 Description: ROS Package Tool
 Author: Brian Gerkey
