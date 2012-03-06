@@ -41,17 +41,18 @@ ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
 ROSSTACK_PATH = "@CMAKE_BINARY_DIR@/bin/rosstack"
 
+# Set the initial CWD, so that we can set it back later.
+# Go up one directory.  Have to do this because nosetests doesn't seem to
+# run properly from the parent directory, even with --where= passed in.
+initial_cwd = os.path.dirname(os.path.dirname(__file__))
+os.chdir(initial_cwd)
+
 aliases = {
     'deps': 'depends',
     'deps1': 'depends1',
     'deps-manifests': 'depends-manifests',
     'deps-indent': 'depends-indent',
     }
-
-# Grab the initial CWD, so that we can set it back later.
-# Go up one directory.  Have to do this because nosetests doesn't seem to
-# run properly from the parent directory, even with --where= passed in.
-initial_cwd = os.path.dirname(os.getcwd())
 
 ## Process-level tests of rosstack executable
 class RosstackTestCase(unittest.TestCase):
