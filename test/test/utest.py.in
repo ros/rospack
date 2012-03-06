@@ -71,7 +71,9 @@ aliases = {
     }
 
 # Grab the initial CWD, so that we can set it back later.
-initial_cwd = os.getcwd()
+# Go up one directory.  Have to do this because nosetests doesn't seem to
+# run properly from the parent directory, even with --where= passed in.
+initial_cwd = os.path.dirname(os.getcwd())
 
 ## Process-level tests of rospack executable
 class RospackTestCase(unittest.TestCase):
@@ -891,7 +893,3 @@ class RospackTestCase(unittest.TestCase):
         status_code, stdout, stderr = self._run_rospack(ros_root, None, 'nonexistentpackage', 'find')
         self.assertNotEquals(0, status_code)
         self.assertNotEquals(0, len(stderr))
-
-if __name__ == "__main__":
-    import rosunit
-    rosunit.unitrun('rospack', 'rospack_exe_process', RospackTestCase)

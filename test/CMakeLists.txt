@@ -1,6 +1,10 @@
 # We replicate some macros from rosunit-extras.cmake here, to avoid
 # depending on rosunit.
 
+if(NOT ENV{ROS_TEST_RESULTS_DIR})
+  set(ENV{ROS_TEST_RESULTS_DIR} ${CMAKE_BINARY_DIR}/test_results)
+endif()
+
 # This is a macro to ensure that ${PROJECT_NAME}_CACHE gets set in a higher
 # scope where we can check it later.
 macro(rospack_append_test_to_cache CACHENAME)
@@ -25,44 +29,45 @@ macro(rospack_append_test_to_cache CACHENAME)
   file(APPEND ${cachefile} "${ARGN}\n")
 endmacro()
 
-function(rospack_add_pyunit file)
-  # Look for optional TIMEOUT argument, #2645
-  parse_arguments(_pyunit "TIMEOUT;WORKING_DIRECTORY" "" ${ARGN})
-  if(NOT _pyunit_TIMEOUT)
-    set(_pyunit_TIMEOUT 60.0)
+function(rospack_add_nosetests dir)
+  # Check that nosetests is installed.
+  find_program(nosetests_path nosetests)
+  if(NOT nosetests_path)
+    message(FATAL_ERROR "Can't find nosetests executable... try installing package 'python-nose'")
   endif()
-  if(_pyunit_WORKING_DIRECTORY)
-    set(_chdir_prefix "bash -c \"cd ${_pyunit_WORKING_DIRECTORY} && ")
+
+  parse_arguments(_nose "WORKING_DIRECTORY" "" ${ARGN})
+  if(_nose_WORKING_DIRECTORY)
+    set(_chdir_prefix "bash -c \"cd ${_nose_WORKING_DIRECTORY} && ")
     set(_chdir_suffix "\"")
   endif()
 
-  # Check that the file exists, #1621
-  set(_file_name _file_name-NOTFOUND)
-  if(IS_ABSOLUTE ${file})
-    set(_file_name ${file})
+  # Check that the directory exists
+  set(_dir_name _dir_name-NOTFOUND)
+  if(IS_ABSOLUTE ${dir})
+    set(_dir_name ${dir})
   else()
-    find_file(_file_name ${file}
+    find_file(_dir_name ${dir}
               PATHS ${CMAKE_CURRENT_SOURCE_DIR}
               NO_DEFAULT_PATH
               NO_CMAKE_FIND_ROOT_PATH)  # for cross-compilation.  thanks jeremy.
-    if(NOT _file_name)
-      message(FATAL_ERROR "Can't find pyunit file \"${file}\"")
+    if(NOT _dir_name)
+      message(FATAL_ERROR "Can't find nosetests dir \"${dir}\"")
     endif()
   endif()
 
   # We look for ROS_TEST_COVERAGE=1
   # to indicate that coverage reports are being requested.
   if("$ENV{ROS_TEST_COVERAGE}" STREQUAL "1")
-    set(_covarg "--cov")
+    set(_covarg "--with-coverage")
   else()
     set(_covarg)
   endif()
 
-  # Create a legal test name, in case the target name has slashes in it
-  string(REPLACE "/" "_" _testname ${file})
-  # We use rostest to call the executable to get process control, #1629
-  rospack_append_test_to_cache(catkin-tests "${_chdir_prefix}${ROSUNIT_EXE} --name=${_testname} --time-limit=${_pyunit_TIMEOUT} --package=${PROJECT_NAME} -- ${_file_name} ${_covarg}${_chdir_suffix}")
-  rospack_append_test_to_cache(catkin-tests "${ROSUNIT_CHECK_TEST_RAN_EXE} ${CMAKE_BINARY_DIR}/test_results/${PROJECT_NAME}/TEST-${_testname}.xml")
+  set(output_dir_name ${CMAKE_BINARY_DIR}/test_results/${PROJECT_NAME})
+  rospack_append_test_to_cache(catkin-tests "${CMAKE_COMMAND} -E make_directory ${output_dir_name}")
+  string(REPLACE "/" "." output_file_name ${dir})
+  rospack_append_test_to_cache(catkin-tests "${_chdir_prefix}${nosetests_path} --where=${_dir_name} --with-xunit --xunit-file=${output_dir_name}/${output_file_name}.xml ${_covarg}${_chdir_suffix}")
 endfunction()
 
 function(rospack_add_gtest exe)
@@ -89,7 +94,6 @@ function(rospack_add_gtest exe)
   # Create a legal test name, in case the target name has slashes in it
   string(REPLACE "/" "_" _testname ${exe})
   get_target_property(_exe_path ${exe} RUNTIME_OUTPUT_DIRECTORY)
-  # We use rosunit to call the executable to get process control, #1629, #3112
   rospack_append_test_to_cache(catkin-tests "${_chdir_prefix}${_exe_path}/${exe} --gtest_output=xml:$ENV{ROS_TEST_RESULTS_DIR}/${PROJECT_NAME}/TEST-${exe}.xml${_chdir_suffix}")
 endfunction()
 
@@ -107,9 +111,7 @@ add_dependencies(tests ${PROJECT_NAME}-prepare_test)
 
 configure_file(test/utest.py.in
                ${CMAKE_CURRENT_BINARY_DIR}/test/utest.py)
-rospack_add_pyunit(${CMAKE_CURRENT_BINARY_DIR}/test/utest.py
-           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(test/utest_rosstack.py.in
                ${CMAKE_CURRENT_BINARY_DIR}/test/utest_rosstack.py)
-rospack_add_pyunit(${CMAKE_CURRENT_BINARY_DIR}/test/utest_rosstack.py
-           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+rospack_add_nosetests(${CMAKE_CURRENT_BINARY_DIR}/test
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test)
