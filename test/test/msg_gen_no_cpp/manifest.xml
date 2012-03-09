@@ -1,4 +1,5 @@
 <package>
   <export>
+    <foo bar="bat"/>
   </export>
 </package>

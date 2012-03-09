@@ -880,6 +880,15 @@ class RospackTestCase(unittest.TestCase):
         for p in pkgs:
           self.rospack_succeed(p, "cflags-only-I")
           self.assertEquals(os.path.join(test_path, p, "msg_gen/cpp/include"), self.strip_opt_ros(self.run_rospack(p, "cflags-only-I")))
+        # Also test that we don't get auto-inclusion of msg_gen when we're
+        # asking for a different lang / attrib, #3884
+        pkg = 'msg_gen_no_cpp'
+        cmd = 'export --lang=cpp --attrib=lflags'
+        self.rospack_succeed(pkg, cmd)
+        self.assertEquals('', self.strip_opt_ros(self.run_rospack(pkg, cmd)))
+        cmd = 'export --lang=foo --attrib=bar'
+        self.rospack_succeed(pkg, cmd)
+        self.assertEquals('bat', self.run_rospack(pkg, cmd))
 
     # Test that -q option suppresses errors, #3177.
     def test_quiet_option(self):

@@ -759,18 +759,22 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
       }
 
       // We automatically point to msg_gen and msg_srv directories if
-      // certain files are present
-      fs::path msg_gen = fs::path((*it)->path_) / MSG_GEN_GENERATED_DIR;
-      fs::path srv_gen = fs::path((*it)->path_) / SRV_GEN_GENERATED_DIR;
-      if(fs::is_regular_file(msg_gen / MSG_GEN_GENERATED_FILE))
+      // certain files are present.
+      // But only if we're looking for cpp/cflags, #3884.
+      if((lang == "cpp") && (attrib == "cflags"))
       {
-        msg_gen /= fs::path("cpp") / "include";
-        flags.push_back(std::string("-I" + msg_gen.string()));
-      }
-      if(fs::is_regular_file(srv_gen / SRV_GEN_GENERATED_FILE))
-      {
-        srv_gen /= fs::path("cpp") / "include";
-        flags.push_back(std::string("-I" + srv_gen.string()));
+        fs::path msg_gen = fs::path((*it)->path_) / MSG_GEN_GENERATED_DIR;
+        fs::path srv_gen = fs::path((*it)->path_) / SRV_GEN_GENERATED_DIR;
+        if(fs::is_regular_file(msg_gen / MSG_GEN_GENERATED_FILE))
+        {
+          msg_gen /= fs::path("cpp") / "include";
+          flags.push_back(std::string("-I" + msg_gen.string()));
+        }
+        if(fs::is_regular_file(srv_gen / SRV_GEN_GENERATED_FILE))
+        {
+          srv_gen /= fs::path("cpp") / "include";
+          flags.push_back(std::string("-I" + srv_gen.string()));
+        }
       }
     }
   }
