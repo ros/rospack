@@ -62,7 +62,7 @@ install(DIRECTORY include/
         DESTINATION include
         FILES_MATCHING PATTERN "*.h"
         PATTERN ".svn" EXCLUDE)
-install(FILES manifest.xml stack.yaml
+install(FILES manifest.xml stack.xml
         DESTINATION share/rospack)
 
 # uninstall target
