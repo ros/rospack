@@ -3,7 +3,7 @@
   <version>2.0.12</version>
   <description>ROS Package Tool</description>
   <author>Brian Gerkey</author>
-  <maintainer>Brian Gerkey gerkey@willowgarage.com</maintainer>
+  <maintainer email="gerkey@willowgarage.com">Brian Gerkey</maintainer>
   <license>BSD</license>  
   <copyright>Willow Garage</copyright>
   <url>http://www.ros.org/wiki/rospack</url>
