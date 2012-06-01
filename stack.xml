@@ -1,6 +1,6 @@
 <stack>
   <name>rospack</name>
-  <version>2.0.12</version>
+  <version>2.0.13</version>
   <description>ROS Package Tool</description>
   <author>Brian Gerkey</author>
   <maintainer email="gerkey@willowgarage.com">Brian Gerkey</maintainer>
