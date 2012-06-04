@@ -1,5 +1,4 @@
 <package>
-<catkin/>
   <description brief="rospack">
 
      The ROS package manager.
