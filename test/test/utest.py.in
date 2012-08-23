@@ -43,7 +43,7 @@ from subprocess import Popen, PIPE
 ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
-ROSPACK_PATH = "@CMAKE_BINARY_DIR@/bin/rospack"
+ROSPACK_PATH = "@catkin_BUILD_PREFIX@/bin/rospack"
 
 # Set the initial CWD, so that we can set it back later.
 # Go up one directory.  Have to do this because nosetests doesn't seem to
