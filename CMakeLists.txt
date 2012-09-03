@@ -55,15 +55,12 @@ set_target_properties(rosstackexe
                                  RUNTIME_OUTPUT_DIRECTORY ${catkin_BUILD_PREFIX}/bin)
 
 install(TARGETS rospack rospackexe rosstackexe
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin)
+  ARCHIVE DESTINATION ${PROJECT_LIB_DESTINATION}
+  LIBRARY DESTINATION ${PROJECT_LIB_DESTINATION}
+  RUNTIME DESTINATION ${GLOBAL_BIN_DESTINATION})
 install(DIRECTORY include/
-        DESTINATION include
-        FILES_MATCHING PATTERN "*.h"
-        PATTERN ".svn" EXCLUDE)
-install(FILES manifest.xml stack.xml
-        DESTINATION share/rospack)
+  DESTINATION ${PROJECT_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h")
 
 # uninstall target
 configure_file(
