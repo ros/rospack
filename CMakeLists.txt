@@ -45,21 +45,21 @@ add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
 set_target_properties(rospackexe
                       PROPERTIES OUTPUT_NAME rospack
-                                 RUNTIME_OUTPUT_DIRECTORY ${catkin_BUILD_PREFIX}/bin)
+                                 RUNTIME_OUTPUT_DIRECTORY ${CATKIN_BUILD_PREFIX}/bin)
 target_link_libraries(rospackexe rospack ${Boost_LIBRARIES})
 add_executable(rosstackexe src/rosstack_main.cpp)
 target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
 # Set the name, and make it a "global" executable
 set_target_properties(rosstackexe
                       PROPERTIES OUTPUT_NAME rosstack
-                                 RUNTIME_OUTPUT_DIRECTORY ${catkin_BUILD_PREFIX}/bin)
+                                 RUNTIME_OUTPUT_DIRECTORY ${CATKIN_BUILD_PREFIX}/bin)
 
 install(TARGETS rospack rospackexe rosstackexe
-  ARCHIVE DESTINATION ${PROJECT_LIB_DESTINATION}
-  LIBRARY DESTINATION ${PROJECT_LIB_DESTINATION}
-  RUNTIME DESTINATION ${GLOBAL_BIN_DESTINATION})
+  ARCHIVE DESTINATION ${CATKIN_PROJECT_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PROJECT_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
 install(DIRECTORY include/
-  DESTINATION ${PROJECT_INCLUDE_DESTINATION}
+  DESTINATION ${CATKIN_PROJECT_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h")
 
 # uninstall target
