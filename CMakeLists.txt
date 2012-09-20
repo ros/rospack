@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.6.0)
 project(rospack)
 find_package(catkin REQUIRED)
-catkin_stack()
-catkin_project(rospack
+catkin_package()
+catkin_package_export(
   LIBRARIES rospack
   INCLUDE_DIRS include
-  )
+)
 
 # BUILD_SHARED_LIBS is a global cmake variable (usually defaults to on) that determines
 # the build type of libraries:
