@@ -17,4 +17,6 @@
 
   <run_depend>boost</run_depend>
   <run_depend>gtest</run_depend>
+
+  <test_depend>python-coverage</test_depend>
 </package>
