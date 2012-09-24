@@ -8,7 +8,7 @@ target_link_libraries(${PROJECT_NAME}-utest rospack)
 add_custom_target(${PROJECT_NAME}-prepare_test
                   COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/test ${CMAKE_CURRENT_BINARY_DIR}
                   COMMAND cmake -E chdir test/deep python deep.py)
-add_dependencies(tests ${PROJECT_NAME}-prepare_test)
+add_dependencies(${PROJECT_NAME}-utest ${PROJECT_NAME}-prepare_test)
 
 configure_file(test/utest.py.in
                ${CMAKE_CURRENT_BINARY_DIR}/test/utest.py)
