@@ -67,6 +67,7 @@ namespace rospack
 static const char* MANIFEST_TAG_PACKAGE = "package";
 static const char* MANIFEST_TAG_STACK = "stack";
 static const char* ROSPACK_MANIFEST_NAME = "manifest.xml";
+static const char* ROSPACKAGE_MANIFEST_NAME = "package.xml";
 static const char* ROSSTACK_MANIFEST_NAME = "stack.xml";
 static const char* ROSPACK_CACHE_NAME = "rospack_cache";
 static const char* ROSSTACK_CACHE_NAME = "rosstack_cache";
@@ -263,6 +264,10 @@ Rosstackage::isStackage(const std::string& path)
         continue;
 
       if(dit->path().filename() == manifest_name_)
+        return true;
+
+      // when looking for a manifest.xml finding a package.xml is acceptable
+      if(manifest_name_ == ROSPACK_MANIFEST_NAME && dit->path().filename() == ROSPACKAGE_MANIFEST_NAME)
         return true;
     }
   }
