@@ -124,15 +124,18 @@ class Stackage
     rospack_tinyxml::TiXmlDocument manifest_;
     std::vector<Stackage*> deps_;
     bool deps_computed_;
+    bool is_wet_package_;
 
     Stackage(const std::string& name,
              const std::string& path,
-             const std::string& manifest_path) :
+             const std::string& manifest_path,
+             bool is_wet_package=false) :
             name_(name),
             path_(path),
             manifest_path_(manifest_path),
             manifest_loaded_(false),
-            deps_computed_(false)
+            deps_computed_(false),
+            is_wet_package_(is_wet_package)
   {
   }
 
@@ -1103,8 +1106,16 @@ Rosstackage::addStackage(const std::string& path)
     dups_.insert(name);
     return;
   }
-  fs::path manifest_path = fs::path(path) / manifest_name_;
-  stackages_[name] = new Stackage(name, path, manifest_path.string());
+  fs::path wet_manifest_path = fs::path(path) / ROSPACKAGE_MANIFEST_NAME;
+  if(manifest_name_ == ROSPACK_MANIFEST_NAME && fs::is_regular_file(wet_manifest_path))
+  {
+    stackages_[name] = new Stackage(name, path, wet_manifest_path.string(), true);
+  }
+  else
+  {
+    fs::path manifest_path = fs::path(path) / manifest_name_;
+    stackages_[name] = new Stackage(name, path, manifest_path.string());
+  }
 }
 
 void
@@ -1235,11 +1246,10 @@ Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors)
 
   stackage->deps_computed_ = true;
 
-  rospack_tinyxml::TiXmlElement* root;
   try
   {
     loadManifest(stackage);
-    root = get_manifest_root(stackage);
+    get_manifest_root(stackage);
   }
   catch(Exception& e)
   {
@@ -1248,11 +1258,37 @@ Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors)
     else
       throw e;
   }
+  if (!stackage->is_wet_package_)
+  {
+    computeDepsInternal(stackage, ignore_errors, "depend");
+  }
+  else
+  {
+    computeDepsInternal(stackage, ignore_errors, "build_depend");
+    computeDepsInternal(stackage, ignore_errors, "buildtool_depend");
+    computeDepsInternal(stackage, ignore_errors, "run_depend");
+  }
+}
+
+void
+Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag)
+{
+  rospack_tinyxml::TiXmlElement* root;
+  root = get_manifest_root(stackage);
+
   rospack_tinyxml::TiXmlNode *dep_node = NULL;
-  while((dep_node = root->IterateChildren("depend", dep_node)))
+  const char* dep_pkgname;
+  while((dep_node = root->IterateChildren(depend_tag, dep_node)))
   {
     rospack_tinyxml::TiXmlElement *dep_ele = dep_node->ToElement();
-    const char* dep_pkgname = dep_ele->Attribute(tag_.c_str());
+    if (!stackage->is_wet_package_)
+    {
+      dep_pkgname = dep_ele->Attribute(tag_.c_str());
+    }
+    else
+    {
+      dep_pkgname = dep_ele->GetText();
+    }
     if(!dep_pkgname)
     {
       if(!ignore_errors)

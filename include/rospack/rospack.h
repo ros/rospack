@@ -164,6 +164,7 @@ class Rosstackage
     bool isStackage(const std::string& path);
     void loadManifest(Stackage* stackage);
     void computeDeps(Stackage* stackage, bool ignore_errors=false);
+    void computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag);
     void gatherDeps(Stackage* stackage, bool direct,
                     traversal_order_t order,
                     std::vector<Stackage*>& deps);
