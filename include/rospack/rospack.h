@@ -158,13 +158,13 @@ class Rosstackage
                      std::vector<DirectoryCrawlRecord*>& profile_data,
                      std::tr1::unordered_set<std::string>& profile_hash);
     bool depsOnDetail(const std::string& name, bool direct,
-                         std::vector<Stackage*>& deps);
+                      std::vector<Stackage*>& deps, bool process_wet = false);
     bool depsDetail(const std::string& name, bool direct,
-                    std::vector<Stackage*>& deps);
+                    std::vector<Stackage*>& deps, bool process_wet = false);
     bool isStackage(const std::string& path);
     void loadManifest(Stackage* stackage);
-    void computeDeps(Stackage* stackage, bool ignore_errors=false);
-    void computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag);
+    void computeDeps(Stackage* stackage, bool ignore_errors=false, bool process_wet=false);
+    void computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag, bool process_wet);
     void gatherDeps(Stackage* stackage, bool direct,
                     traversal_order_t order,
                     std::vector<Stackage*>& deps);
