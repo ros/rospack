@@ -31,6 +31,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <map>
 #include <stdexcept>
 
 #if defined(WIN32)
@@ -54,6 +55,8 @@
 #include <time.h>
 #include <string.h>
 #include <errno.h>
+
+#include <Python.h>
 
 // TODO:
 //   recrawl on:
@@ -635,16 +638,15 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
         it != deps_vec.end();
         ++it)
     {
-      rospack_tinyxml::TiXmlElement* root = get_manifest_root(*it);
-      for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_ROSDEP);
-          ele;
-          ele = ele->NextSiblingElement(MANIFEST_TAG_ROSDEP))
+      if (!stackage->is_wet_package_)
       {
-        const char *att_str;
-        if((att_str = ele->Attribute(MANIFEST_ATTR_NAME)))
-        {
-          rosdeps.insert(std::string("name: ") + att_str);
-        }
+        _rosdeps(*it, rosdeps, MANIFEST_TAG_ROSDEP);
+      }
+      else
+      {
+        _rosdeps(*it, rosdeps, "build_depend");
+        _rosdeps(*it, rosdeps, "buildtool_depend");
+        _rosdeps(*it, rosdeps, "run_depend");
       }
     }
   }
@@ -654,6 +656,33 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
     return false;
   }
   return true;
+}
+
+void
+Rosstackage::_rosdeps(Stackage* stackage, std::set<std::string>& rosdeps, const char* tag_name)
+{
+  rospack_tinyxml::TiXmlElement* root = get_manifest_root(stackage);
+  for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(tag_name);
+      ele;
+      ele = ele->NextSiblingElement(tag_name))
+  {
+    if(!stackage->is_wet_package_)
+    {
+      const char *att_str;
+      if((att_str = ele->Attribute(MANIFEST_ATTR_NAME)))
+      {
+        rosdeps.insert(std::string("name: ") + att_str);
+      }
+    }
+    else
+    {
+      const char* dep_pkgname = ele->GetText();
+      if(isSysPackage(dep_pkgname))
+      {
+        rosdeps.insert(std::string("name: ") + dep_pkgname);
+      }
+    }
+  }
 }
 
 bool
@@ -801,7 +830,7 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
 {
   // Find everybody who depends directly on the package in question
   std::vector<Stackage*> stackages;
-  if(!depsOnDetail(name, true, stackages, true))
+  if(!depsOnDetail(name, true, stackages))
     return false;
   // Also look in the package itself
   std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
@@ -815,7 +844,7 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
   if(top.size())
   {
     std::vector<Stackage*> top_deps;
-    if(!depsDetail(top, false, top_deps, true))
+    if(!depsDetail(top, false, top_deps))
       return false;
     std::tr1::unordered_set<Stackage*> top_deps_set;
     for(std::vector<Stackage*>::iterator it = top_deps.begin();
@@ -934,7 +963,7 @@ Rosstackage::findWithRecrawl(const std::string& name)
 
 bool
 Rosstackage::depsDetail(const std::string& name, bool direct,
-                        std::vector<Stackage*>& deps, bool process_wet)
+                        std::vector<Stackage*>& deps)
 {
   // No recrawl here, because we're in a recursive function.  Rely on the
   // top level to do it.
@@ -946,7 +975,7 @@ Rosstackage::depsDetail(const std::string& name, bool direct,
   Stackage* stackage = stackages_[name];
   try
   {
-    computeDeps(stackage, false, process_wet);
+    computeDeps(stackage);
     std::vector<Stackage*> deps_vec;
     gatherDeps(stackage, direct, POSTORDER, deps_vec);
     for(std::vector<Stackage*>::const_iterator it = deps_vec.begin();
@@ -996,7 +1025,7 @@ Rosstackage::depsWhyDetail(Stackage* from,
 
 bool
 Rosstackage::depsOnDetail(const std::string& name, bool direct,
-                          std::vector<Stackage*>& deps, bool process_wet)
+                          std::vector<Stackage*>& deps)
 {
   // No recrawl here, because depends-on always forces a crawl at the
   // start.
@@ -1008,7 +1037,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
         it != stackages_.end();
         ++it)
     {
-      computeDeps(it->second, true, process_wet);
+      computeDeps(it->second, true);
       std::vector<Stackage*> deps_vec;
       gatherDeps(it->second, direct, POSTORDER, deps_vec);
       for(std::vector<Stackage*>::const_iterator iit = deps_vec.begin();
@@ -1239,7 +1268,7 @@ Rosstackage::loadManifest(Stackage* stackage)
 }
 
 void
-Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors, bool process_wet)
+Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors)
 {
   if(stackage->deps_computed_)
     return;
@@ -1260,18 +1289,18 @@ Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors, bool process_we
   }
   if (!stackage->is_wet_package_)
   {
-    computeDepsInternal(stackage, ignore_errors, "depend", process_wet);
+    computeDepsInternal(stackage, ignore_errors, "depend");
   }
-  else if( process_wet )
+  else
   {
-    computeDepsInternal(stackage, ignore_errors, "build_depend", process_wet);
-    computeDepsInternal(stackage, ignore_errors, "buildtool_depend", process_wet);
-    computeDepsInternal(stackage, ignore_errors, "run_depend", process_wet);
+    computeDepsInternal(stackage, ignore_errors, "build_depend");
+    computeDepsInternal(stackage, ignore_errors, "buildtool_depend");
+    computeDepsInternal(stackage, ignore_errors, "run_depend");
   }
 }
 
 void
-Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag, bool process_wet)
+Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag)
 {
   rospack_tinyxml::TiXmlElement* root;
   root = get_manifest_root(stackage);
@@ -1307,6 +1336,10 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
     }
     else if(!stackages_.count(dep_pkgname))
     {
+      if (stackage->is_wet_package_ && isSysPackage(dep_pkgname))
+      {
+        continue;
+      }
       if(ignore_errors)
       {
         Stackage* dep =  new Stackage(dep_pkgname, "", "");
@@ -1322,9 +1355,73 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
     {
       Stackage* dep = stackages_[dep_pkgname];
       stackage->deps_.push_back(dep);
-      computeDeps(dep, ignore_errors, process_wet);
+      computeDeps(dep, ignore_errors);
     }
   }
+}
+
+bool
+Rosstackage::isSysPackage(const std::string& pkgname)
+{
+  static std::map<std::string, bool> cache;
+  if(cache.find(pkgname) != cache.end())
+  {
+    return cache.find(pkgname)->second;
+  }
+
+  static bool init_py = false;
+  static PyObject* pName;
+  static PyObject* pModule;
+  static PyObject* pView;
+  static PyObject* pFunc;
+  if(!init_py)
+  {
+    init_py = true;
+    Py_Initialize();
+    pName = PyString_FromString("rosdep2.rospack");
+    pModule = PyImport_Import(pName);
+    PyObject* pDict = PyModule_GetDict(pModule);
+    pFunc = PyDict_GetItemString(pDict, "init_rospack_interface");
+    if(PyCallable_Check(pFunc))
+    {
+      pView = PyObject_CallObject(pFunc, NULL);
+    }
+    else
+    {
+      PyErr_Print();
+      std::string errmsg = "could not call python function 'rosdep2.rospack.init_rospack_interface'";
+      throw Exception(errmsg);
+    }
+    pFunc = PyDict_GetItemString(pDict, "is_system_dependency");
+    if(!PyCallable_Check(pFunc))
+    {
+      PyErr_Print();
+      std::string errmsg = "could not call python function 'rosdep2.rospack.is_system_dependency'";
+      throw Exception(errmsg);
+    }
+  }
+  PyObject* pArgs = PyTuple_New(2);
+  PyTuple_SetItem(pArgs, 0, pView);
+  PyObject* pDep = PyString_FromString(pkgname.c_str());
+  PyTuple_SetItem(pArgs, 1, pDep);
+  PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+
+  bool value = PyObject_IsTrue(pValue);
+  Py_DECREF(pValue);
+  Py_DECREF(pDep);
+
+  // dec pArgs would garbage pView 
+  //Py_DECREF(pArgs);
+
+  // we want to keep the static objects alive for repeated access
+  // so skip all garbage collection until process ends
+  //Py_DECREF(pModule);
+  //Py_DECREF(pName);
+  //Py_Finalize();
+
+  cache[pkgname] = value;
+
+  return value;
 }
 
 void

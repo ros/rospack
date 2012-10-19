@@ -158,13 +158,14 @@ class Rosstackage
                      std::vector<DirectoryCrawlRecord*>& profile_data,
                      std::tr1::unordered_set<std::string>& profile_hash);
     bool depsOnDetail(const std::string& name, bool direct,
-                      std::vector<Stackage*>& deps, bool process_wet = false);
+                      std::vector<Stackage*>& deps);
     bool depsDetail(const std::string& name, bool direct,
-                    std::vector<Stackage*>& deps, bool process_wet = false);
+                    std::vector<Stackage*>& deps);
     bool isStackage(const std::string& path);
     void loadManifest(Stackage* stackage);
-    void computeDeps(Stackage* stackage, bool ignore_errors=false, bool process_wet=false);
-    void computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag, bool process_wet);
+    void computeDeps(Stackage* stackage, bool ignore_errors=false);
+    void computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag);
+    bool isSysPackage(const std::string& pkgname);
     void gatherDeps(Stackage* stackage, bool direct,
                     traversal_order_t order,
                     std::vector<Stackage*>& deps);
@@ -392,6 +393,7 @@ Dependency chains from roscpp to roslib:
      */
     bool rosdeps(const std::string& name, bool direct,
                  std::set<std::string>& rosdeps);
+    void _rosdeps(Stackage* stackage, std::set<std::string>& rosdeps, const char* tag_name);
     /**
      * @brief Compute vcs entries that are declared in manifest of a package
      * and its dependencies.  Was used by Hudson build scripts; might not

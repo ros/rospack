@@ -25,12 +25,10 @@ if(API_BACKCOMPAT_V1)
   set(backcompat_source src/rospack_backcompat.cpp)
 endif()
 
-find_package(Boost 1.40.0 COMPONENTS system filesystem program_options)
-if(NOT Boost_FOUND)
-  message(FATAL_ERROR "Couldn't find Boost")
-endif()
+find_package(Boost REQUIRED COMPONENTS system filesystem program_options)
+find_package(PythonLibs REQUIRED)
 
-include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
+include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 add_definitions(-DTIXML_USE_STL)
 
 add_library(rospack src/rospack.cpp ${backcompat_source}
@@ -39,7 +37,7 @@ add_library(rospack src/rospack.cpp ${backcompat_source}
             tinyxml-2.5.3/tinyxmlparser.cpp
             tinyxml-2.5.3/tinyxmlerror.cpp)
 
-target_link_libraries(rospack ${Boost_LIBRARIES})
+target_link_libraries(rospack ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
 set_target_properties(rospackexe
