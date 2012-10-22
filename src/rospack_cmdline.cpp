@@ -70,7 +70,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     command = vm["command"].as<std::string>();
   if(!command.size())
   {
-    rp.logError( "no command given.  Try 'rospack help'");
+    rp.logError( std::string("no command given.  Try '") + rp.getName() + " help'");
     return true;
   }
   // For some commands, we force a crawl.  Definitely anything that does a
