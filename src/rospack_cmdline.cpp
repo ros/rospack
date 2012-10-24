@@ -599,7 +599,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
     std::vector<std::string> flags;
-    if(!rp.exports(package, "cpp", "cflags", deps_only, flags))
+    if(!rp.cpp_exports(package, "--cflags-only-I", "cflags", deps_only, flags))
       return false;
     std::string combined;
     for(std::vector<std::string>::const_iterator it = flags.begin();
@@ -629,7 +629,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
     std::vector<std::string> flags;
-    if(!rp.exports(package, "cpp", "cflags", deps_only, flags))
+    if(!rp.cpp_exports(package, "--cflags-only-other", "cflags", deps_only, flags))
       return false;
     std::string combined;
     for(std::vector<std::string>::const_iterator it = flags.begin();
@@ -659,7 +659,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
     std::vector<std::string> flags;
-    if(!rp.exports(package, "cpp", "lflags", deps_only, flags))
+    if(!rp.cpp_exports(package, "--libs-only-L", "lflags", deps_only, flags))
       return false;
     std::string combined;
     for(std::vector<std::string>::const_iterator it = flags.begin();
@@ -689,7 +689,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
     std::vector<std::string> flags;
-    if(!rp.exports(package, "cpp", "lflags", deps_only, flags))
+    if(!rp.cpp_exports(package, "--libs-only-l", "lflags", deps_only, flags))
       return false;
     std::string combined;
     for(std::vector<std::string>::const_iterator it = flags.begin();
@@ -719,7 +719,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     }
     std::vector<std::string> flags;
-    if(!rp.exports(package, "cpp", "lflags", deps_only, flags))
+    if(!rp.cpp_exports(package, "--libs-only-other", "lflags", deps_only, flags))
       return false;
     std::string combined;
     for(std::vector<std::string>::const_iterator it = flags.begin();

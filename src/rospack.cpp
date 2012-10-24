@@ -121,6 +121,8 @@ class Stackage
     std::string path_;
     // \brief absolute path to the stackage manifest
     std::string manifest_path_;
+    // \brief filename of the stackage manifest
+    std::string manifest_name_;
     // \brief have we already loaded the manifest?
     bool manifest_loaded_;
     // \brief TinyXML structure, filled in during parsing
@@ -128,19 +130,54 @@ class Stackage
     std::vector<Stackage*> deps_;
     bool deps_computed_;
     bool is_wet_package_;
+    bool is_metapackage_;
 
     Stackage(const std::string& name,
              const std::string& path,
              const std::string& manifest_path,
-             bool is_wet_package=false) :
+             const std::string& manifest_name) :
             name_(name),
             path_(path),
             manifest_path_(manifest_path),
+            manifest_name_(manifest_name),
             manifest_loaded_(false),
             deps_computed_(false),
-            is_wet_package_(is_wet_package)
-  {
-  }
+            is_metapackage_(false)
+    {
+      is_wet_package_ = manifest_name_ == ROSPACKAGE_MANIFEST_NAME;
+    }
+
+    void update_wet_information()
+    {
+      assert(is_wet_package_);
+      assert(manifest_loaded_);
+      // get name from package.xml instead of folder name
+      rospack_tinyxml::TiXmlElement* root = get_manifest_root(this);
+      for(rospack_tinyxml::TiXmlElement* el = root->FirstChildElement("name"); el; el = el->NextSiblingElement("name"))
+      {
+        name_ = el->GetText();
+        break;
+      }
+      // check if package is a metapackage
+      for(rospack_tinyxml::TiXmlElement* el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
+      {
+        if(el->FirstChildElement("metapackage"))
+        {
+          is_metapackage_ = true;
+          break;
+        }
+      }
+    }
+
+    bool isStack() const
+    {
+      return manifest_name_ == MANIFEST_TAG_STACK || (is_wet_package_ && is_metapackage_);
+    }
+
+    bool isPackage() const
+    {
+      return manifest_name_ == MANIFEST_TAG_PACKAGE || (is_wet_package_ && !is_metapackage_);
+    }
 
 };
 
@@ -272,8 +309,8 @@ Rosstackage::isStackage(const std::string& path)
       if(dit->path().filename() == manifest_name_)
         return true;
 
-      // when looking for a manifest.xml finding a package.xml is acceptable
-      if(manifest_name_ == ROSPACK_MANIFEST_NAME && dit->path().filename() == ROSPACKAGE_MANIFEST_NAME)
+      // finding a package.xml is acceptable
+      if(dit->path().filename() == ROSPACKAGE_MANIFEST_NAME)
         return true;
     }
   }
@@ -734,6 +771,87 @@ Rosstackage::vcs(const std::string& name, bool direct,
 }
 
 bool 
+Rosstackage::cpp_exports(const std::string& name, const std::string& type,
+                     const std::string& attrib, bool deps_only,
+                     std::vector<std::string>& flags)
+{
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
+    return false;
+
+  static bool init_py = false;
+  static PyObject* pName;
+  static PyObject* pModule;
+  static PyObject* pDict;
+  static PyObject* pFunc;
+
+  try
+  {
+    computeDeps(stackage);
+    std::vector<Stackage*> deps_vec;
+    if(!deps_only)
+      deps_vec.push_back(stackage);
+    gatherDeps(stackage, false, PREORDER, deps_vec, true);
+    for(std::vector<Stackage*>::const_iterator it = deps_vec.begin();
+        it != deps_vec.end();
+        ++it)
+    {
+      if(!(*it)->is_wet_package_)
+      {
+        if(!exports_dry_package(*it, "cpp", attrib, flags))
+        {
+          return false;
+        }
+      }
+      else
+      {
+        if(!init_py)
+        {
+          init_py = true;
+          Py_Initialize();
+          pName = PyString_FromString("rosdep2.rospack");
+          pModule = PyImport_Import(pName);
+          pDict = PyModule_GetDict(pModule);
+          pFunc = PyDict_GetItemString(pDict, "call_pkg_config");
+          if(!PyCallable_Check(pFunc))
+          {
+            PyErr_Print();
+            std::string errmsg = "could not call python function 'rosdep2.rospack.call_pkg_config'";
+            throw Exception(errmsg);
+          }
+        }
+        PyObject* pArgs = PyTuple_New(2);
+        PyObject* pOpt = PyString_FromString(type.c_str());
+        PyTuple_SetItem(pArgs, 0, pOpt);
+        PyObject* pPkg = PyString_FromString((*it)->name_.c_str());
+        PyTuple_SetItem(pArgs, 1, pPkg);
+        PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+      
+        flags.push_back(PyString_AsString(pValue));
+
+        // garbage
+        Py_DECREF(pValue);
+        //Py_DECREF(pPkg);
+        //Py_DECREF(pOpt);
+        Py_DECREF(pArgs);
+
+        // we want to keep the static objects alive for repeated access
+        // so skip all garbage collection until process ends
+        //Py_DECREF(pModule);
+        //Py_DECREF(pName);
+        //Py_Finalize();
+      }
+    }
+  }
+  catch(Exception& e)
+  {
+    logError(e.what());
+    return false;
+  }
+  return true;
+}
+
+bool 
 Rosstackage::exports(const std::string& name, const std::string& lang,
                      const std::string& attrib, bool deps_only,
                      std::vector<std::string>& flags)
@@ -752,66 +870,9 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
         it != deps_vec.end();
         ++it)
     {
-      rospack_tinyxml::TiXmlElement* root = get_manifest_root(*it);
-      for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_EXPORT);
-          ele;
-          ele = ele->NextSiblingElement(MANIFEST_TAG_EXPORT))
+      if (!exports_dry_package(*it, lang, attrib, flags))
       {
-        bool os_match = false;
-        const char *best_match = NULL;
-        for(rospack_tinyxml::TiXmlElement* ele2 = ele->FirstChildElement(lang);
-            ele2;
-            ele2 = ele2->NextSiblingElement(lang))
-        {
-          const char *os_str;
-          if ((os_str = ele2->Attribute("os")))
-          {
-            if(g_ros_os == std::string(os_str))
-            {
-              if(os_match)
-                logWarn(std::string("ignoring duplicate ") + lang + " tag with os=" + os_str + " in export block");
-              else
-              {
-                best_match = ele2->Attribute(attrib.c_str());
-                os_match = true;
-              }
-            }
-          }
-          if(!os_match)
-          {
-            if(!best_match)
-              best_match = ele2->Attribute(attrib.c_str());
-            else
-              logWarn(std::string("ignoring duplicate ") + lang + " tag in export block");
-          }
-
-        }
-        if(best_match)
-        {
-          std::string expanded_str;
-          if(!expandExportString(*it, best_match, expanded_str))
-            return false;
-          flags.push_back(expanded_str);
-        }
-      }
-
-      // We automatically point to msg_gen and msg_srv directories if
-      // certain files are present.
-      // But only if we're looking for cpp/cflags, #3884.
-      if((lang == "cpp") && (attrib == "cflags"))
-      {
-        fs::path msg_gen = fs::path((*it)->path_) / MSG_GEN_GENERATED_DIR;
-        fs::path srv_gen = fs::path((*it)->path_) / SRV_GEN_GENERATED_DIR;
-        if(fs::is_regular_file(msg_gen / MSG_GEN_GENERATED_FILE))
-        {
-          msg_gen /= fs::path("cpp") / "include";
-          flags.push_back(std::string("-I" + msg_gen.string()));
-        }
-        if(fs::is_regular_file(srv_gen / SRV_GEN_GENERATED_FILE))
-        {
-          srv_gen /= fs::path("cpp") / "include";
-          flags.push_back(std::string("-I" + srv_gen.string()));
-        }
+        return false;
       }
     }
   }
@@ -819,6 +880,74 @@ Rosstackage::exports(const std::string& name, const std::string& lang,
   {
     logError(e.what());
     return false;
+  }
+  return true;
+}
+
+bool 
+Rosstackage::exports_dry_package(Stackage* stackage, const std::string& lang,
+                     const std::string& attrib,
+                     std::vector<std::string>& flags)
+{
+  rospack_tinyxml::TiXmlElement* root = get_manifest_root(stackage);
+  for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_EXPORT);
+      ele;
+      ele = ele->NextSiblingElement(MANIFEST_TAG_EXPORT))
+  {
+    bool os_match = false;
+    const char *best_match = NULL;
+    for(rospack_tinyxml::TiXmlElement* ele2 = ele->FirstChildElement(lang);
+        ele2;
+        ele2 = ele2->NextSiblingElement(lang))
+    {
+      const char *os_str;
+      if ((os_str = ele2->Attribute("os")))
+      {
+        if(g_ros_os == std::string(os_str))
+        {
+          if(os_match)
+            logWarn(std::string("ignoring duplicate ") + lang + " tag with os=" + os_str + " in export block");
+          else
+          {
+            best_match = ele2->Attribute(attrib.c_str());
+            os_match = true;
+          }
+        }
+      }
+      if(!os_match)
+      {
+        if(!best_match)
+          best_match = ele2->Attribute(attrib.c_str());
+        else
+          logWarn(std::string("ignoring duplicate ") + lang + " tag in export block");
+      }
+
+    }
+    if(best_match)
+    {
+      std::string expanded_str;
+      if(!expandExportString(stackage, best_match, expanded_str))
+        return false;
+      flags.push_back(expanded_str);
+    }
+  }
+  // We automatically point to msg_gen and msg_srv directories if
+  // certain files are present.
+  // But only if we're looking for cpp/cflags, #3884.
+  if((lang == "cpp") && (attrib == "cflags"))
+  {
+    fs::path msg_gen = fs::path(stackage->path_) / MSG_GEN_GENERATED_DIR;
+    fs::path srv_gen = fs::path(stackage->path_) / SRV_GEN_GENERATED_DIR;
+    if(fs::is_regular_file(msg_gen / MSG_GEN_GENERATED_FILE))
+    {
+      msg_gen /= fs::path("cpp") / "include";
+      flags.push_back(std::string("-I" + msg_gen.string()));
+    }
+    if(fs::is_regular_file(srv_gen / SRV_GEN_GENERATED_FILE))
+    {
+      srv_gen /= fs::path("cpp") / "include";
+      flags.push_back(std::string("-I" + srv_gen.string()));
+    }
   }
   return true;
 }
@@ -1130,21 +1259,34 @@ Rosstackage::addStackage(const std::string& path)
   std::string name = fs::path(path).filename().string();
 #endif
 
-  if(stackages_.find(name) != stackages_.end())
-  {
-    dups_.insert(name);
-    return;
-  }
+  Stackage* stackage = 0;
   fs::path wet_manifest_path = fs::path(path) / ROSPACKAGE_MANIFEST_NAME;
-  if(manifest_name_ == ROSPACK_MANIFEST_NAME && fs::is_regular_file(wet_manifest_path))
+  if(fs::is_regular_file(wet_manifest_path))
   {
-    stackages_[name] = new Stackage(name, path, wet_manifest_path.string(), true);
+    stackage = new Stackage(name, path, wet_manifest_path.string(), ROSPACKAGE_MANIFEST_NAME);
+    loadManifest(stackage);
+    stackage->update_wet_information();
   }
   else
   {
     fs::path manifest_path = fs::path(path) / manifest_name_;
-    stackages_[name] = new Stackage(name, path, manifest_path.string());
+    stackage = new Stackage(name, path, manifest_path.string(), manifest_name_);
   }
+
+  // skip the stackage if it is not of correct type
+  if((manifest_name_ == ROSSTACK_MANIFEST_NAME && stackage->isPackage()) ||
+     (manifest_name_ == ROSPACK_MANIFEST_NAME && stackage->isStack()))
+  {
+    return;
+  }
+
+  if(stackages_.find(stackage->name_) != stackages_.end())
+  {
+    dups_.insert(stackage->name_);
+    return;
+  }
+
+  stackages_[stackage->name_] = stackage;
 }
 
 void
@@ -1342,7 +1484,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
       }
       if(ignore_errors)
       {
-        Stackage* dep =  new Stackage(dep_pkgname, "", "");
+        Stackage* dep =  new Stackage(dep_pkgname, "", "", "");
         stackage->deps_.push_back(dep);
       }
       else
@@ -1427,12 +1569,13 @@ Rosstackage::isSysPackage(const std::string& pkgname)
 void
 Rosstackage::gatherDeps(Stackage* stackage, bool direct, 
                         traversal_order_t order,
-                        std::vector<Stackage*>& deps)
+                        std::vector<Stackage*>& deps,
+                        bool no_recursion_on_wet)
 {
   std::tr1::unordered_set<Stackage*> deps_hash;
   std::vector<std::string> indented_deps;
   gatherDepsFull(stackage, direct, order, 0, 
-                 deps_hash, deps, false, indented_deps);
+                 deps_hash, deps, false, indented_deps, no_recursion_on_wet);
 }
 
 // Pre-condition: computeDeps(stackage) succeeded
@@ -1442,9 +1585,15 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
                             std::tr1::unordered_set<Stackage*>& deps_hash,
                             std::vector<Stackage*>& deps,
                             bool get_indented_deps,
-                            std::vector<std::string>& indented_deps)
+                            std::vector<std::string>& indented_deps,
+                            bool no_recursion_on_wet)
 {
-  if(direct)
+  if(stackage->is_wet_package_ && no_recursion_on_wet)
+  {
+    return;
+  }
+
+  if(direct && (stackage->is_wet_package_ || !no_recursion_on_wet))
   {
     for(std::vector<Stackage*>::const_iterator it = stackage->deps_.begin();
         it != stackage->deps_.end();
@@ -1478,11 +1627,14 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
       if(order == PREORDER)
         deps.push_back(*it);
     }
-    // We always descend, even if we're encountering this stackage for the
-    // nth time, so that we'll throw an error on recursive dependencies
-    // (detected via max stack depth being exceeded).
-    gatherDepsFull(*it, direct, order, depth+1, deps_hash, deps,
-                   get_indented_deps, indented_deps);
+    if(!(*it)->is_wet_package_ || !no_recursion_on_wet)
+    {
+      // We always descend, even if we're encountering this stackage for the
+      // nth time, so that we'll throw an error on recursive dependencies
+      // (detected via max stack depth being exceeded).
+      gatherDepsFull(*it, direct, order, depth+1, deps_hash, deps,
+                     get_indented_deps, indented_deps);
+    }
     if(first)
     {
       if(order == POSTORDER)
