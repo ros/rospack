@@ -1435,8 +1435,6 @@ Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors)
   }
   else
   {
-    computeDepsInternal(stackage, ignore_errors, "build_depend");
-    computeDepsInternal(stackage, ignore_errors, "buildtool_depend");
     computeDepsInternal(stackage, ignore_errors, "run_depend");
   }
 }
