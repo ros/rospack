@@ -39,7 +39,7 @@ from subprocess import Popen, PIPE
 ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
-ROSSTACK_PATH = "@CATKIN_BUILD_PREFIX@/bin/rosstack"
+ROSSTACK_PATH = "@CATKIN_DEVEL_PREFIX@/bin/rosstack"
 
 # Set the initial CWD, so that we can set it back later.
 # Go up one directory.  Have to do this because nosetests doesn't seem to
