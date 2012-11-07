@@ -1525,6 +1525,12 @@ Rosstackage::isSysPackage(const std::string& pkgname)
     if(PyCallable_Check(pFunc))
     {
       pView = PyObject_CallObject(pFunc, NULL);
+      if(!pView)
+      {
+        PyErr_Print();
+        std::string errmsg = "could not call python function 'rosdep2.rospack.init_rospack_interface'";
+        throw Exception(errmsg);
+      }
     }
     else
     {
