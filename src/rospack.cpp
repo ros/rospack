@@ -1487,7 +1487,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
       }
       else
       {
-        std::string errmsg = std::string("package/stack ") + stackage->name_ + " depends on non-existent package " + dep_pkgname;
+        std::string errmsg = std::string("package/stack '") + stackage->name_ + "' depends on non-existent package '" + dep_pkgname + "' and rosdep claims that it is not a system dependency. Check your package path or try calling 'rosdep update'";
         throw Exception(errmsg);
       }
     }
