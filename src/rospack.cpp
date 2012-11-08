@@ -826,6 +826,13 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         PyObject* pPkg = PyString_FromString((*it)->name_.c_str());
         PyTuple_SetItem(pArgs, 1, pPkg);
         PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+
+        if(!pValue)
+	{
+          PyErr_Print();
+          std::string errmsg = "could not call python function 'rosdep2.rospack.call_pkg_config'";
+          throw Exception(errmsg);
+	}
       
         flags.push_back(PyString_AsString(pValue));
 
