@@ -816,7 +816,7 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
           if(!PyCallable_Check(pFunc))
           {
             PyErr_Print();
-            std::string errmsg = "could not call python function 'rosdep2.rospack.call_pkg_config'";
+            std::string errmsg = "could not find python function 'rosdep2.rospack.call_pkg_config'. is rosdep up-to-date (at least 0.10.7)?";
             throw Exception(errmsg);
           }
         }
@@ -828,12 +828,12 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
 
         if(!pValue)
-	{
+        {
           PyErr_Print();
           std::string errmsg = "could not call python function 'rosdep2.rospack.call_pkg_config'";
           throw Exception(errmsg);
-	}
-      
+        }
+
         flags.push_back(PyString_AsString(pValue));
 
         // garbage
@@ -1494,7 +1494,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
       }
       else
       {
-        std::string errmsg = std::string("package/stack '") + stackage->name_ + "' depends on non-existent package '" + dep_pkgname + "' and rosdep claims that it is not a system dependency. Check your package path or try calling 'rosdep update'";
+        std::string errmsg = std::string("package/stack '") + stackage->name_ + "' depends on non-existent package '" + dep_pkgname + "' and rosdep claims that it is not a system dependency. Check the ROS_PACKAGE_PATH or try calling 'rosdep update'";
         throw Exception(errmsg);
       }
     }
@@ -1529,7 +1529,13 @@ Rosstackage::isSysPackage(const std::string& pkgname)
     pModule = PyImport_Import(pName);
     PyObject* pDict = PyModule_GetDict(pModule);
     pFunc = PyDict_GetItemString(pDict, "init_rospack_interface");
-    if(PyCallable_Check(pFunc))
+    if(!PyCallable_Check(pFunc))
+    {
+      PyErr_Print();
+      std::string errmsg = "could not find python function 'rosdep2.rospack.init_rospack_interface'. is rosdep up-to-date (at least 0.10.4)?";
+      throw Exception(errmsg);
+    }
+    else
     {
       pView = PyObject_CallObject(pFunc, NULL);
       if(!pView)
@@ -1539,12 +1545,24 @@ Rosstackage::isSysPackage(const std::string& pkgname)
         throw Exception(errmsg);
       }
     }
-    else
+
+    pFunc = PyDict_GetItemString(pDict, "is_view_empty");
+    if(!PyCallable_Check(pFunc))
     {
       PyErr_Print();
-      std::string errmsg = "could not call python function 'rosdep2.rospack.init_rospack_interface'";
+      std::string errmsg = "could not find python function 'rosdep2.rospack.is_view_empty'. is rosdep up-to-date (at least 0.10.8)?";
       throw Exception(errmsg);
     }
+    PyObject* pArgs = PyTuple_New(1);
+    PyTuple_SetItem(pArgs, 0, pView);
+    PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+    if(PyObject_IsTrue(pValue))
+    {
+      PyErr_Print();
+      std::string errmsg = "the rosdep view is empty: call 'sudo rosdep init' and 'rosdep update'";
+      throw Exception(errmsg);
+    }
+
     pFunc = PyDict_GetItemString(pDict, "is_system_dependency");
     if(!PyCallable_Check(pFunc))
     {
