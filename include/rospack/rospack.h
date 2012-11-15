@@ -188,6 +188,8 @@ class Rosstackage
                        Stackage* to,
                        std::list<std::list<Stackage*> >& acc_list);
 
+    void initPython();
+
   protected:
     /**
      * @brief Constructor, only used by derived classes.
