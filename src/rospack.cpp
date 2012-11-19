@@ -1521,7 +1521,7 @@ Rosstackage::initPython()
   if(!initialized)
   {
     initialized = true;
-    Py_Initialize();
+    Py_InitializeEx(0);
   }
 }
 
