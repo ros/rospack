@@ -814,16 +814,25 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
           init_py = true;
           pName = PyString_FromString("rosdep2.rospack");
           pModule = PyImport_Import(pName);
-          pDict = PyModule_GetDict(pModule);
-          pFunc = PyDict_GetItemString(pDict, "call_pkg_config");
-          if(!PyCallable_Check(pFunc))
+          if(!pModule)
           {
             PyErr_Print();
             PyGILState_Release(gstate);
-            std::string errmsg = "could not find python function 'rosdep2.rospack.call_pkg_config'. is rosdep up-to-date (at least 0.10.7)?";
+            std::string errmsg = "could not find python module 'rosdep2.rospack'. is rosdep up-to-date (at least 0.10.4)?";
             throw Exception(errmsg);
           }
+          pDict = PyModule_GetDict(pModule);
+          pFunc = PyDict_GetItemString(pDict, "call_pkg_config");
         }
+
+        if(!PyCallable_Check(pFunc))
+        {
+          PyErr_Print();
+          PyGILState_Release(gstate);
+          std::string errmsg = "could not find python function 'rosdep2.rospack.call_pkg_config'. is rosdep up-to-date (at least 0.10.7)?";
+          throw Exception(errmsg);
+        }
+
         PyObject* pArgs = PyTuple_New(2);
         PyObject* pOpt = PyString_FromString(type.c_str());
         PyTuple_SetItem(pArgs, 0, pOpt);
@@ -1549,6 +1558,13 @@ Rosstackage::isSysPackage(const std::string& pkgname)
     init_py = true;
     pName = PyString_FromString("rosdep2.rospack");
     pModule = PyImport_Import(pName);
+    if(!pModule)
+    {
+      PyErr_Print();
+      PyGILState_Release(gstate);
+      std::string errmsg = "could not find python module 'rosdep2.rospack'. is rosdep up-to-date (at least 0.10.4)?";
+      throw Exception(errmsg);
+    }
     PyObject* pDict = PyModule_GetDict(pModule);
     pFunc = PyDict_GetItemString(pDict, "init_rospack_interface");
     if(!PyCallable_Check(pFunc))
@@ -1590,14 +1606,16 @@ Rosstackage::isSysPackage(const std::string& pkgname)
     }
 
     pFunc = PyDict_GetItemString(pDict, "is_system_dependency");
-    if(!PyCallable_Check(pFunc))
-    {
-      PyErr_Print();
-      PyGILState_Release(gstate);
-      std::string errmsg = "could not call python function 'rosdep2.rospack.is_system_dependency'";
-      throw Exception(errmsg);
-    }
   }
+
+  if(!PyCallable_Check(pFunc))
+  {
+    PyErr_Print();
+    PyGILState_Release(gstate);
+    std::string errmsg = "could not call python function 'rosdep2.rospack.is_system_dependency'. is rosdep up-to-date (at least 0.10.4)?";
+    throw Exception(errmsg);
+  }
+
   PyObject* pArgs = PyTuple_New(2);
   PyTuple_SetItem(pArgs, 0, pView);
   PyObject* pDep = PyString_FromString(pkgname.c_str());
