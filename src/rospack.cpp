@@ -839,6 +839,7 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         PyObject* pPkg = PyString_FromString((*it)->name_.c_str());
         PyTuple_SetItem(pArgs, 1, pPkg);
         PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+        Py_DECREF(pArgs);
 
         if(!pValue)
         {
@@ -849,12 +850,7 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         }
 
         flags.push_back(PyString_AsString(pValue));
-
-        // garbage
         Py_DECREF(pValue);
-        //Py_DECREF(pPkg);
-        //Py_DECREF(pOpt);
-        Py_DECREF(pArgs);
 
         // we want to keep the static objects alive for repeated access
         // so skip all garbage collection until process ends
@@ -1621,13 +1617,11 @@ Rosstackage::isSysPackage(const std::string& pkgname)
   PyObject* pDep = PyString_FromString(pkgname.c_str());
   PyTuple_SetItem(pArgs, 1, pDep);
   PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+  Py_INCREF(pArgs); // in order to keep the view when garbaging pArgs
+  Py_DECREF(pArgs);
 
   bool value = PyObject_IsTrue(pValue);
   Py_DECREF(pValue);
-  Py_DECREF(pDep);
-
-  // dec pArgs would garbage pView 
-  //Py_DECREF(pArgs);
 
   // we want to keep the static objects alive for repeated access
   // so skip all garbage collection until process ends
