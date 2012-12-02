@@ -58,6 +58,12 @@
 
 #include <Python.h>
 
+/* re-define some String functions for recent python (>= 3.0) */
+#if PY_VERSION_HEX >= 0x03000000
+#define PyString_AsString PyBytes_AsString
+#define PyString_FromString PyBytes_FromString
+#endif
+
 // TODO:
 //   recrawl on:
 //     package not found in cache
