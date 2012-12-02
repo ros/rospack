@@ -26,6 +26,7 @@ if(API_BACKCOMPAT_V1)
 endif()
 
 find_package(Boost REQUIRED COMPONENTS system filesystem program_options)
+set(Python_ADDITIONAL_VERSIONS 2.7)
 find_package(PythonLibs REQUIRED)
 
 include_directories(include ${PROJECT_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
