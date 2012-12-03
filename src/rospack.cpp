@@ -27,7 +27,7 @@
 
 #include "rospack/rospack.h"
 #include "utils.h"
-#include "tinyxml-2.5.3/tinyxml.h"
+#include "tinyxml.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -97,7 +97,7 @@ static const int MAX_CRAWL_DEPTH = 1000;
 static const int MAX_DEPENDENCY_DEPTH = 1000;
 static const double DEFAULT_MAX_CACHE_AGE = 60.0;
 
-rospack_tinyxml::TiXmlElement* get_manifest_root(Stackage* stackage);
+TiXmlElement* get_manifest_root(Stackage* stackage);
 double time_since_epoch();
 
 #ifdef __APPLE__
@@ -132,7 +132,7 @@ class Stackage
     // \brief have we already loaded the manifest?
     bool manifest_loaded_;
     // \brief TinyXML structure, filled in during parsing
-    rospack_tinyxml::TiXmlDocument manifest_;
+    TiXmlDocument manifest_;
     std::vector<Stackage*> deps_;
     bool deps_computed_;
     bool is_wet_package_;
@@ -158,14 +158,14 @@ class Stackage
       assert(is_wet_package_);
       assert(manifest_loaded_);
       // get name from package.xml instead of folder name
-      rospack_tinyxml::TiXmlElement* root = get_manifest_root(this);
-      for(rospack_tinyxml::TiXmlElement* el = root->FirstChildElement("name"); el; el = el->NextSiblingElement("name"))
+      TiXmlElement* root = get_manifest_root(this);
+      for(TiXmlElement* el = root->FirstChildElement("name"); el; el = el->NextSiblingElement("name"))
       {
         name_ = el->GetText();
         break;
       }
       // check if package is a metapackage
-      for(rospack_tinyxml::TiXmlElement* el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
+      for(TiXmlElement* el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
       {
         if(el->FirstChildElement("metapackage"))
         {
@@ -704,8 +704,8 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
 void
 Rosstackage::_rosdeps(Stackage* stackage, std::set<std::string>& rosdeps, const char* tag_name)
 {
-  rospack_tinyxml::TiXmlElement* root = get_manifest_root(stackage);
-  for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(tag_name);
+  TiXmlElement* root = get_manifest_root(stackage);
+  for(TiXmlElement* ele = root->FirstChildElement(tag_name);
       ele;
       ele = ele->NextSiblingElement(tag_name))
   {
@@ -747,8 +747,8 @@ Rosstackage::vcs(const std::string& name, bool direct,
         it != deps_vec.end();
         ++it)
     {
-      rospack_tinyxml::TiXmlElement* root = get_manifest_root(*it);
-      for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_VERSIONCONTROL);
+      TiXmlElement* root = get_manifest_root(*it);
+      for(TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_VERSIONCONTROL);
           ele;
           ele = ele->NextSiblingElement(MANIFEST_TAG_VERSIONCONTROL))
       {
@@ -914,14 +914,14 @@ Rosstackage::exports_dry_package(Stackage* stackage, const std::string& lang,
                      const std::string& attrib,
                      std::vector<std::string>& flags)
 {
-  rospack_tinyxml::TiXmlElement* root = get_manifest_root(stackage);
-  for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_EXPORT);
+  TiXmlElement* root = get_manifest_root(stackage);
+  for(TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_EXPORT);
       ele;
       ele = ele->NextSiblingElement(MANIFEST_TAG_EXPORT))
   {
     bool os_match = false;
     const char *best_match = NULL;
-    for(rospack_tinyxml::TiXmlElement* ele2 = ele->FirstChildElement(lang);
+    for(TiXmlElement* ele2 = ele->FirstChildElement(lang);
         ele2;
         ele2 = ele2->NextSiblingElement(lang))
     {
@@ -1020,12 +1020,12 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
       it != stackages.end();
       ++it)
   {
-    rospack_tinyxml::TiXmlElement* root = get_manifest_root(*it);
-    for(rospack_tinyxml::TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_EXPORT);
+    TiXmlElement* root = get_manifest_root(*it);
+    for(TiXmlElement* ele = root->FirstChildElement(MANIFEST_TAG_EXPORT);
         ele;
         ele = ele->NextSiblingElement(MANIFEST_TAG_EXPORT))
     {
-      for(rospack_tinyxml::TiXmlElement* ele2 = ele->FirstChildElement(name);
+      for(TiXmlElement* ele2 = ele->FirstChildElement(name);
           ele2;
           ele2 = ele2->NextSiblingElement(name))
       {
@@ -1467,14 +1467,14 @@ Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors)
 void
 Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag)
 {
-  rospack_tinyxml::TiXmlElement* root;
+  TiXmlElement* root;
   root = get_manifest_root(stackage);
 
-  rospack_tinyxml::TiXmlNode *dep_node = NULL;
+  TiXmlNode *dep_node = NULL;
   const char* dep_pkgname;
   while((dep_node = root->IterateChildren(depend_tag, dep_node)))
   {
-    rospack_tinyxml::TiXmlElement *dep_ele = dep_node->ToElement();
+    TiXmlElement *dep_ele = dep_node->ToElement();
     if (!stackage->is_wet_package_)
     {
       dep_pkgname = dep_ele->Attribute(tag_.c_str());
@@ -2131,10 +2131,10 @@ Rosstack::usage()
           " is used (if it contains a stack.xml).\n\n";
 }
 
-rospack_tinyxml::TiXmlElement*
+TiXmlElement*
 get_manifest_root(Stackage* stackage)
 {
-  rospack_tinyxml::TiXmlElement* ele = stackage->manifest_.RootElement();
+  TiXmlElement* ele = stackage->manifest_.RootElement();
   if(!ele)
   {
     std::string errmsg = std::string("error parsing manifest of package ") + 
