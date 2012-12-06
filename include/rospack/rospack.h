@@ -421,12 +421,19 @@ Dependency chains from roscpp to roslib:
      * @param deps_only If true, then only return information from the
      * pacakge's dependencies; if false, then also include the package's
      * own export information.
-     * @param flags The accumulated flags are written here.
+     * @param flags The pairs of export flags and is-wet are written here.
      * @return True if the flags were computed, false otherwise.
      */
     bool cpp_exports(const std::string& name, const std::string& type,
                  const std::string& attrib, bool deps_only,
-                 std::vector<std::string>& flags);
+                 std::vector<std::pair<std::string, bool> >& flags);
+    /**
+     * @brief Reorder the paths according to the workspace chaining.
+     * @param paths The paths.
+     * @param reordered The reordered paths are written here.
+     * @return True if the pathswere reordered, false otherwise.
+     */
+    bool reorder_paths(const std::string& paths, std::string& reordered);
     /**
      * @brief Compute exports declared in a package and its dependencies.
      * Used by rosbuild.

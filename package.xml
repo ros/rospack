@@ -23,6 +23,7 @@
   <run_depend>gtest</run_depend>
   <run_depend>pkg-config</run_depend>
   <run_depend>python</run_depend>
+  <run_depend>python-catkin-pkg</run_depend>
   <run_depend>python-rosdep</run_depend>
   <run_depend>tinyxml</run_depend>
 

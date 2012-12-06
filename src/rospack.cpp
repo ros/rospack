@@ -779,7 +779,7 @@ Rosstackage::vcs(const std::string& name, bool direct,
 bool 
 Rosstackage::cpp_exports(const std::string& name, const std::string& type,
                      const std::string& attrib, bool deps_only,
-                     std::vector<std::string>& flags)
+                     std::vector<std::pair<std::string, bool> >& flags)
 {
   Stackage* stackage = findWithRecrawl(name);
   if(!stackage)
@@ -804,16 +804,20 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
     {
       if(!(*it)->is_wet_package_)
       {
-        if(!exports_dry_package(*it, "cpp", attrib, flags))
+        std::vector<std::string> dry_flags;
+        if(!exports_dry_package(*it, "cpp", attrib, dry_flags))
         {
           return false;
+        }
+        for(std::vector<std::string>::const_iterator it = dry_flags.begin(); it != dry_flags.end(); ++it)
+        {
+          flags.push_back(std::pair<std::string, bool>(*it, false));
         }
       }
       else
       {
         initPython();
-        PyGILState_STATE gstate;
-        gstate = PyGILState_Ensure();
+        PyGILState_STATE gstate = PyGILState_Ensure();
 
         if(!init_py)
         {
@@ -855,11 +859,12 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
           throw Exception(errmsg);
         }
 
-        flags.push_back(PyString_AsString(pValue));
+        flags.push_back(std::pair<std::string, bool>(PyString_AsString(pValue), true));
         Py_DECREF(pValue);
 
         // we want to keep the static objects alive for repeated access
         // so skip all garbage collection until process ends
+        //Py_DECREF(pFunc);
         //Py_DECREF(pModule);
         //Py_DECREF(pName);
         //Py_Finalize();
@@ -873,6 +878,70 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
     logError(e.what());
     return false;
   }
+  return true;
+}
+
+bool
+Rosstackage::reorder_paths(const std::string& paths, std::string& reordered)
+{
+  static bool init_py = false;
+  static PyObject* pName;
+  static PyObject* pModule;
+  static PyObject* pFunc;
+
+  initPython();
+  PyGILState_STATE gstate = PyGILState_Ensure();
+
+  if(!init_py)
+  {
+    init_py = true;
+    pName = PyString_FromString("catkin_pkg.rospack");
+    pModule = PyImport_Import(pName);
+    if(!pModule)
+    {
+      PyErr_Print();
+      PyGILState_Release(gstate);
+      std::string errmsg = "could not find python module 'catkin_pkg.rospack'. is catkin_pkg up-to-date (at least 0.1.8)?";
+      throw Exception(errmsg);
+    }
+    PyObject* pDict = PyModule_GetDict(pModule);
+    pFunc = PyDict_GetItemString(pDict, "reorder_paths");
+  }
+
+  if(!PyCallable_Check(pFunc))
+  {
+    PyErr_Print();
+    PyGILState_Release(gstate);
+    std::string errmsg = "could not find python function 'catkin_pkg.rospack.reorder_paths'. is catkin_pkg up-to-date (at least 0.1.8)?";
+    throw Exception(errmsg);
+  }
+
+
+  PyObject* pArgs = PyTuple_New(1);
+  PyTuple_SetItem(pArgs, 0, PyString_FromString(paths.c_str()));
+  PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+  Py_DECREF(pArgs);
+
+  if(!pValue)
+  {
+    PyErr_Print();
+    PyGILState_Release(gstate);
+    std::string errmsg = "could not call python function 'catkin_pkg.rospack.reorder_paths'";
+    throw Exception(errmsg);
+  }
+
+  reordered = PyString_AsString(pValue);
+  Py_DECREF(pValue);
+
+  // we want to keep the static objects alive for repeated access
+  // so skip all garbage collection until process ends
+  //Py_DECREF(pFunc);
+  //Py_DECREF(pModule);
+  //Py_DECREF(pName);
+  //Py_Finalize();
+
+  PyGILState_Release(gstate);
+
   return true;
 }
 
@@ -1552,8 +1621,7 @@ Rosstackage::isSysPackage(const std::string& pkgname)
   static PyObject* pFunc;
 
   initPython();  
-  PyGILState_STATE gstate;
-  gstate = PyGILState_Ensure();
+  PyGILState_STATE gstate = PyGILState_Ensure();
 
   if(!init_py)
   {
@@ -1631,6 +1699,7 @@ Rosstackage::isSysPackage(const std::string& pkgname)
 
   // we want to keep the static objects alive for repeated access
   // so skip all garbage collection until process ends
+  //Py_DECREF(pFunc);
   //Py_DECREF(pModule);
   //Py_DECREF(pName);
   //Py_Finalize();
