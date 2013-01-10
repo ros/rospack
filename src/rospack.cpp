@@ -1614,20 +1614,16 @@ Rosstackage::isSysPackage(const std::string& pkgname)
     return cache.find(pkgname)->second;
   }
 
-  static bool init_py = false;
-  static PyObject* pName;
-  static PyObject* pModule;
-  static PyObject* pView;
-  static PyObject* pFunc;
-
   initPython();  
   PyGILState_STATE gstate = PyGILState_Ensure();
 
-  if(!init_py)
+  static PyObject* pModule = 0;
+  static PyObject* pDict = 0;
+  if(!pModule)
   {
-    init_py = true;
-    pName = PyString_FromString("rosdep2.rospack");
+    PyObject* pName = PyString_FromString("rosdep2.rospack");
     pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
     if(!pModule)
     {
       PyErr_Print();
@@ -1635,8 +1631,13 @@ Rosstackage::isSysPackage(const std::string& pkgname)
       std::string errmsg = "could not find python module 'rosdep2.rospack'. is rosdep up-to-date (at least 0.10.4)?";
       throw Exception(errmsg);
     }
-    PyObject* pDict = PyModule_GetDict(pModule);
-    pFunc = PyDict_GetItemString(pDict, "init_rospack_interface");
+    pDict = PyModule_GetDict(pModule);
+  }
+
+  static PyObject* pView = 0;
+  if(!pView)
+  {
+    PyObject* pFunc = PyDict_GetItemString(pDict, "init_rospack_interface");
     if(!PyCallable_Check(pFunc))
     {
       PyErr_Print();
@@ -1644,19 +1645,19 @@ Rosstackage::isSysPackage(const std::string& pkgname)
       std::string errmsg = "could not find python function 'rosdep2.rospack.init_rospack_interface'. is rosdep up-to-date (at least 0.10.4)?";
       throw Exception(errmsg);
     }
-    else
+    pView = PyObject_CallObject(pFunc, NULL);
+    if(!pView)
     {
-      pView = PyObject_CallObject(pFunc, NULL);
-      if(!pView)
-      {
-        PyErr_Print();
-        PyGILState_Release(gstate);
-        std::string errmsg = "could not call python function 'rosdep2.rospack.init_rospack_interface'";
-        throw Exception(errmsg);
-      }
+      PyErr_Print();
+      PyGILState_Release(gstate);
+      std::string errmsg = "could not call python function 'rosdep2.rospack.init_rospack_interface'";
+      throw Exception(errmsg);
     }
-
-    pFunc = PyDict_GetItemString(pDict, "is_view_empty");
+  }
+  static bool rospack_view_not_empty = false;
+  if(!rospack_view_not_empty)
+  {
+    PyObject* pFunc = PyDict_GetItemString(pDict, "is_view_empty");
     if(!PyCallable_Check(pFunc))
     {
       PyErr_Print();
@@ -1667,6 +1668,8 @@ Rosstackage::isSysPackage(const std::string& pkgname)
     PyObject* pArgs = PyTuple_New(1);
     PyTuple_SetItem(pArgs, 0, pView);
     PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
+    Py_INCREF(pView); // in order to keep the view when garbaging pArgs
+    Py_DECREF(pArgs);
     if(PyObject_IsTrue(pValue))
     {
       PyErr_Print();
@@ -1674,10 +1677,10 @@ Rosstackage::isSysPackage(const std::string& pkgname)
       std::string errmsg = "the rosdep view is empty: call 'sudo rosdep init' and 'rosdep update'";
       throw Exception(errmsg);
     }
-
-    pFunc = PyDict_GetItemString(pDict, "is_system_dependency");
+    rospack_view_not_empty = true;
   }
 
+  PyObject* pFunc = PyDict_GetItemString(pDict, "is_system_dependency");
   if(!PyCallable_Check(pFunc))
   {
     PyErr_Print();
@@ -1691,7 +1694,7 @@ Rosstackage::isSysPackage(const std::string& pkgname)
   PyObject* pDep = PyString_FromString(pkgname.c_str());
   PyTuple_SetItem(pArgs, 1, pDep);
   PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
-  Py_INCREF(pArgs); // in order to keep the view when garbaging pArgs
+  Py_INCREF(pView); // in order to keep the view when garbaging pArgs
   Py_DECREF(pArgs);
 
   bool value = PyObject_IsTrue(pValue);
@@ -1699,9 +1702,9 @@ Rosstackage::isSysPackage(const std::string& pkgname)
 
   // we want to keep the static objects alive for repeated access
   // so skip all garbage collection until process ends
-  //Py_DECREF(pFunc);
+  //Py_DECREF(pView);
+  //Py_DECREF(pDict);
   //Py_DECREF(pModule);
-  //Py_DECREF(pName);
   //Py_Finalize();
 
   PyGILState_Release(gstate);
