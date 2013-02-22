@@ -350,7 +350,7 @@ Rosstackage::crawl(std::vector<std::string> search_path,
   if(crawled_)
   {
     bool same_paths = true;
-    if(search_paths_.size() == search_path.size())
+    if(search_paths_.size() != search_path.size())
       same_paths = false;
     else
     {
