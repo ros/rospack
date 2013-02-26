@@ -345,27 +345,27 @@ Rosstackage::crawl(std::vector<std::string> search_path,
         search_paths_.push_back(*it);
       return;
     }
-  }
 
-  if(crawled_)
-  {
-    bool same_paths = true;
-    if(search_paths_.size() != search_path.size())
-      same_paths = false;
-    else
+    if(crawled_)
     {
-      for(unsigned int i=0; i<search_paths_.size(); i++)
+      bool same_paths = true;
+      if(search_paths_.size() != search_path.size())
+        same_paths = false;
+      else
       {
-        if(search_paths_[i] != search_path[i])
+        for(unsigned int i=0; i<search_paths_.size(); i++)
         {
-          same_paths = false;
-          break;
+          if(search_paths_[i] != search_path[i])
+          {
+            same_paths = false;
+            break;
+          }
         }
       }
-    }
 
-    if(same_paths)
-      return;
+      if(same_paths)
+        return;
+    }
   }
 
 
