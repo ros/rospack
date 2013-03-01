@@ -861,7 +861,7 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         if(pValue == Py_None)
         {
           Py_DECREF(pValue);
-          std::string errmsg = "python function 'rosdep2.rospack.call_pkg_config' could not call 'pkg-config'";
+          std::string errmsg = "python function 'rosdep2.rospack.call_pkg_config' could not call 'pkg-config " + type + " " + (*it)->name_ + "' without errors";
           throw Exception(errmsg);
         }
 
