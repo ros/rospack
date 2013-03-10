@@ -28,12 +28,13 @@
 #ifndef ROSPACK_ROSPACK_CMDLINE_H
 #define ROSPACK_ROSPACK_CMDLINE_H
 
+#include "rospack/macros.h"
 #include "rospack/rospack.h"
 
 namespace rospack
 {
 
-bool rospack_run(int argc, char** argv, 
+ROSPACK_DECL bool rospack_run(int argc, char** argv,
                  rospack::Rosstackage& rp, 
                  std::string& output);
 

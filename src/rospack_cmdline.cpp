@@ -27,6 +27,7 @@
 
 #include "rospack/rospack.h"
 #include "utils.h"
+#include "rospack_cmdline.h"
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>

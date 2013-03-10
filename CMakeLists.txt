@@ -12,7 +12,7 @@ catkin_package(
   DEPENDS Boost
 )
 
-add_definitions(-Wall)
+#add_definitions(-Wall)
 
 set(API_BACKCOMPAT_V1 "YES" CACHE BOOL "Whether to enable backwards compatibility with old C++ API")
 if(API_BACKCOMPAT_V1)
