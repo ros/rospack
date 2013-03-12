@@ -1360,8 +1360,13 @@ Rosstackage::addStackage(const std::string& path)
 #endif
 
   Stackage* stackage = 0;
+  fs::path dry_manifest_path = fs::path(path) / manifest_name_;
   fs::path wet_manifest_path = fs::path(path) / ROSPACKAGE_MANIFEST_NAME;
-  if(fs::is_regular_file(wet_manifest_path))
+  if(fs::is_regular_file(dry_manifest_path))
+  {
+    stackage = new Stackage(name, path, dry_manifest_path.string(), manifest_name_);
+  }
+  else if(fs::is_regular_file(wet_manifest_path))
   {
     stackage = new Stackage(name, path, wet_manifest_path.string(), ROSPACKAGE_MANIFEST_NAME);
     loadManifest(stackage);
@@ -1369,8 +1374,7 @@ Rosstackage::addStackage(const std::string& path)
   }
   else
   {
-    fs::path manifest_path = fs::path(path) / manifest_name_;
-    stackage = new Stackage(name, path, manifest_path.string(), manifest_name_);
+    return;
   }
 
   // skip the stackage if it is not of correct type
