@@ -147,6 +147,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
         output.append("[package]\n\nPrint space-separated, ordered list of manifest.xml files for all dependencies of the package. Used internally by rosbuild.");
       else if(command == "depends-indent" || command == "deps-indent")
         output.append("[package]\n\nPrint newline-separated, indented list of the entire dependency chain for the package.");
+      else if(command == "depends-dot" || command == "deps-dot")
+        output.append("[package]\n\nPrint dot format of the entire dependency chain for the package.");
       else if(command == "depends-why" || command == "deps-why")
         output.append("--target=TARGET [package]\n\nPrint newline-separated presentation of all dependency chains from the package to TARGET. ");
       else if(command == "depends-msgsrv" || command == "deps-msgsrv")
@@ -434,6 +436,29 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     }
     std::vector<std::string> deps;
     if(!rp.depsIndent(package, false, deps))
+      return false;
+    for(std::vector<std::string>::const_iterator it = deps.begin();
+        it != deps.end();
+        ++it)
+      output.append(*it + "\n");
+    return true;
+  }
+  // COMMAND: depends-dot [package] (alias: deps-dot)
+  else if(command == "depends-dot" || command == "deps-dot")
+  {
+    if(!package.size())
+    {
+      rp.logError( "no package/stack given");
+      return false;
+    }
+    if(target.size() || top.size() || length_str.size() || 
+       zombie_only || deps_only || lang.size() || attrib.size())
+    {
+      rp.logError( "invalid option(s) given");
+      return false;
+    }
+    std::vector<std::string> deps;
+    if(!rp.depsDot(package, false, deps))
       return false;
     for(std::vector<std::string>::const_iterator it = deps.begin();
         it != deps.end();

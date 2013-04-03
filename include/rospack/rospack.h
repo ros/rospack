@@ -109,6 +109,7 @@ and Rosstack.
 #include <boost/tr1/unordered_map.hpp>
 #include <string>
 #include <vector>
+#include <map>
 #include <set>
 #include <list>
 
@@ -176,6 +177,8 @@ class Rosstackage
                         std::vector<Stackage*>& deps,
                         bool get_indented_deps,
                         std::vector<std::string>& indented_deps,
+                        bool get_dot_deps,
+                        std::map<std::string, std::vector<std::string> >& dot_deps,
                         bool no_recursion_on_wet=false);
     std::string getCachePath();
     bool readCache();
@@ -365,6 +368,32 @@ rostime
      */
     bool depsIndent(const std::string& name, bool direct,
                     std::vector<std::string>& deps);
+    /**
+     * @brief Generate dot format of a stackage's dependencies,
+     * including duplicates.  Intended for visual debugging of dependency
+     * structures.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param deps List of the stackage's dependencies, with leading spaces
+     * to indicate depth, is written here.  Print this list to console,
+     * with newlines separating each element.  Example output:
+@verbatim
+digraph "roscpp" \{
+   "roscpp_traits" -> "cpp_common"
+   "rostime" -> "cpp_common"
+\}
+@endverbatim
+     * To visualize, use following commnad:
+@verbatim
+rospack depends-dot roscpp | dot | xdot - 
+@endverbatim
+     * @return True if the dot dependencies were computed, false
+     * otherwise.
+     */
+    bool depsDot(const std::string& name, bool direct,
+                 std::vector<std::string>& deps);
     /**
      * @brief Compute all dependency chains from one stackage to another.
      * Intended for visual debugging of dependency structures.

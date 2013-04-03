@@ -32,6 +32,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <map>
+#include <algorithm>
 #include <stdexcept>
 
 #if defined(WIN32)
@@ -581,11 +582,48 @@ Rosstackage::depsIndent(const std::string& name, bool direct,
     std::vector<Stackage*> deps_vec;
     std::tr1::unordered_set<Stackage*> deps_hash;
     std::vector<std::string> indented_deps;
-    gatherDepsFull(stackage, direct, POSTORDER, 0, deps_hash, deps_vec, true, indented_deps);
+    std::map<std::string, std::vector<std::string> > dot_deps;
+    gatherDepsFull(stackage, direct, POSTORDER, 0, deps_hash, deps_vec, true, indented_deps, false, dot_deps);
     for(std::vector<std::string>::const_iterator it = indented_deps.begin();
         it != indented_deps.end();
         ++it)
       deps.push_back(*it);
+  }
+  catch(Exception& e)
+  {
+    logError(e.what());
+    return false;
+  }
+  return true;
+}
+
+bool
+Rosstackage::depsDot(const std::string& name, bool direct,
+                     std::vector<std::string>& deps)
+{
+  Stackage* stackage = findWithRecrawl(name);
+  if(!stackage)
+    return false;
+  try
+  {
+    computeDeps(stackage);
+    std::vector<Stackage*> deps_vec;
+    std::tr1::unordered_set<Stackage*> deps_hash;
+    std::vector<std::string> indented_deps;
+    std::map<std::string, std::vector<std::string> > dot_deps;
+    gatherDepsFull(stackage, direct, POSTORDER, 0, deps_hash, deps_vec, false, indented_deps, true, dot_deps);
+    deps.push_back("digraph \"" + name + "\" {");
+    deps.push_back("    node [shape=box]");
+    for(std::map<std::string, std::vector<std::string> >::const_iterator it = dot_deps.begin();
+        it != dot_deps.end();
+        ++it) {
+        for(std::vector<std::string>::const_iterator it2 = it->second.begin();
+            it2 != it->second.end();
+            it2++) {
+            deps.push_back("  \"" + it->first + "\" -> \"" + *it2 + "\";");
+            }
+    }
+    deps.push_back("}");
   }
   catch(Exception& e)
   {
@@ -1732,8 +1770,10 @@ Rosstackage::gatherDeps(Stackage* stackage, bool direct,
 {
   std::tr1::unordered_set<Stackage*> deps_hash;
   std::vector<std::string> indented_deps;
+  std::map<std::string, std::vector<std::string> > dot_deps;
   gatherDepsFull(stackage, direct, order, 0, 
-                 deps_hash, deps, false, indented_deps, no_recursion_on_wet);
+                 deps_hash, deps, false, indented_deps, 
+                 false, dot_deps, no_recursion_on_wet);
 }
 
 // Pre-condition: computeDeps(stackage) succeeded
@@ -1744,6 +1784,8 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
                             std::vector<Stackage*>& deps,
                             bool get_indented_deps,
                             std::vector<std::string>& indented_deps,
+                            bool get_dot_deps,
+                            std::map<std::string, std::vector<std::string> >& dot_deps,
                             bool no_recursion_on_wet)
 {
   if(stackage->is_wet_package_ && no_recursion_on_wet)
@@ -1776,6 +1818,16 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
         indented_deps.push_back(indented_dep);
     }
 
+    if(get_dot_deps)
+    {
+      std::string indented_dep;
+      std::vector<std::string>& deps = dot_deps[stackage->name_];
+      // check if it->names is already stored
+      if  ( std::find( deps.begin(), deps.end(), (*it)->name_ ) == deps.end() ) {
+          deps.push_back((*it)->name_);
+      }
+    }
+
     bool first = (deps_hash.find(*it) == deps_hash.end());
     if(first)
     {
@@ -1791,7 +1843,7 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
       // nth time, so that we'll throw an error on recursive dependencies
       // (detected via max stack depth being exceeded).
       gatherDepsFull(*it, direct, order, depth+1, deps_hash, deps,
-                     get_indented_deps, indented_deps);
+                     get_indented_deps, indented_deps, get_dot_deps, dot_deps);
     }
     if(first)
     {
@@ -2150,6 +2202,7 @@ Rospack::usage()
           "    cflags-only-I     [--deps-only] [package]\n"
           "    cflags-only-other [--deps-only] [package]\n"
           "    depends           [package] (alias: deps)\n"
+          "    depends-dot       [package] (alias: deps-dot)\n"
           "    depends-indent    [package] (alias: deps-indent)\n"
           "    depends-manifests [package] (alias: deps-manifests)\n"
           "    depends-msgsrv    [package] (alias: deps-msgsrv)\n"
