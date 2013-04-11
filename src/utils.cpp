@@ -29,7 +29,9 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include <boost/tr1/unordered_set.hpp>
-        
+
+#include "utils.h"
+
 namespace rospack
 {
 

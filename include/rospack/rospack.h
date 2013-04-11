@@ -111,6 +111,7 @@ and Rosstack.
 #include <vector>
 #include <set>
 #include <list>
+#include "macros.h"
 
 //#ifdef ROSPACK_API_BACKCOMPAT_V1
 #if 1 // def ROSPACK_API_BACKCOMPAT_V1
@@ -136,7 +137,7 @@ class DirectoryCrawlRecord;
  * use the functionality provided here through one of the derived classes,
  * Rosstack or Rospack.
  */
-class Rosstackage
+class ROSPACK_DECL Rosstackage
 {
   private:
     std::string manifest_name_;
@@ -525,7 +526,7 @@ re-run the profile with --zombie-only
  * @brief Package crawler.  Create one of these to operate on a package
  * tree.  Call public methods inherited from Rosstackage.
  */
-class Rospack : public Rosstackage
+class ROSPACK_DECL Rospack : public Rosstackage
 {
   public:
     /**
@@ -543,7 +544,7 @@ class Rospack : public Rosstackage
  * @brief Stack crawler.  Create one of these to operate on a stack
  * tree.  Call public methods inherited from Rosstackage.
  */
-class Rosstack : public Rosstackage
+class ROSPACK_DECL Rosstack : public Rosstackage
 {
   public:
     /**
