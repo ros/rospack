@@ -30,6 +30,7 @@
 #define ROSPACK_ROSPACK_BACKCOMPAT_H
 
 #include <string>
+#include "macros.h"
 
 namespace rospack
 {
@@ -38,7 +39,7 @@ namespace rospack
  * @brief Backward compatibility API for librospack (DEPRECATED).
  * @deprecated Used by roslib.  Don't use in new code.
  */
-class ROSPack
+class ROSPACK_DECL ROSPack
 {
   private:
     std::string output_;

@@ -29,6 +29,7 @@
 #define ROSPACK_UTILS_H
 
 #include <string>
+#include "rospack/macros.h"
 
 namespace rospack
 {
@@ -37,12 +38,11 @@ namespace rospack
 static const char* ROSPACK_NAME = "rospack";
 static const char* ROSSTACK_NAME = "rosstack";
 
-void deduplicate_tokens(const std::string& instring, 
+ROSPACK_DECL void deduplicate_tokens(const std::string& instring,
                         bool last,
                         std::string& outstring);
 
-void
-parse_compiler_flags(const std::string& instring, 
+ROSPACK_DECL void parse_compiler_flags(const std::string& instring,
                      const std::string& token,
                      bool select,
                      bool last,

@@ -37,8 +37,20 @@
 #if defined(WIN32)
   #include <windows.h>
   #include <direct.h>
-  #include <libgen.h> // for dirname
   #include <fcntl.h>  // for O_RDWR, O_EXCL, O_CREAT
+  // simple workaround - could have issues though. See
+  //   http://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010
+  // for potentially better solutions. Similar probably applies for some of the others
+  #define snprintf _snprintf
+  #define pclose _pclose
+  #define popen _popen
+  #define PATH_MAX MAX_PATH
+  #if defined(__MINGW32__)
+    #include <libgen.h> // for dirname
+  #endif
+  #if defined(_MSC_VER)
+    #include <io.h> // _mktemp_s
+  #endif
 #else //!defined(WIN32)
   #include <sys/types.h>
   #include <libgen.h>
