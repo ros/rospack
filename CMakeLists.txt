@@ -49,8 +49,14 @@ target_link_libraries(rosstackexe rospack ${Boost_LIBRARIES})
 set_target_properties(rosstackexe PROPERTIES
   OUTPUT_NAME rosstack
   RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/bin)
+add_executable(rostreeexe src/rostree_main.cpp)
+target_link_libraries(rostreeexe rospack ${Boost_LIBRARIES})
+# Set the name, and make it a "global" executable
+set_target_properties(rostreeexe PROPERTIES
+  OUTPUT_NAME rostree
+  RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/bin)
 
-install(TARGETS rospack rospackexe rosstackexe
+install(TARGETS rospack rospackexe rosstackexe rostreeexe
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
