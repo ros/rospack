@@ -1071,7 +1071,7 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
 {
   // Find everybody who depends directly on the package in question
   std::vector<Stackage*> stackages;
-  if(!depsOnDetail(name, true, stackages))
+  if(!depsOnDetail(name, true, stackages, true))
     return false;
   // Also look in the package itself
   std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.find(name);
@@ -1266,7 +1266,7 @@ Rosstackage::depsWhyDetail(Stackage* from,
 
 bool
 Rosstackage::depsOnDetail(const std::string& name, bool direct,
-                          std::vector<Stackage*>& deps)
+                          std::vector<Stackage*>& deps, bool ignore_missing)
 {
   // No recrawl here, because depends-on always forces a crawl at the
   // start.
@@ -1278,7 +1278,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
         it != stackages_.end();
         ++it)
     {
-      computeDeps(it->second, true);
+      computeDeps(it->second, true, ignore_missing);
       std::vector<Stackage*> deps_vec;
       gatherDeps(it->second, direct, POSTORDER, deps_vec);
       for(std::vector<Stackage*>::const_iterator iit = deps_vec.begin();
@@ -1526,7 +1526,7 @@ Rosstackage::loadManifest(Stackage* stackage)
 }
 
 void
-Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors)
+Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors, bool ignore_missing)
 {
   if(stackage->deps_computed_)
     return;
@@ -1547,16 +1547,16 @@ Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors)
   }
   if (!stackage->is_wet_package_)
   {
-    computeDepsInternal(stackage, ignore_errors, "depend");
+    computeDepsInternal(stackage, ignore_errors, "depend", ignore_missing);
   }
   else
   {
-    computeDepsInternal(stackage, ignore_errors, "run_depend");
+    computeDepsInternal(stackage, ignore_errors, "run_depend", ignore_missing);
   }
 }
 
 void
-Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag)
+Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag, bool ignore_missing)
 {
   TiXmlElement* root;
   root = get_manifest_root(stackage);
@@ -1592,7 +1592,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
     }
     else if(!stackages_.count(dep_pkgname))
     {
-      if (stackage->is_wet_package_ && isSysPackage(dep_pkgname))
+      if (stackage->is_wet_package_ && (ignore_missing || isSysPackage(dep_pkgname)))
       {
         continue;
       }
@@ -1611,7 +1611,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
     {
       Stackage* dep = stackages_[dep_pkgname];
       stackage->deps_.push_back(dep);
-      computeDeps(dep, ignore_errors);
+      computeDeps(dep, ignore_errors, ignore_missing);
     }
   }
 }
