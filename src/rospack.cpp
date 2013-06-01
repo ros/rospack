@@ -532,12 +532,32 @@ Rosstackage::listDuplicates(std::vector<std::string>& dups)
 {
   dups.resize(dups_.size());
   int i = 0;
-  for(std::tr1::unordered_set<std::string>::const_iterator it = dups_.begin();
+  for(std::tr1::unordered_map<std::string, std::vector<std::string> >::const_iterator it = dups_.begin();
       it != dups_.end();
       ++it)
   {
-    dups[i] = (*it);
+    dups[i] = it->first;
     i++;
+  }
+}
+
+void
+Rosstackage::listDuplicatesWithPaths(std::map<std::string, std::vector<std::string> >& dups)
+{
+  dups.clear();
+  for(std::tr1::unordered_map<std::string, std::vector<std::string> >::const_iterator it = dups_.begin();
+      it != dups_.end();
+      ++it)
+  {
+    dups[it->first].resize(it->second.size());
+    int j = 0;
+    for(std::vector<std::string>::const_iterator jt = it->second.begin();
+        jt != it->second.end();
+        ++jt)
+    {
+      dups[it->first][j] = *jt;
+      j++;
+    }
   }
 }
 
@@ -1398,7 +1418,13 @@ Rosstackage::addStackage(const std::string& path)
 
   if(stackages_.find(stackage->name_) != stackages_.end())
   {
-    dups_.insert(stackage->name_);
+    if (dups_.find(stackage->name_) == dups_.end())
+    {
+      std::vector<std::string> dups;
+      dups.push_back(stackages_[stackage->name_]->path_);
+      dups_[stackage->name_] = dups;
+    }
+    dups_[stackage->name_].push_back(stackage->path_);
     return;
   }
 

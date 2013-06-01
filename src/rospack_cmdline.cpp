@@ -280,14 +280,20 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "invalid option(s) given");
       return false;
     }
-    std::vector<std::string> dups;
-    rp.listDuplicates(dups);
+    std::map<std::string, std::vector<std::string> > dups;
+    rp.listDuplicatesWithPaths(dups);
     // if there are dups, list-duplicates prints them and returns non-zero
-    for(std::vector<std::string>::const_iterator it = dups.begin();
+    for(std::map<std::string, std::vector<std::string> >::const_iterator it = dups.begin();
         it != dups.end();
         ++it)
     {
-      output.append(*it + "\n");
+      output.append(it->first + "\n");
+      for(std::vector<std::string>::const_iterator jt = it->second.begin();
+          jt != it->second.end();
+          ++jt)
+      {
+        output.append("- " + *jt + "\n");
+      }
     }
     return true;
   }
