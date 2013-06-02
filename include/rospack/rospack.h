@@ -107,10 +107,11 @@ and Rosstack.
 
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
+#include <list>
+#include <map>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
-#include <list>
 #include "macros.h"
 
 //#ifdef ROSPACK_API_BACKCOMPAT_V1

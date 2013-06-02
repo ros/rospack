@@ -31,7 +31,6 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <map>
 #include <stdexcept>
 
 #if defined(WIN32)
