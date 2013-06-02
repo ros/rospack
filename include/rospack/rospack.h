@@ -147,7 +147,7 @@ class ROSPACK_DECL Rosstackage
     std::string tag_;
     bool quiet_;
     std::vector<std::string> search_paths_;
-    std::tr1::unordered_set<std::string> dups_;
+    std::tr1::unordered_map<std::string, std::vector<std::string> > dups_;
     std::tr1::unordered_map<std::string, Stackage*> stackages_;
     Stackage* findWithRecrawl(const std::string& name);
     void log(const std::string& level, const std::string& msg, bool append_errno);
@@ -292,6 +292,12 @@ class ROSPACK_DECL Rosstackage
      *             crawling are written here.
      */
     void listDuplicates(std::vector<std::string>& dups);
+    /**
+     * @brief Identify duplicate stackages and provide their paths.  Forces crawl.
+     * @param dups Names of stackages that are found more than once while
+     *             crawling are mapped to the found paths of these packages.
+     */
+    void listDuplicatesWithPaths(std::map<std::string, std::vector<std::string> >& dups);
     /**
      * @brief Compute dependencies of a stackage (i.e., stackages that this
      *        stackages depends on).
