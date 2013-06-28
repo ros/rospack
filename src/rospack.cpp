@@ -58,6 +58,7 @@
   #include <sys/time.h>
 #endif
 
+#include <algorithm>
 #include <climits>
 
 #include <sys/stat.h>
@@ -1773,15 +1774,15 @@ Rosstackage::gatherDeps(Stackage* stackage, bool direct,
                  deps_hash, deps, false, indented_deps, no_recursion_on_wet);
 }
 
-// Pre-condition: computeDeps(stackage) succeeded
 void
-Rosstackage::gatherDepsFull(Stackage* stackage, bool direct, 
-                            traversal_order_t order, int depth, 
+_gatherDepsFull(Stackage* stackage, bool direct,
+                            traversal_order_t order, int depth,
                             std::tr1::unordered_set<Stackage*>& deps_hash,
                             std::vector<Stackage*>& deps,
                             bool get_indented_deps,
                             std::vector<std::string>& indented_deps,
-                            bool no_recursion_on_wet)
+                            bool no_recursion_on_wet,
+                            std::vector<std::string>& dep_chain)
 {
   if(stackage->is_wet_package_ && no_recursion_on_wet)
   {
@@ -1797,8 +1798,25 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
     return;
   }
 
-  if(depth > MAX_DEPENDENCY_DEPTH)
-    throw Exception("maximum dependency depth exceeded (likely circular dependency)");
+  if(depth > MAX_DEPENDENCY_DEPTH) {
+    std::string cycle;
+    for(std::vector<std::string>::const_iterator it = dep_chain.begin();
+        it != dep_chain.end();
+        ++it)
+    {
+      std::vector<std::string>::const_iterator begin = dep_chain.begin();
+      std::vector<std::string>::const_iterator cycle_begin = std::find(begin, it, *it);
+      if(cycle_begin != it) {
+        cycle = ": ";
+        for(std::vector<std::string>::const_iterator jt = cycle_begin; jt != it; ++jt) {
+          if(jt != cycle_begin) cycle += ", ";
+          cycle += *jt;
+        }
+        break;
+      }
+    }
+    throw Exception(std::string("maximum dependency depth exceeded (likely circular dependency") + cycle + ")");
+  }
 
   for(std::vector<Stackage*>::const_iterator it = stackage->deps_.begin();
       it != stackage->deps_.end();
@@ -1827,8 +1845,11 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
       // We always descend, even if we're encountering this stackage for the
       // nth time, so that we'll throw an error on recursive dependencies
       // (detected via max stack depth being exceeded).
-      gatherDepsFull(*it, direct, order, depth+1, deps_hash, deps,
-                     get_indented_deps, indented_deps);
+      dep_chain.push_back((*it)->name_);
+      _gatherDepsFull(*it, direct, order, depth+1, deps_hash, deps,
+                     get_indented_deps, indented_deps,
+                     no_recursion_on_wet, dep_chain);
+      dep_chain.pop_back();
     }
     if(first)
     {
@@ -1836,6 +1857,28 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
         deps.push_back(*it);
     }
   }
+}
+
+// Pre-condition: computeDeps(stackage) succeeded
+void
+Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
+                            traversal_order_t order, int depth,
+                            std::tr1::unordered_set<Stackage*>& deps_hash,
+                            std::vector<Stackage*>& deps,
+                            bool get_indented_deps,
+                            std::vector<std::string>& indented_deps,
+                            bool no_recursion_on_wet)
+{
+  std::vector<std::string> dep_chain;
+  dep_chain.push_back(stackage->name_);
+  _gatherDepsFull(stackage, direct,
+      order, depth,
+      deps_hash,
+      deps,
+      get_indented_deps,
+      indented_deps,
+      no_recursion_on_wet,
+      dep_chain);
 }
 
 std::string
