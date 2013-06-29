@@ -69,6 +69,10 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   int length;
   if(vm.count("command"))
     command = vm["command"].as<std::string>();
+
+  if(vm.count("-h") && command.empty())
+    command = "help";
+
   if(!command.size())
   {
     rp.logError( std::string("no command given.  Try '") + rp.getName() + " help'");
@@ -838,6 +842,7 @@ parse_args(int argc, char** argv,
           ("length", po::value<std::string>(), "length")
           ("zombie-only", "zombie-only")
           ("help", "help")
+          ("-h", "help")
           ("quiet,q", "quiet");
 
   po::positional_options_description pd;
