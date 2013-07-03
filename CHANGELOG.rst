@@ -2,6 +2,12 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.20 (2013-07-03)
+-------------------
+* improve error message to include package names when circular dependency is detected (`#18 <https://github.com/ros/rospack/issues/18>`_)
+* check for CATKIN_ENABLE_TESTING to enable configure without tests
+* add '-h' option
+
 2.1.19 (2013-06-06)
 -------------------
 * modified command 'list-duplicates' to output the paths where the packages were found (`#3 <https://github.com/ros/rospack/issues/3>`_)
@@ -11,7 +17,7 @@ Changelog for package rospack
 
 2.1.18 (2013-03-21)
 -------------------
-* invert order of package type detection (dry before wet) (`ros/rospkg#30 <https://github.com/ros/rospkg/issues/30>`_)
+* invert order of package type detection (dry before wet) (`ros-infrastructure/rospkg#30 <https://github.com/ros-infrastructure/rospkg/issues/30>`_)
 
 2.1.17 (2013-03-08)
 -------------------
