@@ -93,6 +93,7 @@ static const char* ROSSTACK_MANIFEST_NAME = "stack.xml";
 static const char* ROSPACK_CACHE_NAME = "rospack_cache";
 static const char* ROSSTACK_CACHE_NAME = "rosstack_cache";
 static const char* ROSPACK_NOSUBDIRS = "rospack_nosubdirs";
+static const char* CATKIN_IGNORE = "CATKIN_IGNORE";
 static const char* DOTROS_NAME = ".ros";
 static const char* MSG_GEN_GENERATED_DIR = "msg_gen";
 static const char* MSG_GEN_GENERATED_FILE = "generated";
@@ -1451,6 +1452,17 @@ Rosstackage::crawlDetail(const std::string& path,
   {
     logWarn(std::string("error while looking at ") + path + ": " + e.what());
     return;
+  }
+
+  fs::path catkin_ignore = fs::path(path) / CATKIN_IGNORE;
+  try
+  {
+    if(fs::is_regular_file(catkin_ignore))
+      return;
+  }
+  catch(fs::filesystem_error& e)
+  {
+    logWarn(std::string("error while looking for ") + catkin_ignore.string() + ": " + e.what());
   }
 
   if(isStackage(path))
