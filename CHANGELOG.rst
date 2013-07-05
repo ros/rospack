@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.21 (2013-07-05)
+-------------------
+* honor CATKIN_IGNORE marker file when crawling for packages (`#21 <https://github.com/ros/rospack/issues/21>`_)
+
 2.1.20 (2013-07-03)
 -------------------
 * improve error message to include package names when circular dependency is detected (`#18 <https://github.com/ros/rospack/issues/18>`_)
