@@ -59,12 +59,12 @@ def write_manifest(dir, manifest):
   file = os.path.join(dir, 'manifest.xml')
   try:
     f = open(file, 'w')
-    print "generating %s"%file
+    print("generating %s"%file)
     f.write(manifest)
   finally:
     f.close()
 
-for i in xrange(1, 101):
+for i in range(1, 101):
   packagename = package%(i-1)
   manifest = template%(i-1, i) 
   write_manifest(packagename,  manifest)
