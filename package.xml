@@ -5,8 +5,9 @@
   <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
   <license>BSD</license>
 
-  <url type="website">http://www.ros.org/wiki/rospack</url>
-  <url type="repository">http://kforge.ros.org/rosrelease/rospack</url>
+  <url type="website">http://wiki.ros.org/rospack</url>
+  <url type="bugtracker">https://github.com/ros/rospack/issues</url>
+  <url type="repository">https://github.com/ros/rospack</url>
 
   <author>Brian Gerkey</author>
   <author>Morgan Quigley</author>
