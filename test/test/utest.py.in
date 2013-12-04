@@ -121,13 +121,13 @@ class RospackTestCase(unittest.TestCase):
             self.assertEquals(stdout, alias_stdout)
             #self.assertEquals(stderr, alias_stderr)
 
-	# rospack should only yield non-negative return codes.  A negative
-	# return code indicates a crash (e.g., SIGSEGV, SIGABORT), which is
-	# never ok.
-	if p.returncode < 0:
-	  self.fail('rospack returned non-zero exit code (%d), indicating a crash'%(p.returncode))
+        # rospack should only yield non-negative return codes.  A negative
+        # return code indicates a crash (e.g., SIGSEGV, SIGABORT), which is
+        # never ok.
+        if p.returncode < 0:
+            self.fail('rospack returned non-zero exit code (%d), indicating a crash'%(p.returncode))
 
-        return p.returncode, stdout.strip(), stderr
+        return p.returncode, stdout.strip().decode('ascii'), stderr.decode('ascii')
 
     ################################################################################
     # HELPER ROUTINES
@@ -278,12 +278,12 @@ class RospackTestCase(unittest.TestCase):
         # root, in which case the above call will cause .ros to be created,
         # despite the restrictive permissions that were set.
         if os.path.exists(d):
-            os.chmod(d, 0700)
+            os.chmod(d, 0o700)
             shutil.rmtree(d)
         # Make sure we proceed when we HOME/.ros isn't a directory
         f = open(d, 'w')
         f.close()
-        os.chmod(d, 0700)
+        os.chmod(d, 0o700)
         self.rospack_succeed(None, "profile")
         # Make sure we proceed when neither HOME nor ROS_HOME is set
         del os.environ['ROS_HOME']
@@ -511,7 +511,7 @@ class RospackTestCase(unittest.TestCase):
         args = [ROSPACK_PATH, 'list']
         p = Popen(args, stdout=PIPE, stderr=PIPE, env=env)
         retval = p.communicate()[0]
-        return p.returncode, retval.strip()
+        return p.returncode, retval.strip().decode('ascii')
         
     def _check_rospack_list(self, expected, retval):
         lines = [l for l in retval.split('\n') if l]
@@ -522,7 +522,7 @@ class RospackTestCase(unittest.TestCase):
         for pack, path in zip(packages, paths):
             result[pack] = os.path.abspath(path) 
         self.failIf(set(expected.keys()) ^ set(packages), "package lists do not match (expected vs. actual): %s vs %s"%(expected.keys(), packages))
-        for pack,path in expected.iteritems():
+        for pack,path in expected.items():
             self.assertEquals(path, result[pack])
 
     ## test rospack list on an empty tree
@@ -576,7 +576,7 @@ class RospackTestCase(unittest.TestCase):
         args = [ROSPACK_PATH, 'list-names']
         p = Popen(args, stdout=PIPE, stderr=PIPE, env=env)
         retval = p.communicate()[0]
-        return p.returncode, retval.strip()
+        return p.returncode, retval.strip().decode('ascii')
         
     ## test rospack list-names on an empty tree
     def test_rospack_list_names_empty(self):
@@ -631,7 +631,7 @@ class RospackTestCase(unittest.TestCase):
     def test_rospack_find_no_rpp(self):
         rr = os.path.abspath('structure_test')
         expected = structure_test.copy()
-        for package,path in expected.iteritems():
+        for package,path in expected.items():
             self.erospack_succeed(rr, None, package, 'find')
             self.assertEquals(path, os.path.abspath(self.erun_rospack(rr, None, package, 'find')))
 
@@ -642,7 +642,7 @@ class RospackTestCase(unittest.TestCase):
     ## DEPENDENCIES
 
     def test_deps(self):
-        depth_list = ['depth-%s'%i for i in xrange(1, 101)]
+        depth_list = ['depth-%s'%i for i in range(1, 101)]
         depth_list.reverse()
         tests = [
             (["base","base_two"], "deps"),
@@ -665,7 +665,7 @@ class RospackTestCase(unittest.TestCase):
         self.rospack_fail("deps_invalid", "deps")
 
     def test_depends_on(self):
-        depth_list = ['depth-%s'%i for i in xrange(0, 100)]
+        depth_list = ['depth-%s'%i for i in range(0, 100)]
         depth_list.reverse()
 
         self.rospack_succeed("deps", "depends-on")
@@ -844,7 +844,7 @@ class RospackTestCase(unittest.TestCase):
         args = [ROSPACK_PATH, 'langs']
         p = Popen(args, stdout=PIPE, stderr=PIPE, env=env)
         retval = p.communicate()[0]
-        return p.returncode, retval.strip()
+        return p.returncode, retval.strip().decode('ascii')
 
     def test_langs(self):
         rr = os.path.abspath('test')

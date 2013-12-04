@@ -98,7 +98,7 @@ class RosstackTestCase(unittest.TestCase):
             self.assertEquals(stdout, alias_stdout)
             #self.assertEquals(stderr, alias_stderr)
 
-        return p.returncode, stdout.strip(), stderr
+        return p.returncode, stdout.strip().decode('ascii'), stderr.decode('ascii')
 
     ################################################################################
     # HELPER ROUTINES
@@ -212,25 +212,25 @@ class RosstackTestCase(unittest.TestCase):
         self.rosstack_fail("deps", "list-names")
 
     def test_contents(self):
-	tests = [(["precedence1", "precedence2", "precedence3", "roslang"],
-	          os.path.abspath("test2"), os.path.abspath("test2"), "test2")]
-	self.echeck_unordered_list("contents", tests)
+        tests = [(["precedence1", "precedence2", "precedence3", "roslang"],
+                  os.path.abspath("test2"), os.path.abspath("test2"), "test2")]
+        self.echeck_unordered_list("contents", tests)
 
     # Bug #2854
     def test_path_precendence(self):
-	tests = [([os.path.abspath("stack_install/stack")],
-	          os.path.abspath("test"), 
-		  ':'.join([os.path.abspath("stack_install"), os.path.abspath("stack_overlay")]), "stack"),
-		 ([os.path.abspath("stack_install/stack")],
-	          os.path.abspath("test"), 
-		  ':'.join([os.path.abspath("stack_install"), os.path.abspath("stack_overlay/stack")]), "stack"),
-                ([os.path.abspath("stack_install/stack")],
-	          os.path.abspath("test"), 
-		  ':'.join([os.path.abspath("stack_install/stack"), os.path.abspath("stack_overlay/stack")]), "stack"),
-                ([os.path.abspath("stack_install/stack")],
-	          os.path.abspath("test"), 
-		  ':'.join([os.path.abspath("stack_install/stack"), os.path.abspath("stack_overlay")]), "stack")]
-	self.echeck_unordered_list("find", tests)
+        tests = [([os.path.abspath("stack_install/stack")],
+                  os.path.abspath("test"),
+                  ':'.join([os.path.abspath("stack_install"), os.path.abspath("stack_overlay")]), "stack"),
+                 ([os.path.abspath("stack_install/stack")],
+                  os.path.abspath("test"),
+                  ':'.join([os.path.abspath("stack_install"), os.path.abspath("stack_overlay/stack")]), "stack"),
+                 ([os.path.abspath("stack_install/stack")],
+                  os.path.abspath("test"),
+                  ':'.join([os.path.abspath("stack_install/stack"), os.path.abspath("stack_overlay/stack")]), "stack"),
+                 ([os.path.abspath("stack_install/stack")],
+                  os.path.abspath("test"),
+                  ':'.join([os.path.abspath("stack_install/stack"), os.path.abspath("stack_overlay")]), "stack")]
+        self.echeck_unordered_list("find", tests)
 
 # TODO: port / adapt these rospack tests to exercise rosstack, #2009
 #
@@ -392,7 +392,7 @@ class RosstackTestCase(unittest.TestCase):
 #        args = ["rospack", 'list']
 #        p = Popen(args, stdout=PIPE, stderr=PIPE, env=env)
 #        retval = p.communicate()[0]
-#        return p.returncode, retval.strip()
+#        return p.returncode, retval.strip().decode('ascii')
 #        
 #    def _check_rospack_list(self, expected, retval):
 #        lines = [l for l in retval.split('\n') if l]
@@ -403,7 +403,7 @@ class RosstackTestCase(unittest.TestCase):
 #        for pack, path in zip(packages, paths):
 #            result[pack] = os.path.abspath(path) 
 #        self.failIf(set(expected.keys()) ^ set(packages), "package lists do not match (expected vs. actual): %s vs %s"%(expected.keys(), packages))
-#        for pack,path in expected.iteritems():
+#        for pack,path in expected.items():
 #            self.assertEquals(path, result[pack])
 #
 #    ## test rospack list on an empty tree
@@ -449,7 +449,7 @@ class RosstackTestCase(unittest.TestCase):
 #        args = ["rospack", 'list-names']
 #        p = Popen(args, stdout=PIPE, stderr=PIPE, env=env)
 #        retval = p.communicate()[0]
-#        return p.returncode, retval.strip()
+#        return p.returncode, retval.strip().decode('ascii')
 #        
 #    ## test rospack list-names on an empty tree
 #    def test_rospack_list_names_empty(self):
@@ -496,7 +496,7 @@ class RosstackTestCase(unittest.TestCase):
 #    def test_rospack_find_no_rpp(self):
 #        rr = os.path.abspath('structure_test')
 #        expected = structure_test.copy()
-#        for package,path in expected.iteritems():
+#        for package,path in expected.items():
 #            self.erospack_succeed(rr, None, package, 'find')
 #            self.assertEquals(path, os.path.abspath(self.erun_rospack(rr, None, package, 'find')))
 #
@@ -507,7 +507,7 @@ class RosstackTestCase(unittest.TestCase):
 #    ## DEPENDENCIES
 #
 #    def test_deps(self):
-#        depth_list = ['depth-%s'%i for i in xrange(1, 101)]
+#        depth_list = ['depth-%s'%i for i in range(1, 101)]
 #        depth_list.reverse()
 #        tests = [
 #            (["base","base_two"], "deps"),
@@ -530,7 +530,7 @@ class RosstackTestCase(unittest.TestCase):
 #        self.rospack_fail("deps_invalid", "deps")
 #
 #    def test_depends_on(self):
-#        depth_list = ['depth-%s'%i for i in xrange(0, 100)]
+#        depth_list = ['depth-%s'%i for i in range(0, 100)]
 #        depth_list.reverse()
 #
 #        self.rospack_succeed("deps", "depends-on")
@@ -680,7 +680,7 @@ class RosstackTestCase(unittest.TestCase):
 #        args = ["rospack", 'langs']
 #        p = Popen(args, stdout=PIPE, stderr=PIPE, env=env)
 #        retval = p.communicate()[0]
-#        return p.returncode, retval.strip()
+#        return p.returncode, retval.strip().decode('ascii')
 #
 #    def test_langs(self):
 #        rr = os.path.abspath('test')
