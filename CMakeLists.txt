@@ -12,6 +12,10 @@ if(NOT tinyxml_FOUND)
   # it provides
   set(tinyxml_LIBRARIES tinyxml)
 endif() 
+find_package(OpenSSL QUIET)
+if(OPENSSL_FOUND)
+    add_definitions(-DOPENSSL_AVAILABLE)
+endif()
 
 catkin_package(
   INCLUDE_DIRS include
@@ -35,7 +39,7 @@ add_library(rospack
   src/rospack_cmdline.cpp
   src/utils.cpp
 )
-target_link_libraries(rospack ${tinyxml_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(rospack ${tinyxml_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${OPENSSL_LIBRARIES})
 
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
