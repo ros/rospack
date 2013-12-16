@@ -57,9 +57,6 @@
   #include <unistd.h>
   #include <sys/time.h>
 #endif
-#if OPENSSL_AVAILABLE
-  #include <openssl/md5.h>
-#endif
 
 #include <algorithm>
 #include <climits>
@@ -1899,27 +1896,27 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
 std::string
 Rosstackage::getCacheName()
 {
-#if OPENSSL_AVAILABLE
   char *rpp = getenv("ROS_PACKAGE_PATH");
   if(rpp == NULL) {
     return cache_name_;
   }
 
-  unsigned char md5_result[MD5_DIGEST_LENGTH];
-  // the nasty cast here is OK as we just want to get the bytes somehow into MD5
-  MD5(reinterpret_cast<unsigned char*>(rpp), strlen(rpp), md5_result);
+  const unsigned int HASH_SIZE = 16;
+  char hash_result[HASH_SIZE];
+  memset(hash_result, 0, HASH_SIZE);
+
+  for(unsigned int i = 0; i < strlen(rpp); i++) {
+      hash_result[i % HASH_SIZE] ^= rpp[i];
+  }
 
   // convert to hex for output
-  char out_buf[MD5_DIGEST_LENGTH*2 + 1];     // 2 hex out bytes per byte + \0
-  for(unsigned int i = 0; i < MD5_DIGEST_LENGTH; i++) {
+  char out_buf[HASH_SIZE*2 + 1];     // 2 hex out bytes per byte + \0
+  for(unsigned int i = 0; i < HASH_SIZE; i++) {
     // per step XX\0 - always overwriting the \0 from the step before
-    snprintf(out_buf + (2*i), 3, "%02X", md5_result[i]);
+    snprintf(out_buf + (2*i), 3, "%02X", hash_result[i]);
   }
 
   return cache_name_ + "_" + out_buf;
-#else
-  return cache_name_;
-#endif
 }
 
 std::string
