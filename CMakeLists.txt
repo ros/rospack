@@ -3,7 +3,7 @@ project(rospack)
 
 find_package(catkin REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
-set(Python_ADDITIONAL_VERSIONS 2.7)
+set(PythonLibs_FIND_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 find_package(PythonLibs REQUIRED)
 find_package(tinyxml QUIET)
 if(NOT tinyxml_FOUND)
@@ -11,7 +11,7 @@ if(NOT tinyxml_FOUND)
   # though you could try and detect stuff via the pkgconfig file
   # it provides
   set(tinyxml_LIBRARIES tinyxml)
-endif() 
+endif()
 
 catkin_package(
   INCLUDE_DIRS include
