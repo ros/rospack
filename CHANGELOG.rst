@@ -2,6 +2,13 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use specific python version catkin has decided on (`#29 <https://github.com/ros/rospack/issues/29>`_)
+* python 3 compatibility (`#25 <https://github.com/ros/rospack/issues/25>`_, `#27 <https://github.com/ros/rospack/issues/27>`_)
+* fall back gracefully whe gtest is not available
+* update package urls
+
 2.1.21 (2013-07-05)
 -------------------
 * honor CATKIN_IGNORE marker file when crawling for packages (`#21 <https://github.com/ros/rospack/issues/21>`_)
