@@ -134,8 +134,7 @@ int main(int argc, char **argv)
 
   char buf[1024];
   std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test2";
-  setenv("ROS_ROOT", rr.c_str(), 1);
-  unsetenv("ROS_PACKAGE_PATH");
+  setenv("ROS_PACKAGE_PATH", rr.c_str(), 1);
   char path[PATH_MAX];
   if(getcwd(path,sizeof(path)))
   {

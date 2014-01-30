@@ -40,7 +40,6 @@ import sys
 import platform
 from subprocess import Popen, PIPE
 
-ROS_ROOT = 'ROS_ROOT'
 ROS_PACKAGE_PATH = 'ROS_PACKAGE_PATH'
 ROS_LANG_DISABLE = 'ROS_LANG_DISABLE'
 ROSPACK_PATH = "@CATKIN_DEVEL_PREFIX@/bin/rospack"
@@ -83,15 +82,10 @@ class RospackTestCase(unittest.TestCase):
       # Some tests change CWD
       os.chdir(initial_cwd)
     
-    ## runs rospack with ROS_ROOT set to ./test and ROS_PACKAGE_PATH unset
+    ## runs rospack with ROS_PACKAGE_PATH set to ./test
     ## @return int, str: return code, stdout
-    def _run_rospack(self, ros_root, ros_package_path, pkgname, command):
+    def _run_rospack(self, ros_package_path, pkgname, command):
         env = os.environ.copy()
-        if ros_root is not None:
-            env[ROS_ROOT] = ros_root
-        else:
-            if ROS_ROOT in env:
-                del env[ROS_ROOT]            
         if ros_package_path is not None:
             env[ROS_PACKAGE_PATH] = ros_package_path
         elif ROS_PACKAGE_PATH in env:
@@ -135,44 +129,44 @@ class RospackTestCase(unittest.TestCase):
         
     ## @return str: stdout
     def run_rospack(self, pkgname, command):
-        ros_root = os.path.abspath('test')
-        return self._run_rospack(ros_root, None, pkgname, command)[1]
+        rpp = os.path.abspath('test')
+        return self._run_rospack(rpp, pkgname, command)[1]
 
     ## @return str: stdout
-    def erun_rospack(self, ros_root, ros_package_path, pkgname, command):
-        return self._run_rospack(ros_root, ros_package_path, pkgname, command)[1]
+    def erun_rospack(self, ros_package_path, pkgname, command):
+        return self._run_rospack(ros_package_path, pkgname, command)[1]
 
-    ## runs rospack with ROS_ROOT set to ./test and ROS_PACKAGE_PATH unset
+    ## runs rospack with ROS_PACKAGE_PATH set to ./test
     ## @return int: status code
     def run_rospack_status(self, pkgname, command):
-        ros_root = os.path.abspath('test')        
-        return self._run_rospack(ros_root, None, pkgname, command)[0]
+        rpp = os.path.abspath('test')
+        return self._run_rospack(rpp, pkgname, command)[0]
 
     ## @return int: status code
-    def erun_rospack_status(self, ros_root, ros_package_path, pkgname, command):
-        return self._run_rospack(ros_root, ros_package_path, pkgname, command)[0]
+    def erun_rospack_status(self, ros_package_path, pkgname, command):
+        return self._run_rospack(ros_package_path, pkgname, command)[0]
 
     ## assert that rospack fails on the specified args
     def rospack_fail(self, package, command):
-        ros_root = os.path.abspath('test')
-        code, stdout, stderr = self._run_rospack(ros_root, None, package, command)
+        rpp = os.path.abspath('test')
+        code, stdout, stderr = self._run_rospack(rpp, package, command)
         self.assertNotEquals(0, code, "rospack [%s %s] should have failed. \n\nstdout[%s] \n\nstderr[%s]"%(command, package, stdout, stderr))
 
-    ## assert that rospack fails on the specified args. includes ROS_ROOT and ROS_PACKAGE_PATH
-    def erospack_fail(self, ros_root, ros_package_path, package, command):
-        code, stdout, stderr = self._run_rospack(ros_root, ros_package_path, package, command)
+    ## assert that rospack fails on the specified args. includes ROS_PACKAGE_PATH
+    def erospack_fail(self, ros_package_path, package, command):
+        code, stdout, stderr = self._run_rospack(ros_package_path, package, command)
         self.assertNotEquals(0, code, "rospack [%s %s] should have failed instead of returning status code 0. \n\nstdout[%s] \n\nstderr[%s]"%(command, package, stdout, stderr))
 
     ## assert that rospack succeeds on the specified args
     def rospack_succeed(self, package, command):
-        ros_root = os.path.abspath('test')        
-        status_code, stdout, stderr = self._run_rospack(ros_root, None, package, command)
+        rpp = os.path.abspath('test')
+        status_code, stdout, stderr = self._run_rospack(rpp, package, command)
         self.assertEquals(0, status_code, '"rospack %s %s" failed with status code [%s] instead of succeeding with [0]. \n\nstdout[%s] \n\nstderr[%s]'%(command, package, status_code, stdout, stderr))
 
     ## assert that rospack succeeds on the specified args
-    def erospack_succeed(self, ros_root, ros_package_path, package, command):
-        status_code, stdout, stderr = self._run_rospack(ros_root, ros_package_path, package, command)
-        self.assertEquals(0, status_code, "rospack [%s %s, env ROS_ROOT=%s ROS_PACKAGE_PATH=%s] failed with status code [%s] instead of succeeding with [0]. \n\nstdout[%s] \n\nstderr[%s]"%(command, package, ros_root, ros_package_path, status_code, stdout, stderr))
+    def erospack_succeed(self, ros_package_path, package, command):
+        status_code, stdout, stderr = self._run_rospack(ros_package_path, package, command)
+        self.assertEquals(0, status_code, "rospack [%s %s, env ROS_PACKAGE_PATH=%s] failed with status code [%s] instead of succeeding with [0]. \n\nstdout[%s] \n\nstderr[%s]"%(command, package, ros_package_path, status_code, stdout, stderr))
 
     # helper routine that does return value validation where the return value from
     # rospack is an unordered, line-separated list
@@ -185,16 +179,16 @@ class RospackTestCase(unittest.TestCase):
             self.failIf(set(retlist) ^ set(retactual), "rospack %s %s failed: [%s] vs [%s]"%(command, package, retlist, retactual))
             self.assertEquals('\n'.join(retlist), '\n'.join(retactual))
 
-    # variant of check_ordered_list that allows specifying ros_root and ros_package_path.
+    # variant of check_ordered_list that allows specifying ros_package_path.
     # helper routine that does return value validation where the return value from
     # rospack is an unordered, line-separated list
     def echeck_ordered_list(self, command, tests):
-        for retlist, ros_root, ros_package_path, package in tests:
+        for retlist, ros_package_path, package in tests:
             expected = set(retlist)
-            self.erospack_succeed(ros_root, ros_package_path, package, command)
-            retval = self.erun_rospack(ros_root, ros_package_path, package, command)
+            self.erospack_succeed(ros_package_path, package, command)
+            retval = self.erun_rospack(ros_package_path, package, command)
             retactual = [v for v in retval.split('\n') if v]
-            self.failIf(set(retlist) ^ set(retactual), "[env %s %s] rospack %s %s failed: [%s] vs [%s]"%(ros_root, ros_package_path, command, package, retlist, retactual))
+            self.failIf(set(retlist) ^ set(retactual), "[env %s] rospack %s %s failed: [%s] vs [%s]"%(ros_package_path, command, package, retlist, retactual))
 
     # variant that does not require ordering among the return values
     def check_unordered_list(self, command, tests):
@@ -208,10 +202,10 @@ class RospackTestCase(unittest.TestCase):
 
     # variant that does not require ordering among the return values
     def echeck_unordered_list(self, command, tests):
-        for retlist, ros_root, ros_package_path, package in tests:
+        for retlist, ros_package_path, package in tests:
             expected = set(retlist)
-            self.erospack_succeed(ros_root, ros_package_path, package, command)
-            retval = self.erun_rospack(ros_root, ros_package_path, package, command)
+            self.erospack_succeed(ros_package_path, package, command)
+            retval = self.erun_rospack(ros_package_path, package, command)
             retactual = [v for v in retval.split('\n') if v]            
             self.failIf(set(retlist) ^ set(retactual), "rospack %s %s failed: [%s] vs [%s]"%(command, package, retlist, retactual))
             #self.assertEquals('\n'.join(retlist), '\n'.join(retactual))
@@ -258,9 +252,11 @@ class RospackTestCase(unittest.TestCase):
 
         # Make sure we write to ROS_HOME, #2812.
         d = tempfile.mkdtemp()
+        self.assertEquals(0, len(os.listdir(d)))
         os.environ['ROS_HOME'] = d
-        cache_path = os.path.join(d,'rospack_cache')
         self.rospack_succeed(None, "profile")
+        self.assertEquals(1, len(os.listdir(d)))
+        cache_path = os.path.join(d, os.listdir(d)[0])
         self.assertEquals(True, os.path.exists(cache_path))
         # Make sure we auto-create ROS_HOME
         shutil.rmtree(d)
@@ -379,30 +375,11 @@ class RospackTestCase(unittest.TestCase):
     ################################################################################
     ## ENVIRONMENT TEST
 
-    def test_no_ros_root(self):
-        testp = os.path.abspath('test')
-        self.erospack_succeed(None, testp, "deps", "deps")
-
-    def test_bad_ros_root(self):
-        non_existent1 = os.path.abspath('non_existent1')
-        testp = os.path.abspath("test")        
-        self.erospack_succeed(non_existent1, testp, "deps", "deps")
-
-    ## test rospack with ROS_ROOT=ROS_PACKAGE_PATH 
-    def test_ros_root_ros_package_path_identical(self):
-        #implicitly depending on the deps test here
-        #set ros_package_path to be identical to ros_root
+    ## test rospack with ROS_PACKAGE_PATH set
+    def test_ros_package_path(self):
         testp = os.path.abspath('test')        
         tests = [
-            (["base", "base_two"], testp, testp, "deps"),
-            ]
-        self.echeck_ordered_list("deps", tests)
-
-    ## test rospack with ROS_PACKAGE_PATH set to the empty string
-    def test_empty_ros_package_path(self):
-        testp = os.path.abspath('test')        
-        tests = [
-            (["base", "base_two"], testp, '', "deps"),
+            (["base", "base_two"], testp, "deps"),
             ]
         self.echeck_ordered_list("deps", tests)
 
@@ -413,10 +390,10 @@ class RospackTestCase(unittest.TestCase):
         test2p = os.path.abspath('test2')
         testp_roslang = os.path.join(testp, 'roslang')
         test2p_roslang = os.path.join(test2p, 'roslang')
-        tests = [([testp_roslang], teste, ':'.join([testp, test2p]), "roslang"),
-                  ([testp_roslang], teste, ':'.join([testp, test2p_roslang]), "roslang"),
-                  ([testp_roslang], teste, ':'.join([testp_roslang, test2p]), "roslang"),
-                  ([testp_roslang], teste, ':'.join([testp_roslang, test2p_roslang]), "roslang")]
+        tests = [([testp_roslang], teste + ':' + ':'.join([testp, test2p]), "roslang"),
+                  ([testp_roslang], teste + ':' + ':'.join([testp, test2p_roslang]), "roslang"),
+                  ([testp_roslang], teste + ':' + ':'.join([testp_roslang, test2p]), "roslang"),
+                  ([testp_roslang], teste + ':' + ':'.join([testp_roslang, test2p_roslang]), "roslang")]
         self.echeck_unordered_list('find', tests)
 
     ## tests rpp vs rr precedence
@@ -425,10 +402,10 @@ class RospackTestCase(unittest.TestCase):
         test2p = os.path.abspath('test2')
         test3p = os.path.abspath('test3')                
         tests = [
-            (["test"], testp, test2p, "precedence1"),
-            (["test2"], test2p, testp, "precedence1"),
-            (["test2"], testp, "%s:%s"%(test2p, test3p), "precedence2"),
-            (["test3"], testp, "%s:%s"%(test3p, test2p), "precedence2"),
+            (["test"], testp + ':' + test2p, "precedence1"),
+            (["test2"], test2p + ':' + testp, "precedence1"),
+            (["test2"], testp + ':' + "%s:%s"%(test2p, test3p), "precedence2"),
+            (["test3"], testp + ':' + "%s:%s"%(test3p, test2p), "precedence2"),
             ]
         self.echeck_ordered_list('libs-only-l', tests)
 
@@ -437,8 +414,8 @@ class RospackTestCase(unittest.TestCase):
         testp = os.path.abspath('test')
         test2p = os.path.abspath('test2')
         test3p = os.path.abspath('test3')                
-        self.erospack_succeed(testp, None, None, 'list-duplicates')
-        self.erospack_succeed(testp, '%s:%s'%(test2p,test3p), None, 'list-duplicates')
+        self.erospack_succeed(testp, None, 'list-duplicates')
+        self.erospack_succeed(testp + ':' + '%s:%s'%(test2p,test3p), None, 'list-duplicates')
 
     # test ability to point ros_package_path directly at package
     def test_ros_package_path_direct_package(self):
@@ -448,8 +425,8 @@ class RospackTestCase(unittest.TestCase):
         # point directly at precedence 2/3
         rpp = ':'.join([os.path.join(test2p, 'precedence2'),os.path.join(test3p, 'precedence3')])
         tests = [
-            (["test2"], testp, rpp, "precedence2"),
-            (["test3"], testp, rpp, "precedence3"),
+            (["test2"], testp + ':' + rpp, "precedence2"),
+            (["test3"], testp + ':' + rpp, "precedence3"),
             ]
         self.echeck_ordered_list('libs-only-l', tests)
         
@@ -460,13 +437,13 @@ class RospackTestCase(unittest.TestCase):
         # Add a trailing slash, to make sure that it gets removed
         test3p = os.path.abspath('test3') + '/'
         tests = [
-            (["base","base_two"], testp, "::%s:::"%testp, "deps"),
-            (["base","base_two"], testp, "::", "deps"),
+            (["base","base_two"], testp + ':' + "::%s:::"%testp, "deps"),
+            (["base","base_two"], testp + ':' + "::", "deps"),
             ]
         self.echeck_ordered_list('deps', tests)
         tests = [
-            (["test"], testp, ":::%s:"%test2p, "precedence1"),
-            (["test2"],testp, "::%s::%s::"%(test2p,test3p), "precedence2"),
+            (["test"], testp + ':' + ":::%s:"%test2p, "precedence1"),
+            (["test2"],testp + ':' + "::%s::%s::"%(test2p,test3p), "precedence2"),
             ]
         self.echeck_ordered_list("libs-only-l", tests)
 
@@ -475,35 +452,31 @@ class RospackTestCase(unittest.TestCase):
         test2p = os.path.abspath('test2')
         non_existentp = os.path.abspath('test')
         tests = [
-            (["test"], testp, non_existentp, "precedence1"),
-            (["test2"],testp, ":%s:%s"%(non_existentp, test2p), "precedence2"),
-            (["test2"],testp, ":%s:%s"%(test2p, non_existentp), "precedence2"),
+            (["test"], testp + ':' + non_existentp, "precedence1"),
+            (["test2"],testp + ':' + ":%s:%s"%(non_existentp, test2p), "precedence2"),
+            (["test2"],testp + ':' + ":%s:%s"%(test2p, non_existentp), "precedence2"),
             ]
         self.echeck_ordered_list("libs-only-l", tests)
 
     # Test rospack from within a package
     def test_ros_in_package(self):
         pwd = os.getcwd()
-        ros_root = os.path.join(pwd, 'test')
+        rpp = os.path.join(pwd, 'test')
         os.chdir(os.path.abspath(os.path.join('test', 'deps')))
-        self.erospack_succeed(ros_root, None, None, 'depends1')
-        self.echeck_unordered_list('depends1', [(["base", "base_two"], ros_root, None, None)])
+        self.erospack_succeed(rpp, None, 'depends1')
+        self.echeck_unordered_list('depends1', [(["base", "base_two"], rpp, None)])
         # Check what happens when we're in an unlinked directory
         d = tempfile.mkdtemp()
         os.chdir(d)
         os.rmdir(d)
-        self.erospack_fail(ros_root, None, None, 'depends1')
+        self.erospack_fail(rpp, None, 'depends1')
         os.chdir(pwd)
 
     ################################################################################
     ## rospack list
         
-    def _rospack_list(self, ros_root, ros_package_path):
+    def _rospack_list(self, ros_package_path):
         env = os.environ.copy()
-        if ros_root is not None:
-            env[ROS_ROOT] = ros_root
-        else:
-            del env[ROS_ROOT]            
         if ros_package_path is not None:
             env[ROS_PACKAGE_PATH] = ros_package_path
         elif ROS_PACKAGE_PATH in env:
@@ -527,33 +500,30 @@ class RospackTestCase(unittest.TestCase):
 
     ## test rospack list on an empty tree
     def test_rospack_list_empty(self):
-        rr = os.path.abspath('test_empty')
-        retcode, retval = self._rospack_list(rr, None)
+        rpp = os.path.abspath('test_empty')
+        retcode, retval = self._rospack_list(rpp)
         self.assertEquals(0, retcode)
         self.failIf(retval, "rospack list on empty directory returned value %s"%retval)
 
     ## test rospack depends-on1 in a directory that's not a package (#2556)
     def test_rospack_depends_on_not_a_package(self):
         pwd = os.getcwd()
-        ros_root = os.path.abspath('test')
+        rpp = os.path.abspath('test')
         os.chdir(os.path.abspath('/'))
-        self.erospack_fail(ros_root, None, None, 'depends-on1')
+        self.erospack_fail(rpp, None, 'depends-on1')
         os.chdir(pwd)
         
     # test that rospack list removes duplicates
     def test_rospack_list_dups(self):
         # make sure result is same if ROS_ROOT=ROS_PACKAGE_PATH
-        rr = os.path.abspath('structure_test')        
-        retcode, retval = self._rospack_list(rr, None)
+        rpp = os.path.abspath('structure_test')
+        retcode, retval = self._rospack_list(rpp)
         self.assertEquals(0, retcode)
-        retcode2, retval2 = self._rospack_list(rr, rr)
-        self.assertEquals(0, retcode2)
-        self.assertEquals(retval, retval2, "rospack list did not remove duplicates")
         
     def test_rospack_list_no_rpp(self):
-        rr = os.path.abspath('structure_test')
+        rpp = os.path.abspath('structure_test')
         expected = structure_test.copy()
-        retcode, retval = self._rospack_list(rr, None)
+        retcode, retval = self._rospack_list(rpp)
         self.assertEquals(0, retcode)
         self._check_rospack_list(expected, retval)
         
@@ -563,12 +533,8 @@ class RospackTestCase(unittest.TestCase):
     ################################################################################
     ## rospack list-names
         
-    def _rospack_list_names(self, ros_root, ros_package_path):
+    def _rospack_list_names(self, ros_package_path):
         env = os.environ.copy()
-        if ros_root is not None:
-            env[ROS_ROOT] = ros_root
-        else:
-            del env[ROS_ROOT]            
         if ros_package_path is not None:
             env[ROS_PACKAGE_PATH] = ros_package_path
         elif ROS_PACKAGE_PATH in env:
@@ -580,25 +546,25 @@ class RospackTestCase(unittest.TestCase):
         
     ## test rospack list-names on an empty tree
     def test_rospack_list_names_empty(self):
-        rr = os.path.abspath('test_empty')
-        retcode, retval = self._rospack_list_names(rr, None)
+        rpp = os.path.abspath('test_empty')
+        retcode, retval = self._rospack_list_names(rpp)
         self.assertEquals(0, retcode)
         self.failIf(retval, "rospack list-names on empty directory returned value %s"%retval)
         
     # test that rospack list removes duplicates
     def test_rospack_list_names_dups(self):
         # make sure result is same if ROS_ROOT=ROS_PACKAGE_PATH
-        rr = os.path.abspath('structure_test')        
-        retcode, retval = self._rospack_list_names(rr, None)
+        rpp = os.path.abspath('structure_test')
+        retcode, retval = self._rospack_list_names(rpp)
         self.assertEquals(0, retcode)
-        retcode2, retval2 = self._rospack_list_names(rr, rr)
+        retcode2, retval2 = self._rospack_list_names(rpp)
         self.assertEquals(0, retcode2)
         self.assertEquals(retval, retval2, "rospack list-names did not remove duplicates")
         
     def test_rospack_list_names_no_rpp(self):
-        rr = os.path.abspath('structure_test')
+        rpp = os.path.abspath('structure_test')
         expected = set(structure_test.copy().keys())
-        retcode, retval = self._rospack_list_names(rr, None)
+        retcode, retval = self._rospack_list_names(rpp)
         self.assertEquals(0, retcode)
         self.assertEquals(expected, set(retval.split()))
         
@@ -610,30 +576,30 @@ class RospackTestCase(unittest.TestCase):
         
     ## test rospack find on non-existent package
     def test_rospack_find_fail(self):
-        rr = os.path.abspath('test_empty')
-        self.erospack_fail(rr, None, 'package', 'find')
+        rpp = os.path.abspath('test_empty')
+        self.erospack_fail(rpp, 'package', 'find')
 
     ## test rospack find with ros_package_path set directly to a package
     def test_rospack_find_direct(self):
         testp = os.path.abspath('test')
         package1p = os.path.abspath(os.path.join('structure_test', 'package1'))
-        self.erospack_succeed(testp, package1p, 'package1', 'find')
-        self.assertEquals(package1p, self.erun_rospack(testp, package1p, 'package1', 'find'))
+        self.erospack_succeed(testp + ':' + package1p, 'package1', 'find')
+        self.assertEquals(package1p, self.erun_rospack(testp + ':' + package1p, 'package1', 'find'))
 
     ## test rospack find with ros_package_path set directly to a package,
     ## where that package contains a rospack_nosubdirs file, #3191.
     def test_rospack_find_direct_with_rospack_nosubdirs(self):
         testp = os.path.abspath('test')
         package2p = os.path.abspath(os.path.join('structure_test', 'package2'))
-        self.erospack_succeed(testp, package2p, 'package2', 'find')
-        self.assertEquals(package2p, self.erun_rospack(testp, package2p, 'package2', 'find'))
+        self.erospack_succeed(testp + ':' + package2p, 'package2', 'find')
+        self.assertEquals(package2p, self.erun_rospack(testp + ':' + package2p, 'package2', 'find'))
         
     def test_rospack_find_no_rpp(self):
-        rr = os.path.abspath('structure_test')
+        rpp = os.path.abspath('structure_test')
         expected = structure_test.copy()
         for package,path in expected.items():
-            self.erospack_succeed(rr, None, package, 'find')
-            self.assertEquals(path, os.path.abspath(self.erun_rospack(rr, None, package, 'find')))
+            self.erospack_succeed(rpp, package, 'find')
+            self.assertEquals(path, os.path.abspath(self.erun_rospack(rpp, package, 'find')))
 
         #TODO: symlink test
         #TODO: test with ros package path 
@@ -701,13 +667,13 @@ class RospackTestCase(unittest.TestCase):
 
     def test_circular(self):
         testp = os.path.abspath("test")
-        self.erospack_fail(testp, os.path.abspath("test_circular/cycle0"), "self_ref", "deps")
-        self.erospack_fail(testp, os.path.abspath("test_circular/cycle1"), "friend1", "deps")
-        self.erospack_fail(testp, os.path.abspath("test_circular/cycle1"), "friend2", "deps")
-        self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend1", "deps")
-        self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend2", "deps")
-        self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend3", "deps")
-        self.erospack_fail(testp, os.path.abspath("test_circular/cycle2"), "friend3", "depends-on")
+        self.erospack_fail(testp + ':' + os.path.abspath("test_circular/cycle0"), "self_ref", "deps")
+        self.erospack_fail(testp + ':' + os.path.abspath("test_circular/cycle1"), "friend1", "deps")
+        self.erospack_fail(testp + ':' + os.path.abspath("test_circular/cycle1"), "friend2", "deps")
+        self.erospack_fail(testp + ':' + os.path.abspath("test_circular/cycle2"), "friend1", "deps")
+        self.erospack_fail(testp + ':' + os.path.abspath("test_circular/cycle2"), "friend2", "deps")
+        self.erospack_fail(testp + ':' + os.path.abspath("test_circular/cycle2"), "friend3", "deps")
+        self.erospack_fail(testp + ':' + os.path.abspath("test_circular/cycle2"), "friend3", "depends-on")
 
     def test_lflags_backquote(self):
         self.rospack_succeed("backquote", "libs-only-l")
@@ -827,12 +793,8 @@ class RospackTestCase(unittest.TestCase):
         self.assertEquals(expected, 
                           self.run_rospack("deps_higher", "deps-indent"))
 
-    def _rospack_langs(self, ros_root, ros_package_path, ros_lang_disable):
+    def _rospack_langs(self, ros_package_path, ros_lang_disable):
         env = os.environ.copy()
-        if ros_root is not None:
-            env[ROS_ROOT] = ros_root
-        else:
-            del env[ROS_ROOT]            
         if ros_package_path is not None:
             env[ROS_PACKAGE_PATH] = ros_package_path
         elif ROS_PACKAGE_PATH in env:
@@ -847,8 +809,8 @@ class RospackTestCase(unittest.TestCase):
         return p.returncode, retval.strip().decode('ascii')
 
     def test_langs(self):
-        rr = os.path.abspath('test')
-        retcode, retval = self._rospack_langs(rr, None, None)
+        rpp = os.path.abspath('test')
+        retcode, retval = self._rospack_langs(rpp, None)
         self.assertEquals(0, retcode)
         # No guarantees on ordering of lang result
         l = retval.split()
@@ -857,9 +819,9 @@ class RospackTestCase(unittest.TestCase):
         self.assertEquals(s, expected)
 
     def test_langs_disable(self):
-        rr = os.path.abspath('test')
+        rpp = os.path.abspath('test')
         disable = 'rosfoo'
-        retcode, retval = self._rospack_langs(rr, None, disable)
+        retcode, retval = self._rospack_langs(rpp, disable)
         self.assertEquals(0, retcode)
         # No guarantees on ordering of lang result
         l = retval.split()
@@ -868,8 +830,8 @@ class RospackTestCase(unittest.TestCase):
         self.assertEquals(s, expected)
 
     def test_langs_empty(self):
-        rr = os.path.abspath('test2')
-        retcode, retval = self._rospack_langs(rr, None, None)
+        rpp = os.path.abspath('test2')
+        retcode, retval = self._rospack_langs(rpp, None)
         self.assertEquals(0, retcode)
         self.failIf(retval, "rospack langs on empty directory returned value %s"%retval)
 
@@ -892,14 +854,14 @@ class RospackTestCase(unittest.TestCase):
 
     # Test that -q option suppresses errors, #3177.
     def test_quiet_option(self):
-        ros_root = os.path.abspath('test')
+        rpp = os.path.abspath('test')
         # With -q: look for non-existent package, make sure that it fails, yet
         # produces nothing on stderr.
-        status_code, stdout, stderr = self._run_rospack(ros_root, None, 'nonexistentpackage', 'find -q')
+        status_code, stdout, stderr = self._run_rospack(rpp, 'nonexistentpackage', 'find -q')
         self.assertNotEquals(0, status_code)
         self.assertEquals(0, len(stderr))
         # Without -q: look for non-existent package, make sure that it fails, 
         # and produces somthing on stderr.
-        status_code, stdout, stderr = self._run_rospack(ros_root, None, 'nonexistentpackage', 'find')
+        status_code, stdout, stderr = self._run_rospack(rpp, 'nonexistentpackage', 'find')
         self.assertNotEquals(0, status_code)
         self.assertNotEquals(0, len(stderr))
