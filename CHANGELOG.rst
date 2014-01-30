@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add hash of ROS_PACKAGE_PATH to rospack/rosstack cache filename, remove ROS_ROOT from cache (`#28 <https://github.com/ros/rospack/issues/28>`_)
+
 2.1.22 (2014-01-07)
 -------------------
 * use specific python version catkin has decided on (`#29 <https://github.com/ros/rospack/issues/29>`_)
