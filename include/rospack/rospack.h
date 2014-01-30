@@ -142,7 +142,7 @@ class ROSPACK_DECL Rosstackage
 {
   private:
     std::string manifest_name_;
-    std::string cache_name_;
+    std::string cache_prefix_;
     bool crawled_;
     std::string name_;
     std::string tag_;
@@ -180,6 +180,7 @@ class ROSPACK_DECL Rosstackage
                         std::vector<std::string>& indented_deps,
                         bool no_recursion_on_wet=false);
     std::string getCachePath();
+    std::string getCacheHash();
     bool readCache();
     void writeCache();
     FILE* validateCache();
@@ -196,13 +197,13 @@ class ROSPACK_DECL Rosstackage
     /**
      * @brief Constructor, only used by derived classes.
      * @param manifest_name What the manifest is called (e.g., "manifest.xml or stack.xml")
-     * @param cache_name What the cache is called (e.g., "rospack_cache" or "rosstack_cache")
+     * @param cache_prefix What the cache is called (e.g., "rospack_cache" or "rosstack_cache") excluding the appended search path hash
      * @param name Name of the tool we're building (e.g., "rospack" or "rosstack")
      * @param tag Name of the attribute we look for in a "depend" tag in a
      *            manifest (e.g., "package" or "stack")
      */
     Rosstackage(const std::string& manifest_name,
-                const std::string& cache_name,
+                const std::string& cache_prefix,
                 const std::string& name,
                 const std::string& tag);
 

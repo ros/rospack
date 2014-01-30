@@ -29,8 +29,9 @@
 #include "utils.h"
 #include "tinyxml.h"
 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/functional/hash.hpp>
 #include <stdexcept>
 
 #if defined(WIN32)
@@ -90,8 +91,8 @@ static const char* MANIFEST_TAG_STACK = "stack";
 static const char* ROSPACK_MANIFEST_NAME = "manifest.xml";
 static const char* ROSPACKAGE_MANIFEST_NAME = "package.xml";
 static const char* ROSSTACK_MANIFEST_NAME = "stack.xml";
-static const char* ROSPACK_CACHE_NAME = "rospack_cache";
-static const char* ROSSTACK_CACHE_NAME = "rosstack_cache";
+static const char* ROSPACK_CACHE_PREFIX = "rospack_cache";
+static const char* ROSSTACK_CACHE_PREFIX = "rosstack_cache";
 static const char* ROSPACK_NOSUBDIRS = "rospack_nosubdirs";
 static const char* CATKIN_IGNORE = "CATKIN_IGNORE";
 static const char* DOTROS_NAME = ".ros";
@@ -227,11 +228,11 @@ bool cmpDirectoryCrawlRecord(DirectoryCrawlRecord* i,
 // Rosstackage methods (public/protected)
 /////////////////////////////////////////////////////////////
 Rosstackage::Rosstackage(const std::string& manifest_name,
-                         const std::string& cache_name,
+                         const std::string& cache_prefix,
                          const std::string& name,
                          const std::string& tag) :
         manifest_name_(manifest_name),
-        cache_name_(cache_name),
+        cache_prefix_(cache_prefix),
         crawled_(false),
         name_(name),
         tag_(tag)
@@ -254,24 +255,7 @@ Rosstackage::logError(const std::string& msg,
 bool
 Rosstackage::getSearchPathFromEnv(std::vector<std::string>& sp)
 {
-  char* rr = getenv("ROS_ROOT");
   char* rpp = getenv("ROS_PACKAGE_PATH");
-
-  // ROS_ROOT is optional, and will be phased out
-  if(rr)
-  {
-    try 
-    {
-      if(fs::is_directory(rr))
-        sp.push_back(rr);
-      else
-        logWarn(std::string("ROS_ROOT=") + rr + " is not a directory");
-    }
-    catch(fs::filesystem_error& e)
-    {
-      logWarn(std::string("error while looking at ROS_ROOT ") + rr + ": " + e.what());
-    }
-  }
   if(rpp)
   {
     // I can't see that boost filesystem has an elegant cross platform
@@ -1937,8 +1921,22 @@ Rosstackage::getCachePath()
     logWarn(std::string("cannot create rospack cache directory ") +
             cache_path.string() + ": " + e.what());
   }
-  cache_path /= cache_name_;
+  cache_path /= cache_prefix_ + "_" + getCacheHash();
   return cache_path.string();
+}
+
+std::string
+Rosstackage::getCacheHash()
+{
+  size_t value = 0;
+  char* rpp = getenv("ROS_PACKAGE_PATH");
+  if(rpp != NULL) {
+    boost::hash<std::string> hash_func;
+    value = hash_func(rpp);
+  }
+  char buffer[21];
+  snprintf(buffer, 21, "%020lu", value);
+  return buffer;
 }
 
 bool
@@ -2038,10 +2036,6 @@ Rosstackage::writeCache()
       }
       else
       {
-        // TODO: remove writing of ROS_ROOT
-        char *rr = getenv("ROS_ROOT");
-        fprintf(cache, "#ROS_ROOT=%s\n", (rr ? rr : ""));
-
         char *rpp = getenv("ROS_PACKAGE_PATH");
         fprintf(cache, "#ROS_PACKAGE_PATH=%s\n", (rpp ? rpp : ""));
         for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
@@ -2088,10 +2082,7 @@ Rosstackage::validateCache()
 
   // see if ROS_PACKAGE_PATH matches
   char linebuf[30000];
-  bool ros_root_ok = false;
   bool ros_package_path_ok = false;
-  // TODO: remove ROS_ROOT
-  const char* ros_root = getenv("ROS_ROOT");
   const char* ros_package_path = getenv("ROS_PACKAGE_PATH");
   for(;;)
   {
@@ -2100,17 +2091,7 @@ Rosstackage::validateCache()
     linebuf[strlen(linebuf)-1] = 0; // get rid of trailing newline
     if (linebuf[0] == '#')
     {
-      if (!strncmp("#ROS_ROOT=", linebuf, 10))
-      {
-        if(!ros_root)
-        {
-          if(!strlen(linebuf+10))
-            ros_root_ok = true;
-        }
-        else if (!strcmp(linebuf+10, ros_root))
-          ros_root_ok = true;
-      }
-      else if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
+      if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
       {
         if(!ros_package_path)
         {
@@ -2124,7 +2105,7 @@ Rosstackage::validateCache()
     else
       break; // we're out of the header. nothing more matters to this check.
   }
-  if(ros_root_ok && ros_package_path_ok)
+  if(ros_package_path_ok)
   {
     // seek to the beginning and pass back the stream (instead of closing
     // and later reopening, which is a race condition, #1666)
@@ -2217,7 +2198,7 @@ Rosstackage::expandExportString(Stackage* stackage,
 /////////////////////////////////////////////////////////////
 Rospack::Rospack() :
         Rosstackage(ROSPACK_MANIFEST_NAME,
-                    ROSPACK_CACHE_NAME,
+                    ROSPACK_CACHE_PREFIX,
                     ROSPACK_NAME,
                     MANIFEST_TAG_PACKAGE)
 {
@@ -2275,7 +2256,7 @@ Rospack::usage()
 /////////////////////////////////////////////////////////////
 Rosstack::Rosstack() :
         Rosstackage(ROSSTACK_MANIFEST_NAME,
-                    ROSSTACK_CACHE_NAME,
+                    ROSSTACK_CACHE_PREFIX,
                     ROSSTACK_NAME,
                     MANIFEST_TAG_STACK)
 {
