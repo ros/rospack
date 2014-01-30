@@ -1894,6 +1894,32 @@ Rosstackage::gatherDepsFull(Stackage* stackage, bool direct,
 }
 
 std::string
+Rosstackage::getCacheName()
+{
+  char *rpp = getenv("ROS_PACKAGE_PATH");
+  if(rpp == NULL) {
+    return cache_name_;
+  }
+
+  const unsigned int HASH_SIZE = 16;
+  char hash_result[HASH_SIZE];
+  memset(hash_result, 0, HASH_SIZE);
+
+  for(unsigned int i = 0; i < strlen(rpp); i++) {
+      hash_result[i % HASH_SIZE] ^= rpp[i];
+  }
+
+  // convert to hex for output
+  char out_buf[HASH_SIZE*2 + 1];     // 2 hex out bytes per byte + \0
+  for(unsigned int i = 0; i < HASH_SIZE; i++) {
+    // per step XX\0 - always overwriting the \0 from the step before
+    snprintf(out_buf + (2*i), 3, "%02X", hash_result[i]);
+  }
+
+  return cache_name_ + "_" + out_buf;
+}
+
+std::string
 Rosstackage::getCachePath()
 {
   fs::path cache_path;
@@ -1937,7 +1963,7 @@ Rosstackage::getCachePath()
     logWarn(std::string("cannot create rospack cache directory ") +
             cache_path.string() + ": " + e.what());
   }
-  cache_path /= cache_name_;
+  cache_path /= getCacheName();
   return cache_path.string();
 }
 

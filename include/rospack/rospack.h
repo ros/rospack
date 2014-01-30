@@ -180,6 +180,7 @@ class ROSPACK_DECL Rosstackage
                         std::vector<std::string>& indented_deps,
                         bool no_recursion_on_wet=false);
     std::string getCachePath();
+    std::string getCacheName();
     bool readCache();
     void writeCache();
     FILE* validateCache();
