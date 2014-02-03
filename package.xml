@@ -22,7 +22,6 @@
   <build_depend>tinyxml</build_depend>
 
   <run_depend>boost</run_depend>
-  <run_depend>gtest</run_depend>
   <run_depend>pkg-config</run_depend>
   <run_depend>python</run_depend>
   <run_depend>python-catkin-pkg</run_depend>
