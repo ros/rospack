@@ -2133,6 +2133,14 @@ Rosstackage::expandExportString(Stackage* stackage,
                       stackage->path_);
   }
   
+  // skip substitution attempt when the string neither contains
+  // a dollar sign for $(command) and $envvar nor
+  // a backtick wrapping a command
+  if (outstring.find_first_of("$`") == std::string::npos)
+  {
+    return true;
+  }
+
   // Do backquote substitution.  E.g.,  if we find this string:
   //   `pkg-config --cflags gdk-pixbuf-2.0`
   // We replace it with the result of executing the command
