@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008, Willow Garage, Inc.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -35,7 +35,7 @@ namespace rospack
 {
 
 ROSPACK_DECL bool rospack_run(int argc, char** argv,
-                 rospack::Rosstackage& rp, 
+                 rospack::Rosstackage& rp,
                  std::string& output);
 
 }

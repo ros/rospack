@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008, Willow Garage, Inc.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -36,7 +36,7 @@ namespace rospack
 {
 
 void
-deduplicate_tokens(const std::string& instring, 
+deduplicate_tokens(const std::string& instring,
                    bool last,
                    std::string& outstring)
 {
@@ -72,7 +72,7 @@ deduplicate_tokens(const std::string& instring,
 }
 
 void
-parse_compiler_flags(const std::string& instring, 
+parse_compiler_flags(const std::string& instring,
                      const std::string& token,
                      bool select,
                      bool last,
@@ -120,8 +120,8 @@ parse_compiler_flags(const std::string& instring,
       }
     }
     // Special case: if we're told to look for -l, then also find *.a
-    else if(it->size() > 2 && 
-            (*it)[0] == '/' && 
+    else if(it->size() > 2 &&
+            (*it)[0] == '/' &&
             it->substr(it->size()-2) == ".a")
     {
       if(select)

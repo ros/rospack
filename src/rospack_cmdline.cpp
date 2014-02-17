@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008, Willow Garage, Inc.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -41,7 +41,7 @@ namespace po = boost::program_options;
 namespace rospack
 {
 
-bool parse_args(int argc, char** argv, 
+bool parse_args(int argc, char** argv,
                 rospack::Rosstackage& rp,
                 po::variables_map& vm);
 
@@ -198,7 +198,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   // COMMAND: profile
   if(command == "profile")
   {
-    if(package_given || target.size() || top.size() || 
+    if(package_given || target.size() || top.size() ||
        deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -216,7 +216,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
 
   // We crawl here because profile (above) does its own special crawl.
   rp.crawl(search_path, force);
-  
+
   // COMMAND: find [package]
   if(command == "find")
   {
@@ -225,7 +225,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package/stack given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -240,7 +240,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   // COMMAND: list
   else if(command == "list")
   {
-    if(package_given || target.size() || top.size() || length_str.size() || 
+    if(package_given || target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -259,7 +259,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   // COMMAND: list-names
   else if(command == "list-names")
   {
-    if(package_given || target.size() || top.size() || length_str.size() || 
+    if(package_given || target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -278,7 +278,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   // COMMAND: list-duplicates
   else if(command == "list-duplicates")
   {
-    if(package_given || target.size() || top.size() || length_str.size() || 
+    if(package_given || target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -304,7 +304,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   // COMMAND: langs
   else if(rp.getName() == ROSPACK_NAME && command == "langs")
   {
-    if(package_given || target.size() || top.size() || length_str.size() || 
+    if(package_given || target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -330,7 +330,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       std::vector<std::string>::iterator it = deps.begin();
       while(it != deps.end())
       {
-        if(std::find(disable_langs.begin(), disable_langs.end(), *it) != 
+        if(std::find(disable_langs.begin(), disable_langs.end(), *it) !=
            disable_langs.end())
           it = deps.erase(it);
         else
@@ -349,7 +349,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     return true;
   }
   // COMMAND: depends [package] (alias: deps)
-  else if(command == "depends" || command == "deps" || 
+  else if(command == "depends" || command == "deps" ||
           command == "depends1" || command == "deps1")
   {
     if(!package.size())
@@ -357,7 +357,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package/stack given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -380,7 +380,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package/stack given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -401,7 +401,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     return true;
   }
   // COMMAND: depends-msgsrv [package] (alias: deps-msgsrv)
-  else if(rp.getName() == ROSPACK_NAME && 
+  else if(rp.getName() == ROSPACK_NAME &&
           (command == "depends-msgsrv" || command == "deps-msgsrv"))
   {
     if(!package.size())
@@ -409,7 +409,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -437,7 +437,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package/stack given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -460,7 +460,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package/stack or target given");
       return false;
     }
-    if(top.size() || length_str.size() || 
+    if(top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -474,7 +474,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   }
   // COMMAND: rosdep [package] (alias: rosdeps)
   // COMMAND: rosdep0 [package] (alias: rosdeps0)
-  else if(rp.getName() == ROSPACK_NAME && 
+  else if(rp.getName() == ROSPACK_NAME &&
           (command == "rosdep" || command == "rosdeps" ||
            command == "rosdep0" || command == "rosdeps0"))
   {
@@ -483,7 +483,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -500,7 +500,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   }
   // COMMAND: vcs [package]
   // COMMAND: vcs0 [package]
-  else if(rp.getName() == ROSPACK_NAME && 
+  else if(rp.getName() == ROSPACK_NAME &&
           (command == "vcs" || command == "vcs0"))
   {
     if(!package.size())
@@ -508,7 +508,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -532,7 +532,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package/stack given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -780,7 +780,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no stack given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -796,7 +796,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     return true;
   }
   // COMMAND: contains [package]
-  else if(rp.getName() == ROSSTACK_NAME && 
+  else if(rp.getName() == ROSSTACK_NAME &&
           ((command == "contains") || (command == "contains-path")))
   {
     if(!package.size())
@@ -804,7 +804,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       rp.logError( "no package given");
       return false;
     }
-    if(target.size() || top.size() || length_str.size() || 
+    if(target.size() || top.size() || length_str.size() ||
        zombie_only || deps_only || lang.size() || attrib.size())
     {
       rp.logError( "invalid option(s) given");
@@ -827,7 +827,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
 }
 
 bool
-parse_args(int argc, char** argv, 
+parse_args(int argc, char** argv,
            rospack::Rosstackage& rp, po::variables_map& vm)
 {
   po::options_description desc("Allowed options");

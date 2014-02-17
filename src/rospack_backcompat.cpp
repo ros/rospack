@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008, Willow Garage, Inc., Morgan Quigley
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *   * Redistributions of source code must retain the above copyright notice,
@@ -37,7 +37,7 @@
 namespace rospack
 {
 
-int 
+int
 ROSPack::run(int argc, char** argv)
 {
   rospack::Rospack rp;
@@ -51,7 +51,7 @@ ROSPack::run(int argc, char** argv)
   return 0;
 }
 
-int 
+int
 ROSPack::run(const std::string& cmd)
 {
   // Callers of this method don't make 'rospack' argv[0].
@@ -60,7 +60,7 @@ ROSPack::run(const std::string& cmd)
   int argc;
   char** argv;
   std::vector<std::string> full_cmd_split;
-  boost::split(full_cmd_split, full_cmd, 
+  boost::split(full_cmd_split, full_cmd,
                boost::is_any_of(" "),
                boost::token_compress_on);
   argc = full_cmd_split.size();
@@ -81,7 +81,7 @@ ROSPack::run(const std::string& cmd)
   for(int i=0; i<argc; i++)
     delete[] argv[i];
   delete[] argv;
-  
+
   return ret;
 }
 

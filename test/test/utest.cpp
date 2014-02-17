@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2008, Willow Garage, Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Willow Garage, Inc. nor the names of its
  *       contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -60,7 +60,7 @@ TEST(rospack, reentrant)
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  output = rp.getOutput(); 
+  output = rp.getOutput();
   boost::trim(output);
   boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
@@ -80,13 +80,13 @@ TEST(rospack, multiple_rospack_objects)
   ret = rp.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   std::vector<std::string> output_list;
-  output = rp.getOutput(); 
+  output = rp.getOutput();
   boost::trim(output);
   boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  output = rp.getOutput(); 
+  output = rp.getOutput();
   boost::trim(output);
   boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
@@ -102,13 +102,13 @@ TEST(rospack, multiple_rospack_objects)
   ret = rp2.run(std::string("list-names"));
   ASSERT_EQ(ret, 0);
   output_list.clear();
-  output = rp2.getOutput(); 
+  output = rp2.getOutput();
   boost::trim(output);
   boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
   ret = rp2.run(std::string("list"));
   ASSERT_EQ(ret, 0);
-  output = rp2.getOutput(); 
+  output = rp2.getOutput();
   boost::trim(output);
   boost::split(output_list, output, boost::is_any_of("\n"));
   ASSERT_EQ((int)output_list.size(), 4);
