@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.23 (2014-02-25)
+-------------------
 * only perform backquote substitution when needed (`#34 <https://github.com/ros/rospack/issues/34>`_)
 
 2.1.22 (2014-01-07)
