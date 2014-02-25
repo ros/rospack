@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* only perform backquote substitution when needed (`#34 <https://github.com/ros/rospack/issues/34>`_)
+
 2.2.0 (2014-01-30)
 ------------------
 * add hash of ROS_PACKAGE_PATH to rospack/rosstack cache filename, remove ROS_ROOT from cache (`#28 <https://github.com/ros/rospack/issues/28>`_)
