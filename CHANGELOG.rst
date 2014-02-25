@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* only perform backquote substitution when needed (`#34 <https://github.com/ros/rospack/issues/34>`_)
+
 2.1.22 (2014-01-07)
 -------------------
 * use specific python version catkin has decided on (`#29 <https://github.com/ros/rospack/issues/29>`_)
