@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.2 (2014-02-25)
+------------------
 * python 3 compatibility (`#35 <https://github.com/ros/rospack/issues/35>`_)
 
 2.2.1 (2014-02-24)
