@@ -71,10 +71,11 @@
 
 #include <Python.h>
 
-/* re-define some String functions for recent python (>= 3.0) */
-#if PY_VERSION_HEX >= 0x03000000
-#define PyString_AsString PyBytes_AsString
-#define PyString_FromString PyBytes_FromString
+/* re-define some String functions for python 2.x */
+#if PY_VERSION_HEX < 0x03000000
+#define PyBytes_AsString PyString_AsString
+#define PyUnicode_AsUTF8 PyString_AsString
+#define PyUnicode_FromString PyString_FromString
 #endif
 
 // TODO:
@@ -839,7 +840,7 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         if(!init_py)
         {
           init_py = true;
-          pName = PyString_FromString("rosdep2.rospack");
+          pName = PyUnicode_FromString("rosdep2.rospack");
           pModule = PyImport_Import(pName);
           if(!pModule)
           {
@@ -861,9 +862,9 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         }
 
         PyObject* pArgs = PyTuple_New(2);
-        PyObject* pOpt = PyString_FromString(type.c_str());
+        PyObject* pOpt = PyUnicode_FromString(type.c_str());
         PyTuple_SetItem(pArgs, 0, pOpt);
-        PyObject* pPkg = PyString_FromString((*it)->name_.c_str());
+        PyObject* pPkg = PyUnicode_FromString((*it)->name_.c_str());
         PyTuple_SetItem(pArgs, 1, pPkg);
         PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
         Py_DECREF(pArgs);
@@ -882,7 +883,7 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
           throw Exception(errmsg);
         }
 
-        flags.push_back(std::pair<std::string, bool>(PyString_AsString(pValue), true));
+        flags.push_back(std::pair<std::string, bool>(PyBytes_AsString(pValue), true));
         Py_DECREF(pValue);
 
         // we want to keep the static objects alive for repeated access
@@ -918,7 +919,7 @@ Rosstackage::reorder_paths(const std::string& paths, std::string& reordered)
   if(!init_py)
   {
     init_py = true;
-    pName = PyString_FromString("catkin_pkg.rospack");
+    pName = PyUnicode_FromString("catkin_pkg.rospack");
     pModule = PyImport_Import(pName);
     if(!pModule)
     {
@@ -941,7 +942,7 @@ Rosstackage::reorder_paths(const std::string& paths, std::string& reordered)
 
 
   PyObject* pArgs = PyTuple_New(1);
-  PyTuple_SetItem(pArgs, 0, PyString_FromString(paths.c_str()));
+  PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(paths.c_str()));
   PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
   Py_DECREF(pArgs);
 
@@ -953,7 +954,7 @@ Rosstackage::reorder_paths(const std::string& paths, std::string& reordered)
     throw Exception(errmsg);
   }
 
-  reordered = PyString_AsString(pValue);
+  reordered = PyUnicode_AsUTF8(pValue);
   Py_DECREF(pValue);
 
   // we want to keep the static objects alive for repeated access
@@ -1665,7 +1666,7 @@ Rosstackage::isSysPackage(const std::string& pkgname)
   static PyObject* pDict = 0;
   if(!pModule)
   {
-    PyObject* pName = PyString_FromString("rosdep2.rospack");
+    PyObject* pName = PyUnicode_FromString("rosdep2.rospack");
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
     if(!pModule)
@@ -1735,7 +1736,7 @@ Rosstackage::isSysPackage(const std::string& pkgname)
 
   PyObject* pArgs = PyTuple_New(2);
   PyTuple_SetItem(pArgs, 0, pView);
-  PyObject* pDep = PyString_FromString(pkgname.c_str());
+  PyObject* pDep = PyUnicode_FromString(pkgname.c_str());
   PyTuple_SetItem(pArgs, 1, pDep);
   PyObject* pValue = PyObject_CallObject(pFunc, pArgs);
   Py_INCREF(pView); // in order to keep the view when garbaging pArgs
