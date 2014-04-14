@@ -1204,7 +1204,7 @@ Rosstackage::findWithRecrawl(const std::string& name)
       return stackages_[name];
   }
 
-  logError(std::string("stack/package ") + name + " not found");
+  logError(get_manifest_type() + " '" + name + "' not found");
   return NULL;
 }
 
@@ -1609,7 +1609,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
     {
       if(!ignore_errors)
       {
-        std::string errmsg = std::string("package/stack ") + stackage->name_ + " depends on itself";
+        std::string errmsg = get_manifest_type() + " '" + stackage->name_ + "' depends on itself";
         throw Exception(errmsg);
       }
     }
@@ -1626,7 +1626,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
       }
       else
       {
-        std::string errmsg = std::string("package/stack '") + stackage->name_ + "' depends on non-existent package '" + dep_pkgname + "' and rosdep claims that it is not a system dependency. Check the ROS_PACKAGE_PATH or try calling 'rosdep update'";
+        std::string errmsg = get_manifest_type() + " '" + stackage->name_ + "' depends on non-existent package '" + dep_pkgname + "' and rosdep claims that it is not a system dependency. Check the ROS_PACKAGE_PATH or try calling 'rosdep update'";
         throw Exception(errmsg);
       }
     }
@@ -2260,6 +2260,11 @@ Rospack::usage()
           " is used (if it contains a manifest.xml).\n\n";
 }
 
+std::string Rospack::get_manifest_type()
+{
+  return "package";
+}
+
 /////////////////////////////////////////////////////////////
 // Rosstack methods
 /////////////////////////////////////////////////////////////
@@ -2293,6 +2298,11 @@ Rosstack::usage()
           "    profile [--length=<length>] \n\n"
           " If [stack] is omitted, the current working directory\n"
           " is used (if it contains a stack.xml).\n\n";
+}
+
+std::string Rosstack::get_manifest_type()
+{
+  return "stack";
 }
 
 TiXmlElement*

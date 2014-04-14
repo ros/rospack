@@ -222,7 +222,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   {
     if(!package.size())
     {
-      rp.logError( "no package/stack given");
+      rp.logError(std::string("no ") + rp.get_manifest_type() + " given");
       return false;
     }
     if(target.size() || top.size() || length_str.size() ||
@@ -354,7 +354,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   {
     if(!package.size())
     {
-      rp.logError( "no package/stack given");
+      rp.logError(std::string("no ") + rp.get_manifest_type() + " given");
       return false;
     }
     if(target.size() || top.size() || length_str.size() ||
@@ -377,7 +377,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   {
     if(!package.size())
     {
-      rp.logError( "no package/stack given");
+      rp.logError(std::string("no ") + rp.get_manifest_type() + " given");
       return false;
     }
     if(target.size() || top.size() || length_str.size() ||
@@ -434,7 +434,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   {
     if(!package.size())
     {
-      rp.logError( "no package/stack given");
+      rp.logError(std::string("no ") + rp.get_manifest_type() + " given");
       return false;
     }
     if(target.size() || top.size() || length_str.size() ||
@@ -457,7 +457,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   {
     if(!package.size() || !target.size())
     {
-      rp.logError( "no package/stack or target given");
+      rp.logError(std::string("no ") + rp.get_manifest_type() + " or target given");
       return false;
     }
     if(top.size() || length_str.size() ||
@@ -529,7 +529,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   {
     if(!package.size())
     {
-      rp.logError( "no package/stack given");
+      rp.logError(std::string("no ") + rp.get_manifest_type() + " given");
       return false;
     }
     if(target.size() || top.size() || length_str.size() ||
