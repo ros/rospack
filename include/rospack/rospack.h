@@ -528,6 +528,12 @@ re-run the profile with --zombie-only
      */
     void logError(const std::string& msg,
                   bool append_errno = false);
+
+    /*
+     * @brief The manifest type.
+     * @return Either "package" or "stack".
+     */
+    virtual std::string get_manifest_type() { return ""; }
 };
 
 /**
@@ -546,6 +552,8 @@ class ROSPACK_DECL Rospack : public Rosstackage
      * @return Command-line usage for the rospack tool.
      */
     virtual const char* usage();
+
+    virtual std::string get_manifest_type();
 };
 
 /**
@@ -564,6 +572,8 @@ class ROSPACK_DECL Rosstack : public Rosstackage
      * @return Command-line usage for the rosstack tool.
      */
     virtual const char* usage();
+
+    virtual std::string get_manifest_type();
 };
 
 } // namespace rospack
