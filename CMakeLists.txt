@@ -1,22 +1,16 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rospack)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS cmake_modules)
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
 set(PythonLibs_FIND_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 find_package(PythonLibs REQUIRED)
-find_package(tinyxml QUIET)
-if(NOT tinyxml_FOUND)
-  # Just assume it's located in the system directories
-  # though you could try and detect stuff via the pkgconfig file
-  # it provides
-  set(tinyxml_LIBRARIES tinyxml)
-endif()
+find_package(TinyXML REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rospack tinyxml ${PYTHON_LIBRARIES}
-  DEPENDS Boost
+  LIBRARIES rospack ${PYTHON_LIBRARIES}
+  DEPENDS Boost TinyXML
 )
 
 #add_definitions(-Wall)
@@ -27,7 +21,7 @@ if(API_BACKCOMPAT_V1)
   set(backcompat_source src/rospack_backcompat.cpp)
 endif()
 
-include_directories(include ${tinyxml_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+include_directories(include ${TinyXML_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 
 add_library(rospack
   src/rospack.cpp
@@ -35,7 +29,7 @@ add_library(rospack
   src/rospack_cmdline.cpp
   src/utils.cpp
 )
-target_link_libraries(rospack ${tinyxml_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(rospack ${TinyXML_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
