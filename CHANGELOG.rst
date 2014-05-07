@@ -2,6 +2,12 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* find library for exact Python version (even if not in CMake provided list of version numbers) (`#40 <https://github.com/ros/rospack/issues/40>`_)
+* find TinyXML using cmake_modules (`#24 <https://github.com/ros/rospack/issues/24>`_)
+* make error messages tool specific (rospack vs. rosstack) (`#38 <https://github.com/ros/rospack/issues/38>`_)
+
 2.2.2 (2014-02-25)
 ------------------
 * python 3 compatibility (`#35 <https://github.com/ros/rospack/issues/35>`_)
