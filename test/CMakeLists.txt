@@ -9,7 +9,7 @@ endif()
 # Prepare to run the tests.  This could be cleaner.
 add_custom_target(${PROJECT_NAME}-prepare_test
                   COMMAND cmake -E copy_directory ${PROJECT_SOURCE_DIR}/test ${CMAKE_CURRENT_BINARY_DIR}
-                  COMMAND cmake -E chdir test/deep python deep.py)
+                  COMMAND cmake -E chdir test/deep "${PYTHON_EXECUTABLE}" deep.py)
 if(TARGET ${PROJECT_NAME}-utest)
   add_dependencies(${PROJECT_NAME}-utest ${PROJECT_NAME}-prepare_test)
 endif()
