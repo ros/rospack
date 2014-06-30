@@ -3,8 +3,8 @@ project(rospack)
 
 find_package(catkin REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
-set(PythonLibs_FIND_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
-find_package(PythonLibs REQUIRED)
+set(Python_ADDITIONAL_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
 find_package(tinyxml QUIET)
 if(NOT tinyxml_FOUND)
   # Just assume it's located in the system directories
