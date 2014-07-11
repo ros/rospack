@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix find_package(PythonLibs ...) with CMake 3 (`#42 <https://github.com/ros/rospack/issues/42>`_)
+
 2.2.3 (2014-05-07)
 ------------------
 * find library for exact Python version (even if not in CMake provided list of version numbers) (`#40 <https://github.com/ros/rospack/issues/40>`_)
