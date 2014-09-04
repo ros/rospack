@@ -705,9 +705,17 @@ Rosstackage::rosdeps(const std::string& name, bool direct,
       }
       else
       {
+        // package format 1 tags
         _rosdeps(*it, rosdeps, "build_depend");
         _rosdeps(*it, rosdeps, "buildtool_depend");
         _rosdeps(*it, rosdeps, "run_depend");
+        // package format 2 tags
+        _rosdeps(*it, rosdeps, "build_export_depend");
+        _rosdeps(*it, rosdeps, "buildtool_export_depend");
+        _rosdeps(*it, rosdeps, "exec_depend");
+        _rosdeps(*it, rosdeps, "depend");
+        _rosdeps(*it, rosdeps, "doc_depend");
+        _rosdeps(*it, rosdeps, "test_depend");
       }
     }
   }
@@ -1574,7 +1582,11 @@ Rosstackage::computeDeps(Stackage* stackage, bool ignore_errors, bool ignore_mis
   }
   else
   {
+    // package format 1 tags
     computeDepsInternal(stackage, ignore_errors, "run_depend", ignore_missing);
+    // package format 2 tags
+    computeDepsInternal(stackage, ignore_errors, "exec_depend", ignore_missing);
+    computeDepsInternal(stackage, ignore_errors, "depend", ignore_missing);
   }
 }
 
@@ -1633,8 +1645,11 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
     else
     {
       Stackage* dep = stackages_[dep_pkgname];
-      stackage->deps_.push_back(dep);
-      computeDeps(dep, ignore_errors, ignore_missing);
+      if (std::find(stackage->deps_.begin(), stackage->deps_.end(), dep) == stackage->deps_.end())
+      {
+        stackage->deps_.push_back(dep);
+        computeDeps(dep, ignore_errors, ignore_missing);
+      }
     }
   }
 }
