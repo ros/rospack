@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* support tags defined in package format 2 (`#43 <https://github.com/ros/rospack/issues/43>`_)
+
 2.2.4 (2014-07-10)
 ------------------
 * fix find_package(PythonLibs ...) with CMake 3 (`#42 <https://github.com/ros/rospack/issues/42>`_)
