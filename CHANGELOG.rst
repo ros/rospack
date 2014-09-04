@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.5 (2014-09-04)
+------------------
 * support tags defined in package format 2 (`#43 <https://github.com/ros/rospack/issues/43>`_)
 
 2.2.4 (2014-07-10)
