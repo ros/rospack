@@ -1,0 +1,6 @@
+Name: wet_package
+Description: Description of wet_package
+Version: 0.0.0
+Cflags: -I/opt/ros/jade/include -I/usr/include
+Libs: -L/opt/ros/jade/lib -lroscpp -foo -lpthread /usr/lib/x86_64-linux-gnu/libboost_signals.so -lbat /usr/lib/x86_64-linux-gnu/libboost_filesystem.so /usr/lib/x86_64-linux-gnu/libboost_system.so bar /foo/bar.whatever -Lsomething /bat/mylib.dylib lib.dylib foo.so bat.a /lib/libgcc.a -L/foo/bar
+Requires:

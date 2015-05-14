@@ -865,3 +865,26 @@ class RospackTestCase(unittest.TestCase):
         status_code, stdout, stderr = self._run_rospack(rpp, 'nonexistentpackage', 'find')
         self.assertNotEquals(0, status_code)
         self.assertNotEquals(0, len(stderr))
+
+    # Test that absolute library paths are properly parsed from .pc files
+    # provided in wet packages.
+    def test_abspath_wet_package(self):
+        rpp = os.path.abspath('catkin')
+        env = os.environ.copy()
+        os.environ['PKG_CONFIG_PATH'] = \
+          os.path.abspath('catkin/wet_package/lib/pkgconfig')
+        # libs-only-l should give us the -l args and the /*.[a,so,dylib] args
+        status_code, stdout, stderr = self._run_rospack(rpp, 'wet_package', 'libs-only-l')
+        self.assertEquals(0, status_code)
+        self.assertEquals(0, len(stderr))
+        self.assertEquals('roscpp pthread /usr/lib/x86_64-linux-gnu/libboost_signals.so bat /usr/lib/x86_64-linux-gnu/libboost_filesystem.so /usr/lib/x86_64-linux-gnu/libboost_system.so /bat/mylib.dylib /lib/libgcc.a', stdout)
+        # libs-only-L should give the -L args
+        status_code, stdout, stderr = self._run_rospack(rpp, 'wet_package', 'libs-only-L')
+        self.assertEquals(0, status_code)
+        self.assertEquals(0, len(stderr))
+        self.assertEquals('/opt/ros/jade/lib something /foo/bar', stdout)
+        # libs-only-other should give everything else
+        status_code, stdout, stderr = self._run_rospack(rpp, 'wet_package', 'libs-only-other')
+        self.assertEquals(0, status_code)
+        self.assertEquals(0, len(stderr))
+        self.assertEquals('-foo bar /foo/bar.whatever lib.dylib foo.so bat.a', stdout)
