@@ -334,16 +334,13 @@ Rosstackage::crawl(std::vector<std::string> search_path,
 {
   if(!force)
   {
-    if(readCache())
+    // read the cache only once (when search_paths_ is still empty)
+    if(search_paths_.empty() && readCache())
     {
       // If the cache was valid, then the paths in the cache match the ones
       // we've been asked to crawl.  Store them, so that later, methods
       // like find() can refer to them when recrawling.
-      search_paths_.clear();
-      for(std::vector<std::string>::const_iterator it = search_path.begin();
-          it != search_path.end();
-          ++it)
-        search_paths_.push_back(*it);
+      search_paths_ = search_path;
       return;
     }
 
