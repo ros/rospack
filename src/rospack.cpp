@@ -243,6 +243,23 @@ Rosstackage::Rosstackage(const std::string& manifest_name,
 {
 }
 
+Rosstackage::~Rosstackage()
+{
+  clearStackages();
+}
+
+void Rosstackage::clearStackages()
+{
+  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+      it != stackages_.end();
+      ++it)
+  {
+    delete it->second;
+  }
+  stackages_.clear();
+  dups_.clear();
+}
+
 void
 Rosstackage::logWarn(const std::string& msg,
                      bool append_errno)
@@ -334,54 +351,26 @@ Rosstackage::crawl(std::vector<std::string> search_path,
 {
   if(!force)
   {
-    if(readCache())
+    bool same_search_paths = (search_path == search_paths_);
+
+    // if search paths differ, try to reading the cache corresponding to the new paths
+    if(!same_search_paths && readCache())
     {
       // If the cache was valid, then the paths in the cache match the ones
       // we've been asked to crawl.  Store them, so that later, methods
       // like find() can refer to them when recrawling.
-      search_paths_.clear();
-      for(std::vector<std::string>::const_iterator it = search_path.begin();
-          it != search_path.end();
-          ++it)
-        search_paths_.push_back(*it);
+      search_paths_ = search_path;
       return;
     }
 
-    if(crawled_)
-    {
-      bool same_paths = true;
-      if(search_paths_.size() != search_path.size())
-        same_paths = false;
-      else
-      {
-        for(unsigned int i=0; i<search_paths_.size(); i++)
-        {
-          if(search_paths_[i] != search_path[i])
-          {
-            same_paths = false;
-            break;
-          }
-        }
-      }
-
-      if(same_paths)
-        return;
-    }
+    if(crawled_ && same_search_paths)
+      return;
   }
 
-
-  std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
-  while(it != stackages_.end())
-  {
-    delete it->second;
-    it = stackages_.erase(it);
-  }
-  dups_.clear();
-  search_paths_.clear();
-  for(std::vector<std::string>::const_iterator it = search_path.begin();
-      it != search_path.end();
-      ++it)
-    search_paths_.push_back(*it);
+  // We're about to crawl, so clear internal storage (in case this is the second
+  // run in this process).
+  clearStackages();
+  search_paths_ = search_path;
 
   std::vector<DirectoryCrawlRecord*> dummy;
   std::tr1::unordered_set<std::string> dummy2;
@@ -1969,6 +1958,9 @@ Rosstackage::readCache()
   FILE* cache = validateCache();
   if(cache)
   {
+    // We're about to read from the cache, so clear internal storage (in case this is
+    // the second run in this process).
+    clearStackages();
     char linebuf[30000];
     for(;;)
     {
@@ -2234,16 +2226,6 @@ Rospack::Rospack() :
                     ROSPACK_NAME,
                     MANIFEST_TAG_PACKAGE)
 {
-}
-
-Rosstackage::~Rosstackage()
-{
-  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
-      it != stackages_.end();
-      ++it)
-  {
-    delete it->second;
-  }
 }
 
 const char*
