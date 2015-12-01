@@ -328,27 +328,13 @@ Rosstackage::isStackage(const std::string& path)
   return false;
 }
 
-static bool sameSearchPaths(const std::vector<std::string> &path1,
-                            const std::vector<std::string> &path2)
-{
-  if(path1.size() != path2.size())
-    return false;
-
-  for(unsigned int i=0, end=path1.size(); i != end; ++i)
-  {
-    if(path1[i] != path2[i])
-      return false;
-  }
-  return true;
-}
-
 void
 Rosstackage::crawl(std::vector<std::string> search_path,
                    bool force)
 {
   if(!force)
   {
-    bool same_search_paths = sameSearchPaths(search_path, search_paths_);
+    bool same_search_paths = (search_path == search_paths_);
 
     // if search paths differ, try to reading the cache corresponding to the new paths
     if(!same_search_paths && readCache())
