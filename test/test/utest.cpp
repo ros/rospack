@@ -127,23 +127,21 @@ TEST(rospack, deduplicate_tokens)
 }
 
 // Test that env var changes between runs still produce the right results.
-/*
 TEST(rospack, env_change)
 {
   // Get old path for resetting later, to avoid cross-talk with other tests
   char* oldrpp = getenv("ROS_PACKAGE_PATH");
+  rospack::ROSPack rp;
 
+  // Case 1: RPP=/test2
   char buf[1024];
   std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test2";
   setenv("ROS_PACKAGE_PATH", rr.c_str(), 1);
-  std::vector<std::string> test2_pkgs;
-  test2_pkgs.push_back("precedence1");
-  test2_pkgs.push_back("precedence2");
-  test2_pkgs.push_back("precedence3");
-  test2_pkgs.push_back("roslang");
-
-  rospack::ROSPack rp;
-
+  std::vector<std::string> test_pkgs;
+  test_pkgs.push_back("precedence1");
+  test_pkgs.push_back("precedence2");
+  test_pkgs.push_back("precedence3");
+  test_pkgs.push_back("roslang");
   std::string output;
   int ret = rp.run(std::string("list-names"));
   EXPECT_EQ(ret, 0);
@@ -153,37 +151,76 @@ TEST(rospack, env_change)
   boost::split(output_list, output, boost::is_any_of("\n"));
   // Check that we get back the right list of packages (which could be in any
   // order).
-  EXPECT_EQ(output_list.size(), test2_pkgs.size());
+  EXPECT_EQ(output_list.size(), test_pkgs.size());
   for(std::vector<std::string>::const_iterator it = output_list.begin();
       it != output_list.end();
       ++it)
   {
     bool found = false;
-    for(std::vector<std::string>::const_iterator it2 = test2_pkgs.begin();
-        it2 != test2_pkgs.end();
+    for(std::vector<std::string>::const_iterator it2 = test_pkgs.begin();
+        it2 != test_pkgs.end();
         ++it2)
     {
-      EXPECT_FALSE(found);
       if(*it == *it2)
+      {
+        EXPECT_FALSE(found);
         found = true;
+      }
     }
     EXPECT_TRUE(found);
   }
 
-  ret = rp.run(std::string("list"));
+  // Case 2: RPP=/test3
+  rr = std::string(getcwd(buf, sizeof(buf))) + "/test3";
+  setenv("ROS_PACKAGE_PATH", rr.c_str(), 1);
+  test_pkgs.clear();
+  test_pkgs.push_back("precedence1");
+  test_pkgs.push_back("precedence2");
+  test_pkgs.push_back("precedence3");
+  ret = rp.run(std::string("list-names"));
   EXPECT_EQ(ret, 0);
+  output_list.clear();
   output = rp.getOutput();
   boost::trim(output);
   boost::split(output_list, output, boost::is_any_of("\n"));
-  EXPECT_EQ((int)output_list.size(), 4);
-  std::vector<std::string> path_name;
-  boost::split(path_name, output_list[0], boost::is_any_of(" "));
-  EXPECT_EQ((int)path_name.size(), 2);
+  // Check that we get back the right list of packages (which could be in any
+  // order).
+  EXPECT_EQ(output_list.size(), test_pkgs.size());
+  for(std::vector<std::string>::const_iterator it = output_list.begin();
+      it != output_list.end();
+      ++it)
+  {
+    bool found = false;
+    for(std::vector<std::string>::const_iterator it2 = test_pkgs.begin();
+        it2 != test_pkgs.end();
+        ++it2)
+    {
+      if(*it == *it2)
+      {
+        EXPECT_FALSE(found);
+        found = true;
+      }
+    }
+    EXPECT_TRUE(found);
+  }
+
+  // Case 3: RPP=/test_empty
+  rr = std::string(getcwd(buf, sizeof(buf))) + "/test_empty";
+  setenv("ROS_PACKAGE_PATH", rr.c_str(), 1);
+  ret = rp.run(std::string("list-names"));
+  EXPECT_EQ(ret, 0);
+  output_list.clear();
+  output = rp.getOutput();
+  std::cerr << "output: " << output << std::endl;
+  boost::trim(output);
+  boost::split(output_list, output, boost::is_any_of("\n"));
+  // Check that we get back the right list of packages (which could be in any
+  // order).
+  EXPECT_EQ(output_list.size(), 0);
 
   // Reset old path, for other tests
   setenv("ROS_PACKAGE_PATH", oldrpp, 1);
 }
-*/
 
 int main(int argc, char **argv)
 {
