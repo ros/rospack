@@ -40,7 +40,8 @@ namespace rospack
 int
 ROSPack::run(int argc, char** argv)
 {
-  rospack::Rospack rp;
+  // allow caching of results between calls (of same process)
+  static rospack::Rospack rp;
   output_.clear();
   bool success = rospack::rospack_run(argc, argv, rp, output_);
   if(!success)
