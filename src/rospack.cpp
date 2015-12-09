@@ -73,6 +73,9 @@
 
 /* re-define some String functions for python 2.x */
 #if PY_VERSION_HEX < 0x03000000
+#undef PyBytes_AsString
+#undef PyUnicode_AsUTF8
+#undef PyUnicode_FromString
 #define PyBytes_AsString PyString_AsString
 #define PyUnicode_AsUTF8 PyString_AsString
 #define PyUnicode_FromString PyString_FromString
