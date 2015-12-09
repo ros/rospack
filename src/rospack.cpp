@@ -243,6 +243,23 @@ Rosstackage::Rosstackage(const std::string& manifest_name,
 {
 }
 
+Rosstackage::~Rosstackage()
+{
+  clearStackages();
+}
+
+void Rosstackage::clearStackages()
+{
+  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+      it != stackages_.end();
+      ++it)
+  {
+    delete it->second;
+  }
+  stackages_.clear();
+  dups_.clear();
+}
+
 void
 Rosstackage::logWarn(const std::string& msg,
                      bool append_errno)
@@ -350,14 +367,7 @@ Rosstackage::crawl(std::vector<std::string> search_path,
       return;
   }
 
-
-  std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
-  while(it != stackages_.end())
-  {
-    delete it->second;
-    it = stackages_.erase(it);
-  }
-  dups_.clear();
+  clearStackages();
   search_paths_ = search_path;
 
   std::vector<DirectoryCrawlRecord*> dummy;
@@ -1941,6 +1951,7 @@ Rosstackage::readCache()
   FILE* cache = validateCache();
   if(cache)
   {
+    clearStackages();
     char linebuf[30000];
     for(;;)
     {
@@ -2206,16 +2217,6 @@ Rospack::Rospack() :
                     ROSPACK_NAME,
                     MANIFEST_TAG_PACKAGE)
 {
-}
-
-Rosstackage::~Rosstackage()
-{
-  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
-      it != stackages_.end();
-      ++it)
-  {
-    delete it->second;
-  }
 }
 
 const char*
