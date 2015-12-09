@@ -1288,7 +1288,10 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
   // No recrawl here, because depends-on always forces a crawl at the
   // start.
   if(!stackages_.count(name))
-    logWarn(std::string("no such package ") + name);
+  {
+    logError(std::string("no such package ") + name);
+    return false;
+  }
   try
   {
     for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
