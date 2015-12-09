@@ -358,11 +358,7 @@ Rosstackage::crawl(std::vector<std::string> search_path,
     it = stackages_.erase(it);
   }
   dups_.clear();
-  search_paths_.clear();
-  for(std::vector<std::string>::const_iterator it = search_path.begin();
-      it != search_path.end();
-      ++it)
-    search_paths_.push_back(*it);
+  search_paths_ = search_path;
 
   std::vector<DirectoryCrawlRecord*> dummy;
   std::tr1::unordered_set<std::string> dummy2;

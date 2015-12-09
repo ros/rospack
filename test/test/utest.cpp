@@ -209,14 +209,9 @@ TEST(rospack, env_change)
   setenv("ROS_PACKAGE_PATH", rr.c_str(), 1);
   ret = rp.run(std::string("list-names"));
   EXPECT_EQ(ret, 0);
-  output_list.clear();
   output = rp.getOutput();
-  std::cerr << "output: " << output << std::endl;
   boost::trim(output);
-  boost::split(output_list, output, boost::is_any_of("\n"));
-  // Check that we get back the right list of packages (which could be in any
-  // order).
-  EXPECT_EQ(output_list.size(), 0);
+  EXPECT_EQ(output, std::string());
 
   // Reset old path, for other tests
   setenv("ROS_PACKAGE_PATH", oldrpp, 1);
