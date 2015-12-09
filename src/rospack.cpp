@@ -336,13 +336,14 @@ Rosstackage::crawl(std::vector<std::string> search_path,
   {
     bool same_search_paths = (search_path == search_paths_);
 
-    // if search paths differ, try to reading the cache corresponding to the new paths
-    if(!same_search_paths && readCache())
+    // Try to read the cache
+    if(readCache())
     {
       // If the cache was valid, then the paths in the cache match the ones
       // we've been asked to crawl.  Store them, so that later, methods
       // like find() can refer to them when recrawling.
-      search_paths_ = search_path;
+      if(!same_search_paths)
+        search_paths_ = search_path;
       return;
     }
 
