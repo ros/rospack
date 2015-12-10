@@ -367,6 +367,8 @@ Rosstackage::crawl(std::vector<std::string> search_path,
       return;
   }
 
+  // We're about to crawl, so clear internal storage (in case this is the second
+  // run in this process).
   clearStackages();
   search_paths_ = search_path;
 
@@ -1951,6 +1953,8 @@ Rosstackage::readCache()
   FILE* cache = validateCache();
   if(cache)
   {
+    // We're about to read from the cache, so clear internal storage (in case this is
+    // the second run in this process).
     clearStackages();
     char linebuf[30000];
     for(;;)
