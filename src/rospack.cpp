@@ -2278,7 +2278,7 @@ Rospack::usage()
           "  Extra options:\n"
           "    -q     Quiets error reports.\n\n"
           " If [package] is omitted, the current working directory\n"
-          " is used (if it contains a manifest.xml).\n\n";
+          " is used (if it contains a package.xml or manifest.xml).\n\n";
 }
 
 std::string Rospack::get_manifest_type()
