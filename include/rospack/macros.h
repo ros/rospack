@@ -56,7 +56,7 @@
   #pragma warning(disable:4251)
   #pragma warning(disable:4275)
   #pragma warning(disable:4514) // unreferenced inline function has been removed
-  #pragma warning(disable:4668) // warnigns about used, but not defined macros, replacing with 0
+  #pragma warning(disable:4668) // warnings about used, but not defined macros, replacing with 0
   #pragma warning(disable:4710) // function not inlined
   #pragma warning(disable:4738) // storing floats, memory splitting, possible loss in performance
   #pragma warning(disable:4820) // structs and padding
