@@ -1413,6 +1413,7 @@ Rosstackage::addStackage(const std::string& path)
   if((manifest_name_ == ROSSTACK_MANIFEST_NAME && stackage->isPackage()) ||
      (manifest_name_ == ROSPACK_MANIFEST_NAME && stackage->isStack()))
   {
+    delete stackage;
     return;
   }
 
@@ -1425,6 +1426,7 @@ Rosstackage::addStackage(const std::string& path)
       dups_[stackage->name_] = dups;
     }
     dups_[stackage->name_].push_back(stackage->path_);
+    delete stackage;
     return;
   }
 
