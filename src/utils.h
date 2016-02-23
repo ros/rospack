@@ -35,8 +35,15 @@ namespace rospack
 {
 
 // Strings that are used in multiple translation units within librospack
+#ifndef _WIN32
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
 static const char* ROSPACK_NAME = "rospack";
 static const char* ROSSTACK_NAME = "rosstack";
+#ifndef _WIN32
+# pragma GCC diagnostic pop
+#endif
 
 ROSPACK_DECL void deduplicate_tokens(const std::string& instring,
                         bool last,
