@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2016-03-09)
+------------------
 * allow caching of rospack results (`#49 <https://github.com/ros/rospack/issues/49>`_)
 * fix memory leak in Rosstackage::addStackage (`#59 <https://github.com/ros/rospack/issues/59>`_)
 * return false in depsOnDetail if the package name in rospack plugins can not be found (`#51 <https://github.com/ros/rospack/issues/51>`_)
