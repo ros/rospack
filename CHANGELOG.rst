@@ -2,6 +2,13 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* allow caching of rospack results (`#49 <https://github.com/ros/rospack/issues/49>`_)
+* fix memory leak in Rosstackage::addStackage (`#59 <https://github.com/ros/rospack/issues/59>`_)
+* return false in depsOnDetail if the package name in rospack plugins can not be found (`#51 <https://github.com/ros/rospack/issues/51>`_)
+* #undef symbols before #defining them to avoid preprocessor warnings in the case that they were already #defined (`#50 <https://github.com/ros/rospack/issues/50>`_)
+
 2.2.5 (2014-09-04)
 ------------------
 * support tags defined in package format 2 (`#43 <https://github.com/ros/rospack/issues/43>`_)
