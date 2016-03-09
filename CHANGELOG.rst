@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.6 (2016-03-09)
+------------------
 * fix memory leak in Rosstackage::addStackage (`#59 <https://github.com/ros/rospack/issues/59>`_)
 * return false in depsOnDetail if the package name in rospack plugins can not be found (`#51 <https://github.com/ros/rospack/issues/51>`_)
 * #undef symbols before #defining them to avoid preprocessor warnings in the case that they were already #defined (`#50 <https://github.com/ros/rospack/issues/50>`_)
