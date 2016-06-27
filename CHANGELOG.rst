@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.7 (2016-06-27)
+------------------
 * allow caching of rospack results (`#49 <https://github.com/ros/rospack/issues/49>`_)
 
 2.2.6 (2016-03-09)
