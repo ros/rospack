@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* allow caching of rospack results (`#49 <https://github.com/ros/rospack/issues/49>`_)
+
 2.2.6 (2016-03-09)
 ------------------
 * fix memory leak in Rosstackage::addStackage (`#59 <https://github.com/ros/rospack/issues/59>`_)
