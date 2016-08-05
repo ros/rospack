@@ -1994,11 +1994,12 @@ Rosstackage::writeCache()
   }
   else
   {
-    char tmp_cache_dir[PATH_MAX];
-    char tmp_cache_path[PATH_MAX];
-    strncpy(tmp_cache_dir, cache_path.c_str(), sizeof(tmp_cache_dir));
+    size_t len = cache_path.size() + 1;
+    char *tmp_cache_dir = new char[len];
+    strncpy(tmp_cache_dir, cache_path.c_str(), len);
 #if defined(_MSC_VER)
     // No dirname on Windows; use _splitpath_s instead
+    char tmp_cache_path[PATH_MAX];
     char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
     _splitpath_s(tmp_cache_dir, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME,
                  ext, _MAX_EXT);
@@ -2006,11 +2007,15 @@ Rosstackage::writeCache()
     _makepath_s(full_dir, _MAX_DRIVE + _MAX_DIR, drive, dir, NULL, NULL);
     snprintf(tmp_cache_path, sizeof(tmp_cache_path), "%s\\.rospack_cache.XXXXXX", full_dir);
 #elif defined(__MINGW32__)
+    char tmp_cache_path[PATH_MAX];
     char* temp_name = tempnam(dirname(tmp_cache_dir),".rospack_cache.");
     snprintf(tmp_cache_path, sizeof(tmp_cache_path), temp_name);
     delete temp_name;
 #else
-    snprintf(tmp_cache_path, sizeof(tmp_cache_path), "%s/.rospack_cache.XXXXXX", dirname(tmp_cache_dir));
+    char *temp_dirname = dirname(tmp_cache_dir);
+    len = strlen(temp_dirname) + 22 + 1;
+    char *tmp_cache_path = new char[len];
+    snprintf(tmp_cache_path, len, "%s/.rospack_cache.XXXXXX", temp_dirname);
 #endif
 #if defined(__MINGW32__)
     // There is no equivalent of mkstemp or _mktemp_s on mingw, so we resort to a slightly problematic
@@ -2068,6 +2073,10 @@ Rosstackage::writeCache()
         }
       }
     }
+    delete[] tmp_cache_dir;
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+    delete[] tmp_cache_path;
+#endif
   }
 }
 
