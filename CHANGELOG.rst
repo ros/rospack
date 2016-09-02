@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix FTBFS on hurd-i386 (`#64 <https://github.com/ros/rospack/issues/64>`_)
+
 2.3.0 (2016-03-09)
 ------------------
 * allow caching of rospack results (`#49 <https://github.com/ros/rospack/issues/49>`_)
