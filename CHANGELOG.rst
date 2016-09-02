@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.1 (2016-09-02)
+------------------
 * fix FTBFS on hurd-i386 (`#64 <https://github.com/ros/rospack/issues/64>`_)
 
 2.3.0 (2016-03-09)
