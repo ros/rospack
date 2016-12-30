@@ -53,7 +53,7 @@ the colon-separated list of directories ROS_PACKAGE_PATH, in the order they
 are listed.
 
 During the crawl, librospack examines the contents of each directory, looking
-for a file called @b manifest.xml (for packages) or @b stack.xml (for stacks).
+for a file called @b package.xml / manifest.xml (for packages) or @b stack.xml (for stacks).
 If such a file is found, the directory
 containing it is considered to be a ROS stackage, with the stackage name
 equal to the directory name.  The crawl does not descend further once a
