@@ -681,6 +681,20 @@ Rosstackage::depsManifests(const std::string& name, bool direct,
 }
 
 bool
+Rosstackage::depsDetail_pub(const std::string& name, bool direct,
+                            std::vector<Stackage*>& deps)
+{
+  return depsDetail(name, direct, deps);
+}
+
+bool
+Rosstackage::depsOnDetail_pub(const std::string& name, bool direct,
+                              std::vector<Stackage*>& deps, bool ignore_missing)
+{
+  return depsOnDetail(name, direct, deps, ignore_missing);
+}
+
+bool
 Rosstackage::rosdeps(const std::string& name, bool direct,
                      std::set<std::string>& rosdeps)
 {

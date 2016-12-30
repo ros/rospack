@@ -335,6 +335,28 @@ class ROSPACK_DECL Rosstackage
      *                  that the given stackage depends on is written here.
      * @return True if the manifest list was computed, false otherwise.
      */
+     bool depsDetail_pub(const std::string& name, bool direct, std::vector<Stackage*>& deps);
+     /**
+     * @brief NOTE: This function is added only for the backward compatibility purpose; in the next distro-branch this will be deleted.
+     *
+     *        Compute reverse dependencies of a stackage (i.e., stackages
+     *        that depend on this stackage), taking and returning stackage objects. Forces crawl.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect) dependencies.
+     * @param deps List of Stackage objects. If dependencies are computed, then they're written here in stackage objects.
+     * @return True if dependencies were computed, false otherwise.
+     */
+    bool depsOnDetail_pub(const std::string& name, bool direct,
+                      std::vector<Stackage*>& deps, bool ignore_missing=false);
+    /**
+     * @brief NOTE: This function is added only for the backward compatibility purpose; in the next distro-branch this will be deleted.
+     *
+     *              List the manifests of a stackage's dependencies.  Used by rosbuild.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect) dependencies.
+     */
     bool depsManifests(const std::string& name, bool direct,
                        std::vector<std::string>& manifests);
     /**
