@@ -147,6 +147,8 @@ class Stackage
     std::string manifest_path_;
     // \brief filename of the stackage manifest
     std::string manifest_name_;
+    // \brief package's license with a support for multi-license.
+    std::vector<std::string> licenses_;
     // \brief have we already loaded the manifest?
     bool manifest_loaded_;
     // \brief TinyXML structure, filled in during parsing
@@ -181,6 +183,12 @@ class Stackage
       {
         name_ = el->GetText();
         break;
+      }
+      // Get license texts, where there may be multiple elements for.
+      std::string tagname_license = "license";
+      for(TiXmlElement* el = root->FirstChildElement(tagname_license); el; el = el->NextSiblingElement(tagname_license ))
+      {
+        licenses_.push_back(el->GetText());
       }
       // check if package is a metapackage
       for(TiXmlElement* el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
