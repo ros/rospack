@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.2 (2017-02-14)
+------------------
 * add license field in Stackage class (`#66 <https://github.com/ros/rospack/issues/66>`_)
 
 2.3.1 (2016-09-02)
