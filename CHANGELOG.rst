@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add license field in Stackage class (`#66 <https://github.com/ros/rospack/issues/66>`_)
+
 2.3.1 (2016-09-02)
 ------------------
 * fix FTBFS on hurd-i386 (`#64 <https://github.com/ros/rospack/issues/64>`_)
