@@ -2,6 +2,11 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* make some deps* functions public (`#65 <https://github.com/ros/rospack/pull/65>`_)
+* switch from TinyXML to TinyXML2 (`#62 <https://github.com/ros/rospack/pull/62>`_)
+
 2.3.2 (2017-02-14)
 ------------------
 * add license field in Stackage class (`#66 <https://github.com/ros/rospack/issues/66>`_)
