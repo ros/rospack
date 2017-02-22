@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.4.0 (2017-02-22)
+------------------
 * make some deps* functions public (`#65 <https://github.com/ros/rospack/pull/65>`_)
 * switch from TinyXML to TinyXML2 (`#62 <https://github.com/ros/rospack/pull/62>`_)
 
