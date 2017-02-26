@@ -1554,7 +1554,7 @@ Rosstackage::loadManifest(Stackage* stackage)
   if(stackage->manifest_loaded_)
     return;
 
-  if(!stackage->manifest_.LoadFile(stackage->manifest_path_.c_str()))
+  if(stackage->manifest_.LoadFile(stackage->manifest_path_.c_str()) != XML_SUCCESS)
   {
     std::string errmsg = std::string("error parsing manifest of package ") +
             stackage->name_ + " at " + stackage->manifest_path_;
