@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix inverted result code check, regression from 2.4.0 (`#70 <https://github.com/ros/rospack/issues/70>`_)
+
 2.4.0 (2017-02-22)
 ------------------
 * make some deps* functions public (`#65 <https://github.com/ros/rospack/pull/65>`_)
