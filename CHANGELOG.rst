@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.3 (2017-03-06)
+------------------
 * make some deps* functions public (`#65 <https://github.com/ros/rospack/pull/65>`_)
 
 2.3.2 (2017-02-14)
