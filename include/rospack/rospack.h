@@ -53,7 +53,7 @@ the colon-separated list of directories ROS_PACKAGE_PATH, in the order they
 are listed.
 
 During the crawl, librospack examines the contents of each directory, looking
-for a file called @b manifest.xml (for packages) or @b stack.xml (for stacks).
+for a file called @b package.xml / manifest.xml (for packages) or @b stack.xml (for stacks).
 If such a file is found, the directory
 containing it is considered to be a ROS stackage, with the stackage name
 equal to the directory name.  The crawl does not descend further once a
@@ -160,10 +160,6 @@ class ROSPACK_DECL Rosstackage
                      bool collect_profile_data,
                      std::vector<DirectoryCrawlRecord*>& profile_data,
                      std::tr1::unordered_set<std::string>& profile_hash);
-    bool depsOnDetail(const std::string& name, bool direct,
-                      std::vector<Stackage*>& deps, bool ignore_missing=false);
-    bool depsDetail(const std::string& name, bool direct,
-                    std::vector<Stackage*>& deps);
     bool isStackage(const std::string& path);
     void loadManifest(Stackage* stackage);
     void computeDeps(Stackage* stackage, bool ignore_errors=false, bool ignore_missing=false);
@@ -324,13 +320,33 @@ class ROSPACK_DECL Rosstackage
      */
     bool depsOn(const std::string& name, bool direct,
                    std::vector<std::string>& deps);
-    /**
-     * @brief List the manifests of a stackage's dependencies.  Used by
-     *        rosbuild.
+     /**
+     * @brief Compute dependencies of a stackage (i.e., stackages that this
+     *        stackages depends on), taking and returning stackage objects..
      * @param name The stackage to work on.
      * @param direct If true, then compute only direct dependencies.  If
      *               false, then compute full (including indirect)
      *               dependencies.
+     * @param deps If dependencies are computed, then they're written here in stackage objects.
+     * @return True if dependencies were computed, false otherwise.
+     */
+    bool depsDetail(const std::string& name, bool direct, std::vector<Stackage*>& deps);
+    /**
+     * @brief Compute reverse dependencies of a stackage (i.e., stackages
+     *        that depend on this stackage), taking and returning stackage objects. Forces crawl.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect) dependencies.
+     * @param deps List of Stackage objects. If dependencies are computed, then they're written here in stackage objects.
+     * @return True if dependencies were computed, false otherwise.
+     */
+    bool depsOnDetail(const std::string& name, bool direct,
+                      std::vector<Stackage*>& deps, bool ignore_missing=false);
+    /**
+     * @brief List the manifests of a stackage's dependencies.  Used by rosbuild.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect) dependencies.
      * @param manifests The list of absolute paths to manifests of stackages
      *                  that the given stackage depends on is written here.
      * @return True if the manifest list was computed, false otherwise.
