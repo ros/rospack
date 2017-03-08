@@ -491,6 +491,47 @@ Rosstackage::contains(const std::string& name,
   return false;
 }
 
+/**
+ * @brief Intended to be called as an option of `rospack` dep*` commands.
+ * @param deps Package names that a given package depends on and are returned by `rospack` dep*` command.
+ * @param licenses Set of pairs of <package name, <package license>>.
+ */
+void Rosstackage::licenses(std::vector<std::string>& deps,
+		std::set<std::pair<std::string, std::vector<std::string> > >& licenses) {
+
+  const std::string& xmlelem_license = "license";
+  // Iterate each package to get the license declaration(s).
+  int i_debug = 0;
+  std::vector<std::string>::const_iterator it_pkgname;
+  for (it_pkgname = deps.begin(); it_pkgname < deps.end(); ++it_pkgname)
+  {
+    std::string pkg_name = *it_pkgname;
+    Stackage* stackage = findWithRecrawl(pkg_name);
+    if (stackage == NULL)
+    {
+      logError("Package/stackage " + pkg_name + " is not found.");
+      continue; // Is this way good enough to return this function?
+    }
+
+    // Parsing xml file. Copied from computeDepsInternal
+    TiXmlElement* root;
+    root = get_manifest_root(stackage);
+
+    TiXmlNode *dep_node = NULL;
+    const char* license_from_dependedPkg;
+    std::vector<std::string> licenses_dependedPkg;
+    while ((dep_node = root->IterateChildren(xmlelem_license, dep_node))) // Iterate per depended pkg.
+    {
+      TiXmlElement *dep_ele = dep_node->ToElement();
+      license_from_dependedPkg = dep_ele->GetText();
+      // TODO need to obtain as many license declarations as possible per pkg
+      //      (in the case of multiple-license).
+      licenses_dependedPkg.push_back(license_from_dependedPkg);
+    }
+    licenses.insert(std::pair<std::string, std::vector<std::string> >(pkg_name.c_str(), licenses_dependedPkg));
+  }
+}
+
 void
 Rosstackage::list(std::set<std::pair<std::string, std::string> >& list)
 {
