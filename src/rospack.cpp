@@ -80,8 +80,6 @@
 #define PyUnicode_FromString PyString_FromString
 #endif
 
-using namespace tinyxml2;
-
 // TODO:
 //   recrawl on:
 //     package not found in cache
@@ -137,29 +135,7 @@ class Exception : public std::runtime_error
     {}
 };
 
-class Stackage
-{
-  public:
-    // \brief name of the stackage
-    std::string name_;
-    // \brief absolute path to the stackage
-    std::string path_;
-    // \brief absolute path to the stackage manifest
-    std::string manifest_path_;
-    // \brief filename of the stackage manifest
-    std::string manifest_name_;
-    // \brief package's license with a support for multi-license.
-    std::vector<std::string> licenses_;
-    // \brief have we already loaded the manifest?
-    bool manifest_loaded_;
-    // \brief TinyXML structure, filled in during parsing
-    XMLDocument manifest_;
-    std::vector<Stackage*> deps_;
-    bool deps_computed_;
-    bool is_wet_package_;
-    bool is_metapackage_;
-
-    Stackage(const std::string& name,
+Stackage::Stackage(const std::string& name,
              const std::string& path,
              const std::string& manifest_path,
              const std::string& manifest_name) :
@@ -174,45 +150,43 @@ class Stackage
       is_wet_package_ = manifest_name_ == ROSPACKAGE_MANIFEST_NAME;
     }
 
-    void update_wet_information()
+void Stackage::update_wet_information()
+{
+  assert(is_wet_package_);
+  assert(manifest_loaded_);
+  // get name from package.xml instead of folder name
+  XMLElement* root = get_manifest_root(this);
+  for(XMLElement* el = root->FirstChildElement("name"); el; el = el->NextSiblingElement("name"))
+  {
+    name_ = el->GetText();
+    break;
+  }
+  // Get license texts, where there may be multiple elements for.
+  std::string tagname_license = "license";
+  for(XMLElement* el = root->FirstChildElement(tagname_license.c_str()); el; el = el->NextSiblingElement(tagname_license.c_str()))
+  {
+    licenses_.push_back(el->GetText());
+  }
+  // check if package is a metapackage
+  for(XMLElement* el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
+  {
+    if(el->FirstChildElement("metapackage"))
     {
-      assert(is_wet_package_);
-      assert(manifest_loaded_);
-      // get name from package.xml instead of folder name
-      XMLElement* root = get_manifest_root(this);
-      for(XMLElement* el = root->FirstChildElement("name"); el; el = el->NextSiblingElement("name"))
-      {
-        name_ = el->GetText();
-        break;
-      }
-      // Get license texts, where there may be multiple elements for.
-      std::string tagname_license = "license";
-      for(XMLElement* el = root->FirstChildElement(tagname_license.c_str()); el; el = el->NextSiblingElement(tagname_license.c_str()))
-      {
-        licenses_.push_back(el->GetText());
-      }
-      // check if package is a metapackage
-      for(XMLElement* el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
-      {
-        if(el->FirstChildElement("metapackage"))
-        {
-          is_metapackage_ = true;
-          break;
-        }
-      }
+      is_metapackage_ = true;
+      break;
     }
+  }
+}
 
-    bool isStack() const
-    {
-      return manifest_name_ == MANIFEST_TAG_STACK || (is_wet_package_ && is_metapackage_);
-    }
+bool Stackage::isStack() const
+{
+  return manifest_name_ == MANIFEST_TAG_STACK || (is_wet_package_ && is_metapackage_);
+}
 
-    bool isPackage() const
-    {
-      return manifest_name_ == MANIFEST_TAG_PACKAGE || (is_wet_package_ && !is_metapackage_);
-    }
-
-};
+bool Stackage::isPackage() const
+{
+  return manifest_name_ == MANIFEST_TAG_PACKAGE || (is_wet_package_ && !is_metapackage_);
+}
 
 class DirectoryCrawlRecord
 {
@@ -523,7 +497,7 @@ void Rosstackage::licenses(std::vector<std::string>& deps,
     }
 
     // Parsing xml file. Copied from computeDepsInternal
-    TiXmlElement* root;
+    XMLElement* root;
     root = get_manifest_root(stackage);
 
     TiXmlNode *dep_node = NULL;
@@ -531,7 +505,7 @@ void Rosstackage::licenses(std::vector<std::string>& deps,
     std::vector<std::string> licenses_dependedPkg;
     while ((dep_node = root->IterateChildren(xmlelem_license, dep_node))) // Iterate per depended pkg.
     {
-      TiXmlElement *dep_ele = dep_node->ToElement();
+      XMLElement *dep_ele = dep_node->ToElement();
       license_from_dependedPkg = dep_ele->GetText();
       // TODO need to obtain as many license declarations as possible per pkg
       //      (in the case of multiple-license).
