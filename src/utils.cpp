@@ -120,9 +120,17 @@ parse_compiler_flags(const std::string& instring,
       }
     }
     // Special case: if we're told to look for -l, then also find *.a
-    else if(it->size() > 2 &&
-            (*it)[0] == '/' &&
-            it->substr(it->size()-2) == ".a")
+    // or *.so or *.dylib
+    else if((token == "-l") &&
+            ((it->size() > 2 &&
+              (*it)[0] == '/' &&
+              (it->substr(it->size()-2) == ".a")) ||
+             (it->size() > 3 &&
+              (*it)[0] == '/' &&
+              (it->substr(it->size()-3) == ".so")) ||
+             (it->size() > 6 &&
+              (*it)[0] == '/' &&
+              (it->substr(it->size()-6) == ".dylib"))))
     {
       if(select)
       {

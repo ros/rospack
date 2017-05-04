@@ -1,0 +1,12 @@
+<package>
+  <name>wet_package</name>
+  <version>0.0.0</version>
+  <description>
+    A wet package.
+  </description>
+  <maintainer email="gerkey@osrfoundation.org">Brian Gerkey</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/rospack</url>
+  <author>Brian Gerkey</author>
+</package>

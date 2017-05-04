@@ -862,7 +862,16 @@ Rosstackage::cpp_exports(const std::string& name, const std::string& type,
         }
 
         PyObject* pArgs = PyTuple_New(2);
-        PyObject* pOpt = PyUnicode_FromString(type.c_str());
+        PyObject* pOpt;
+        // If we're asked to do --libs-only-l, --libs-only-L, or
+        // --libs-only-other, then just get --libs, and count on rospack's
+        // post-processing to pull out the right stuff.
+        if((type == "--libs-only-l") ||
+           (type == "--libs-only-L") ||
+           (type == "--libs-only-other"))
+          pOpt = PyUnicode_FromString("--libs");
+        else
+          pOpt = PyUnicode_FromString(type.c_str());
         PyTuple_SetItem(pArgs, 0, pOpt);
         PyObject* pPkg = PyUnicode_FromString((*it)->name_.c_str());
         PyTuple_SetItem(pArgs, 1, pPkg);
