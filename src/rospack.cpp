@@ -1014,9 +1014,9 @@ Rosstackage::exports_dry_package(Stackage* stackage, const std::string& lang,
   {
     bool os_match = false;
     const char *best_match = NULL;
-    for(TiXmlElement* ele2 = ele->FirstChildElement(lang);
+    for(TiXmlElement* ele2 = ele->FirstChildElement(lang.c_str());
         ele2;
-        ele2 = ele2->NextSiblingElement(lang))
+        ele2 = ele2->NextSiblingElement(lang.c_str()))
     {
       const char *os_str;
       if ((os_str = ele2->Attribute("os")))
@@ -1118,9 +1118,9 @@ Rosstackage::plugins(const std::string& name, const std::string& attrib,
         ele;
         ele = ele->NextSiblingElement(MANIFEST_TAG_EXPORT))
     {
-      for(TiXmlElement* ele2 = ele->FirstChildElement(name);
+      for(TiXmlElement* ele2 = ele->FirstChildElement(name.c_str());
           ele2;
-          ele2 = ele2->NextSiblingElement(name))
+          ele2 = ele2->NextSiblingElement(name.c_str()))
       {
         const char *att_str;
         if((att_str = ele2->Attribute(attrib.c_str())))
@@ -1544,7 +1544,7 @@ Rosstackage::loadManifest(Stackage* stackage)
   if(stackage->manifest_loaded_)
     return;
 
-  if(!stackage->manifest_.LoadFile(stackage->manifest_path_))
+  if(!stackage->manifest_.LoadFile(stackage->manifest_path_.c_str()))
   {
     std::string errmsg = std::string("error parsing manifest of package ") +
             stackage->name_ + " at " + stackage->manifest_path_;
@@ -1595,7 +1595,7 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
 
   TiXmlNode *dep_node = NULL;
   const char* dep_pkgname;
-  while((dep_node = root->IterateChildren(depend_tag, dep_node)))
+  while((dep_node = root->IterateChildren(depend_tag.c_str(), dep_node)))
   {
     TiXmlElement *dep_ele = dep_node->ToElement();
     if (!stackage->is_wet_package_)
