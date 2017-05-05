@@ -496,22 +496,7 @@ void Rosstackage::licenses(std::vector<std::string>& deps,
       continue; // Is this way good enough to return this function?
     }
 
-    // Parsing xml file. Copied from computeDepsInternal
-    XMLElement* root;
-    root = get_manifest_root(stackage);
-
-    TiXmlNode *dep_node = NULL;
-    const char* license_from_dependedPkg;
-    std::vector<std::string> licenses_dependedPkg;
-    while ((dep_node = root->IterateChildren(xmlelem_license, dep_node))) // Iterate per depended pkg.
-    {
-      XMLElement *dep_ele = dep_node->ToElement();
-      license_from_dependedPkg = dep_ele->GetText();
-      // TODO need to obtain as many license declarations as possible per pkg
-      //      (in the case of multiple-license).
-      licenses_dependedPkg.push_back(license_from_dependedPkg);
-    }
-    licenses.insert(std::pair<std::string, std::vector<std::string> >(pkg_name.c_str(), licenses_dependedPkg));
+    licenses.insert(std::pair<std::string, std::vector<std::string> >(pkg_name.c_str(), stackage->licenses_));
   }
 }
 
