@@ -479,8 +479,7 @@ Rosstackage::contains(const std::string& name,
  * @param deps Package names that a given package depends on and are returned by `rospack` dep*` command.
  * @param licenses Set of pairs of <package name, <package license>>.
  */
-void Rosstackage::licenses(std::vector<std::string>& deps,
-		std::set<std::pair<std::string, std::vector<std::string> > >& licenses) {
+void Rosstackage::licenses(std::vector<std::string>& deps, std::set<Stackage>& licenses) {
 
   const std::string& xmlelem_license = "license";
   // Iterate each package to get the license declaration(s).
@@ -495,8 +494,7 @@ void Rosstackage::licenses(std::vector<std::string>& deps,
       logError("Package/stackage " + pkg_name + " is not found.");
       continue; // Is this way good enough to return this function?
     }
-
-    licenses.insert(std::pair<std::string, std::vector<std::string> >(pkg_name.c_str(), stackage->licenses_));
+    licenses.insert(*stackage);
   }
 }
 

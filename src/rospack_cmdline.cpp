@@ -375,22 +375,22 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     {
     	std::vector<std::string> dep_licenses;
 
-    	// pkgnames_licenses data structure:
+    	// stackages data structure:
     	//
     	// Packages
     	// - package name
     	// - license names
-    	std::set<std::pair<std::string, std::vector<std::string> > > pkgnames_licenses;
+    	std::set<Stackage> stackages;
 
-    	rp.licenses(deps, pkgnames_licenses);
-        for(std::set<std::pair<std::string, std::vector<std::string> > >::const_iterator it = pkgnames_licenses.begin();
-            it != pkgnames_licenses.end();
-            ++it)
+    	rp.licenses(deps, stackages);
+        for(std::set<Stackage>::const_iterator it_stackage = stackages.begin();
+            it_stackage != stackages.end();
+            ++it_stackage)
         {
-          for(std::vector<std::string>::const_iterator jt = it->second.begin();
-                jt != it->second.end(); ++jt) {
-        	//output.append(std::string(it->first) + " " + std::string(it->second.) + "\n");
-            output.append(it->first + " " + jt->c_str() + "\n");
+          for(std::vector<std::string>::const_iterator it_license = it_stackage->licenses_.begin();
+              it_license != it_stackage->licenses_.end(); ++it_license) {
+            //output.append(it_license->c_str() + "\n\t " + jt->c_str() + "\n");
+            output.append(*it_license + "\n\t ");
           }
         }
     }

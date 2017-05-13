@@ -319,7 +319,7 @@ class ROSPACK_DECL Rosstackage
      * @param deps Names of the depended stackages.
      * @param licenses Pairs of (package name, license(s)).
      */
-    void licenses(std::vector<std::string>& deps, std::set<std::pair<std::string, std::vector<std::string> > >& licenses);
+    void licenses(std::vector<std::string>& deps, std::set<Stackage>& licenses);
     /**
      * @brief List names and paths of all stackages.
      * @param list Pairs of (name,path) are written here.
