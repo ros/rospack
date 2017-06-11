@@ -479,7 +479,7 @@ Rosstackage::contains(const std::string& name,
  * @param deps Package names that a given package depends on and are returned by `rospack` dep*` command.
  * @param licenses Set of pairs of <package name, <package license>>.
  */
-void Rosstackage::licenses(std::vector<std::string>& deps, std::set<Stackage>& licenses) {
+void Rosstackage::licenses(std::vector<std::string>& deps, std::unordered_set<Stackage>& licenses) {
 
   const std::string& xmlelem_license = "license";
   // Iterate each package to get the license declaration(s).

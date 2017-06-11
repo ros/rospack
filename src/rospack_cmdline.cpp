@@ -35,6 +35,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unordered_set>
 
 namespace po = boost::program_options;
 
@@ -380,7 +381,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     	// Packages
     	// - package name
     	// - license names
-    	std::set<Stackage> stackages;
+    	std::unordered_set<Stackage> stackages;
 
     	rp.licenses(deps, stackages);
         for(std::set<Stackage>::const_iterator it_stackage = stackages.begin();
