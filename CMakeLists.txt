@@ -7,6 +7,8 @@ set(Python_ADDITIONAL_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
 find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
+add_compile_options(-std=c++11)
+
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rospack ${PYTHON_LIBRARIES}
