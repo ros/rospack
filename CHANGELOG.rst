@@ -2,6 +2,9 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.4.1 (2017-02-27)
 ------------------
 * fix inverted result code check, regression from 2.4.0 (`#70 <https://github.com/ros/rospack/issues/70>`_)
