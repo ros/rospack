@@ -66,6 +66,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   std::string target;
   bool zombie_only = false;
   bool license = false;
+  bool csv = false;
   std::string length_str;
   int length;
   if(vm.count("command"))
@@ -114,6 +115,10 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   if(vm.count("license"))
   {
     license = true;
+  }
+  if(vm.count("csv"))
+  {
+	csv = true;
   }
   if(vm.count("length"))
   {
@@ -298,11 +303,12 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
         ++it)
     {
       output.append(it->first );
+      if(csv)output.append(" , ");
       for(std::vector<std::string>::const_iterator jt = it->second.begin();
                 jt != it->second.end();
                 ++jt)
 	  {
-	    output.append("- " + *jt  );
+	    output.append(" " + *jt  );
 	  }
       output.append( "\n");
     }
@@ -415,11 +421,13 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
             it != pkgnames_licenses.end();
             ++it)
         {
-          for(std::vector<std::string>::const_iterator jt = it->second.begin();
+        	output.append(it->first);
+        	if(csv)output.append(", ");
+        	for(std::vector<std::string>::const_iterator jt = it->second.begin();
                 jt != it->second.end(); ++jt) {
-        	//output.append(std::string(it->first) + " " + std::string(it->second.) + "\n");
-            output.append(it->first + " " + jt->c_str() + "\n");
-          }
+            output.append(" " + *jt );
+           }
+         output.append("\n");
         }
     }
     else
@@ -903,7 +911,8 @@ parse_args(int argc, char** argv,
           ("help", "help")
           ("-h", "help")
           ("quiet,q", "quiet")
-          ("license", "license");
+          ("license", "license")
+          ("csv", "csv");
 
   po::positional_options_description pd;
   pd.add("command", 1).add("package", 1);
