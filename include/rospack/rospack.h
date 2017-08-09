@@ -292,6 +292,12 @@ class ROSPACK_DECL Rosstackage
      */
     void list(std::set<std::pair<std::string, std::string> >& list);
     /**
+    * @brief List names and licences of all stackages.
+    * @param list Pairs of (name,list of licenses) are written here.
+    */
+    void listLicenses(std::set<std::pair<std::string, std::vector<std::string> > >& list);
+
+    /**
      * @brief Identify duplicate stackages.  Forces crawl.
      * @param dups Names of stackages that are found more than once while
      *             crawling are written here.

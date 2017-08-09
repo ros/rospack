@@ -143,6 +143,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
         output.append("\n\nPrint absolute path to the package");
       else if(command == "list")
         output.append("\n\nPrint newline-separated list <package-name> <package-dir> for all packages.");
+      else if(command == "list-licenses")
+        output.append("\n\nPrint newline-separated list <package-name> <license> for all packages.");
       else if(command == "list-names")
         output.append("\n\nPrint newline-separated list of packages names for all packages.");
       else if(command == "list-duplicates")
@@ -277,6 +279,32 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
         ++it)
     {
       output.append(it->first + "\n");
+    }
+    return true;
+  }
+  // COMMAND: list-licenses
+  else if(command == "list-licenses")
+  {
+    if(package_given || target.size() || top.size() || length_str.size() ||
+       zombie_only || deps_only || lang.size() || attrib.size())
+    {
+      rp.logError( "invalid option(s) given");
+      return false;
+    }
+    std::set<std::pair<std::string, std::vector<std::string> > > list;
+    rp.listLicenses(list);
+    for(std::set<std::pair<std::string, std::vector<std::string> > >::const_iterator it = list.begin();
+        it != list.end();
+        ++it)
+    {
+      output.append(it->first );
+      for(std::vector<std::string>::const_iterator jt = it->second.begin();
+                jt != it->second.end();
+                ++jt)
+	  {
+	    output.append("- " + *jt  );
+	  }
+      output.append( "\n");
     }
     return true;
   }

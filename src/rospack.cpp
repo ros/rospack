@@ -541,6 +541,19 @@ Rosstackage::list(std::set<std::pair<std::string, std::string> >& list)
 }
 
 void
+Rosstackage::listLicenses(std::set<std::pair<std::string, std::vector<std::string> > >& list)
+{
+  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+      it != stackages_.end();
+      ++it)
+  { ;
+    std::pair<std::string, std::vector<std::string> > item;
+    item.first = it->first;
+    item.second = it->second->licenses_;
+    list.insert(item);
+  }
+}
+void
 Rosstackage::listDuplicates(std::vector<std::string>& dups)
 {
   dups.resize(dups_.size());
@@ -2280,7 +2293,7 @@ Rospack::usage()
           "    help\n"
           "    cflags-only-I     [--deps-only] [package]\n"
           "    cflags-only-other [--deps-only] [package]\n"
-          "    depends           [package] (alias: deps)\n"
+          "    depends           [--license]   [package] (alias: deps)\n"
           "    depends-indent    [package] (alias: deps-indent)\n"
           "    depends-manifests [package] (alias: deps-manifests)\n"
           "    depends-msgsrv    [package] (alias: deps-msgsrv)\n"
@@ -2297,6 +2310,7 @@ Rospack::usage()
           "    list\n"
           "    list-duplicates\n"
           "    list-names\n"
+		  "    list-licenses\n"
           "    plugins --attrib=<attrib> [--top=<toppkg>] [package]\n"
           "    profile [--length=<length>] [--zombie-only]\n"
           "    rosdep  [package] (alias: rosdeps)\n"
