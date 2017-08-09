@@ -187,8 +187,7 @@ class Stackage
         break;
       }
       // Get license texts, where there may be multiple elements for.
-      std::string tagname_license = "license";
-      for(XMLElement* el = root->FirstChildElement(tagname_license.c_str()); el; el = el->NextSiblingElement(tagname_license.c_str()))
+      for(XMLElement* el = root->FirstChildElement("license"); el; el = el->NextSiblingElement("license"))
       {
         licenses_.push_back(el->GetText());
       }
@@ -499,6 +498,32 @@ Rosstackage::contains(const std::string& name,
 
   logError(std::string("stack containing package ") + name + " not found");
   return false;
+}
+
+/**
+ * @brief Intended to be called as an option of `rospack` dep*` commands.
+ * @param deps Package names that a given package depends on and are returned by `rospack` dep*` command.
+ * @param licenses Set of pairs of <package name, <package license>>.
+ */
+void Rosstackage::licenses(std::vector<std::string>& deps,
+		std::set<std::pair<std::string, std::vector<std::string> > >& licenses) {
+
+  const std::string& xmlelem_license = "license";
+  // Iterate each package to get the license declaration(s).
+  int i_debug = 0;
+  std::vector<std::string>::const_iterator it_pkgname;
+  for (it_pkgname = deps.begin(); it_pkgname < deps.end(); ++it_pkgname)
+  {
+    std::string pkg_name = *it_pkgname;
+    Stackage* stackage = findWithRecrawl(pkg_name);
+    if (stackage == NULL)
+    {
+      logError("Package/stackage " + pkg_name + " is not found.");
+      continue; // Is this way good enough to return this function?
+    }
+    std::vector<std::string> licenses_dependedPkg=stackage->licenses_;
+    licenses.insert(std::pair<std::string, std::vector<std::string> >(pkg_name.c_str(), licenses_dependedPkg));
+  }
 }
 
 void
