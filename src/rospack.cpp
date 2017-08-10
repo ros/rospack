@@ -508,9 +508,7 @@ Rosstackage::contains(const std::string& name,
 void Rosstackage::licenses(std::vector<std::string>& deps,
 		std::set<std::pair<std::string, std::vector<std::string> > >& licenses) {
 
-  const std::string& xmlelem_license = "license";
-  // Iterate each package to get the license declaration(s).
-  int i_debug = 0;
+
   std::vector<std::string>::const_iterator it_pkgname;
   for (it_pkgname = deps.begin(); it_pkgname < deps.end(); ++it_pkgname)
   {

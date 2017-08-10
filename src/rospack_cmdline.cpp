@@ -407,15 +407,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       return false;
     if(license)
     {
-    	std::vector<std::string> dep_licenses;
 
-    	// pkgnames_licenses data structure:
-    	//
-    	// Packages
-    	// - package name
-    	// - license names
     	std::set<std::pair<std::string, std::vector<std::string> > > pkgnames_licenses;
-
     	rp.licenses(deps, pkgnames_licenses);
         for(std::set<std::pair<std::string, std::vector<std::string> > >::const_iterator it = pkgnames_licenses.begin();
             it != pkgnames_licenses.end();
