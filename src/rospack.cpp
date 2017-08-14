@@ -25,6 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <Python.h>
 #include "rospack/rospack.h"
 #include "utils.h"
 #include "tinyxml2.h"
@@ -68,8 +69,6 @@
 #include <time.h>
 #include <string.h>
 #include <errno.h>
-
-#include <Python.h>
 
 /* re-define some String functions for python 2.x */
 #if PY_VERSION_HEX < 0x03000000
