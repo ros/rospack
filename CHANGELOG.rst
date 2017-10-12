@@ -2,6 +2,12 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add README.md with notes about tinyxml2 (`#82 <https://github.com/ros/rospack/issues/82>`_)
+* replace references to deprecated Boost.TR1 (`#80 <https://github.com/ros/rospack/issues/80>`_)
+* fix Python.h redefining pre-processor definitions (`#78 <https://github.com/ros/rospack/issues/78>`_)
+
 2.4.2 (2017-07-27)
 ------------------
 
