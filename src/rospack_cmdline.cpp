@@ -35,6 +35,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unordered_set>
 
 namespace po = boost::program_options;
 
@@ -65,6 +66,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   std::string top;
   std::string target;
   bool zombie_only = false;
+  bool license = false;
   std::string length_str;
   int length;
   if(vm.count("command"))
@@ -110,6 +112,10 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     target = vm["target"].as<std::string>();
   if(vm.count("zombie-only"))
     zombie_only = true;
+  if(vm.count("license"))
+  {
+    license = true;
+  }
   if(vm.count("length"))
   {
     length_str = vm["length"].as<std::string>();
@@ -145,7 +151,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       else if(command == "langs")
         output.append("\n\nPrint space-separated list of available language-specific client libraries.");
       else if(command == "depends" || command == "deps")
-        output.append("[package]\n\nPrint newline-separated, ordered list of all dependencies of the package.");
+        output.append("[package]\n\nPrint newline-separated, ordered list of all dependencies of the package.\n\n--license Additionally prints license of the depended packages.");
       else if(command == "depends1" || command == "deps1")
         output.append("[package]\n\nPrint newline-separated, ordered list of immediate dependencies of the package.");
       else if(command == "depends-manifest" || command == "deps-manifest")
@@ -366,10 +372,36 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     std::vector<std::string> deps;
     if(!rp.deps(package, (command == "depends1" || command == "deps1"), deps))
       return false;
-    for(std::vector<std::string>::const_iterator it = deps.begin();
-        it != deps.end();
-        ++it)
-      output.append(*it + "\n");
+    if(license)
+    {
+    	std::vector<std::string> dep_licenses;
+
+    	// stackages data structure:
+    	//
+    	// Packages
+    	// - package name
+    	// - license names
+    	std::unordered_set<Stackage> stackages;
+
+    	rp.licenses(deps, stackages);
+        for(std::set<Stackage>::const_iterator it_stackage = stackages.begin();
+            it_stackage != stackages.end();
+            ++it_stackage)
+        {
+          for(std::vector<std::string>::const_iterator it_license = it_stackage->licenses_.begin();
+              it_license != it_stackage->licenses_.end(); ++it_license) {
+            //output.append(it_license->c_str() + "\n\t " + jt->c_str() + "\n");
+            output.append(*it_license + "\n\t ");
+          }
+        }
+    }
+    else
+    {
+    	for(std::vector<std::string>::const_iterator it = deps.begin();
+    	    it != deps.end();
+            ++it)
+    	  output.append(*it + "\n");
+    }
     return true;
   }
   // COMMAND: depends-manifests [package] (alias: deps-manifests)
@@ -843,7 +875,8 @@ parse_args(int argc, char** argv,
           ("zombie-only", "zombie-only")
           ("help", "help")
           ("-h", "help")
-          ("quiet,q", "quiet");
+          ("quiet,q", "quiet")
+          ("license", "license");
 
   po::positional_options_description pd;
   pd.add("command", 1).add("package", 1);
