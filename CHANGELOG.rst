@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* workaround console_bridge macros (`#85 <https://github.com/ros/rospack/issues/85>`_)
+
 2.3.3 (2017-03-06)
 ------------------
 * make some deps* functions public (`#65 <https://github.com/ros/rospack/pull/65>`_)
