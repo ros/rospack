@@ -119,6 +119,52 @@ and Rosstack.
   #include "rospack/rospack_backcompat.h"
 #endif
 
+// this is working around a problem coming from console_bridge < 0.4
+// which defines macros with the names `logWarn` and `logError`
+// which collide with the function names in this file
+// this will declare the namespaced version of the macros if they don't exist
+// and remove the two short macros which collide with the API in this file
+#ifndef CONSOLE_BRIDGE_logError  // class_loader < 0.3
+  #ifdef logError  // class_loader < 0.4 was included
+    // avoid using the short macro to define the long, it is being removed below
+    #define CONSOLE_BRIDGE_logError(fmt, ...)  \
+      console_bridge::log(__FILE__, __LINE__, console_bridge::CONSOLE_BRIDGE_LOG_ERROR, fmt, ##__VA_ARGS__)
+  #endif
+#endif
+#ifdef logError  // class_loader < 0.4 was included
+  // otherwise the function name in this file is replaced by the macro
+  #undef logError
+#endif
+
+#ifndef CONSOLE_BRIDGE_logWarn  // class_loader < 0.3
+  #ifdef logWarn  // class_loader < 0.4 was included
+    // avoid using the short macro to define the long, it is being removed below
+    #define CONSOLE_BRIDGE_logWarn(fmt, ...)  \
+      console_bridge::log(__FILE__, __LINE__, console_bridge::CONSOLE_BRIDGE_LOG_WARN, fmt, ##__VA_ARGS__)
+  #endif
+#endif
+#ifdef logWarn  // class_loader < 0.4 was included
+  // otherwise the function name in this file is replaced by the macro
+  #undef logWarn
+#endif
+
+#ifndef CONSOLE_BRIDGE_logInform  // class_loader < 0.3
+  #ifdef logInform  // class_loader < 0.4 was included
+    // only provided for consistency
+    #define CONSOLE_BRIDGE_logInform(fmt, ...)  \
+      console_bridge::log(__FILE__, __LINE__, console_bridge::CONSOLE_BRIDGE_LOG_INFO, fmt, ##__VA_ARGS__)
+    // no immediate need to undefine since this is not used in this API
+  #endif
+#endif
+
+#ifndef CONSOLE_BRIDGE_logDebug  // class_loader < 0.3
+  #ifdef logDebug  // class_loader < 0.4 was included
+    // only provided for consistency
+    #define CONSOLE_BRIDGE_logDebug(fmt, ...)  \
+      console_bridge::log(__FILE__, __LINE__, console_bridge::CONSOLE_BRIDGE_LOG_DEBUG, fmt, ##__VA_ARGS__)
+    // no immediate need to undefine since this is not used in this API
+  #endif
+#endif
 
 namespace rospack
 {
