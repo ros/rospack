@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.4.4 (2017-11-16)
+------------------
 * workaround console_bridge macros (`#85 <https://github.com/ros/rospack/issues/85>`_)
 
 2.3.3 (2017-03-06)
