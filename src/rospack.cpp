@@ -349,7 +349,12 @@ Rosstackage::isStackage(const std::string& path)
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while crawling ") + path + ": " + e.what());
+    // suppress logging of error message if reading of directory failed
+    // due to missing permission
+    if(e.code().value() != EACCES)
+    {
+      logWarn(std::string("error while crawling ") + path + ": " + e.what() + ";  " + e.code().message());
+    }
   }
   return false;
 }
@@ -1533,7 +1538,12 @@ Rosstackage::crawlDetail(const std::string& path,
   }
   catch(fs::filesystem_error& e)
   {
-    logWarn(std::string("error while crawling ") + path + ": " + e.what());
+    // suppress logging of error message if reading of directory failed
+    // due to missing permission
+    if(e.code().value() != EACCES)
+    {
+      logWarn(std::string("error while crawling ") + path + ": " + e.what());
+    }
   }
 
   if(collect_profile_data && dcr != NULL)
