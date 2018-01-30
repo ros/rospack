@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* skip warning if permission to read directory was denied (`#87 <https://github.com/ros/rospack/issues/87>`_)
+
 2.4.3 (2017-10-12)
 ------------------
 * add README.md with notes about tinyxml2 (`#82 <https://github.com/ros/rospack/issues/82>`_)
