@@ -186,8 +186,7 @@ class Stackage
         break;
       }
       // Get license texts, where there may be multiple elements for.
-      std::string tagname_license = "license";
-      for(XMLElement* el = root->FirstChildElement(tagname_license.c_str()); el; el = el->NextSiblingElement(tagname_license.c_str()))
+      for(XMLElement* el = root->FirstChildElement("license"); el; el = el->NextSiblingElement("license"))
       {
         licenses_.push_back(el->GetText());
       }
@@ -505,6 +504,30 @@ Rosstackage::contains(const std::string& name,
   return false;
 }
 
+/**
+ * @brief Intended to be called as an option of `rospack` dep*` commands.
+ * @param deps Package names that a given package depends on and are returned by `rospack` dep*` command.
+ * @param licenses Set of pairs of <package name, <package license>>.
+ */
+void Rosstackage::licenses(std::vector<std::string>& deps,
+		std::set<std::pair<std::string, std::vector<std::string> > >& licenses) {
+
+
+  std::vector<std::string>::const_iterator it_pkgname;
+  for (it_pkgname = deps.begin(); it_pkgname < deps.end(); ++it_pkgname)
+  {
+    std::string pkg_name = *it_pkgname;
+    Stackage* stackage = findWithRecrawl(pkg_name);
+    if (stackage == NULL)
+    {
+      logError("Package/stackage " + pkg_name + " is not found.");
+      continue; // Is this way good enough to return this function?
+    }
+    std::vector<std::string> licenses_dependedPkg=stackage->licenses_;
+    licenses.insert(std::pair<std::string, std::vector<std::string> >(pkg_name.c_str(), licenses_dependedPkg));
+  }
+}
+
 void
 Rosstackage::list(std::set<std::pair<std::string, std::string> >& list)
 {
@@ -519,6 +542,19 @@ Rosstackage::list(std::set<std::pair<std::string, std::string> >& list)
   }
 }
 
+void
+Rosstackage::listLicenses(std::set<std::pair<std::string, std::vector<std::string> > >& list)
+{
+  for(std::tr1::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+      it != stackages_.end();
+      ++it)
+  { ;
+    std::pair<std::string, std::vector<std::string> > item;
+    item.first = it->first;
+    item.second = it->second->licenses_;
+    list.insert(item);
+  }
+}
 void
 Rosstackage::listDuplicates(std::vector<std::string>& dups)
 {
@@ -2264,7 +2300,7 @@ Rospack::usage()
           "    help\n"
           "    cflags-only-I     [--deps-only] [package]\n"
           "    cflags-only-other [--deps-only] [package]\n"
-          "    depends           [package] (alias: deps)\n"
+          "    depends           [--license] [--csv]  [package] (alias: deps)\n"
           "    depends-indent    [package] (alias: deps-indent)\n"
           "    depends-manifests [package] (alias: deps-manifests)\n"
           "    depends-msgsrv    [package] (alias: deps-msgsrv)\n"
@@ -2281,6 +2317,7 @@ Rospack::usage()
           "    list\n"
           "    list-duplicates\n"
           "    list-names\n"
+          "    list-licenses    [--csv]\n"
           "    plugins --attrib=<attrib> [--top=<toppkg>] [package]\n"
           "    profile [--length=<length>] [--zombie-only]\n"
           "    rosdep  [package] (alias: rosdeps)\n"
@@ -2319,7 +2356,8 @@ Rosstack::usage()
           "    contents [stack]\n"
           "    list\n"
           "    list-names\n"
-          "    depends [stack] (alias: deps)\n"
+          "    list-licenses   [--csv]\n"
+          "    depends [stack] [--license] [--csv](alias: deps)\n"
           "    depends-manifests [stack] (alias: deps-manifests)\n"
           "    depends1 [stack] (alias: deps1)\n"
           "    depends-indent [stack] (alias: deps-indent)\n"

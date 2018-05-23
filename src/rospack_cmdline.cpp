@@ -65,6 +65,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
   std::string top;
   std::string target;
   bool zombie_only = false;
+  bool license = false;
+  bool csv = false;
   std::string length_str;
   int length;
   if(vm.count("command"))
@@ -110,6 +112,14 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     target = vm["target"].as<std::string>();
   if(vm.count("zombie-only"))
     zombie_only = true;
+  if(vm.count("license"))
+  {
+    license = true;
+  }
+  if(vm.count("csv"))
+  {
+	csv = true;
+  }
   if(vm.count("length"))
   {
     length_str = vm["length"].as<std::string>();
@@ -138,6 +148,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
         output.append("\n\nPrint absolute path to the package");
       else if(command == "list")
         output.append("\n\nPrint newline-separated list <package-name> <package-dir> for all packages.");
+      else if(command == "list-licenses")
+        output.append("\n\nPrint newline-separated list <package-name> <license> for all packages.");
       else if(command == "list-names")
         output.append("\n\nPrint newline-separated list of packages names for all packages.");
       else if(command == "list-duplicates")
@@ -145,7 +157,7 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       else if(command == "langs")
         output.append("\n\nPrint space-separated list of available language-specific client libraries.");
       else if(command == "depends" || command == "deps")
-        output.append("[package]\n\nPrint newline-separated, ordered list of all dependencies of the package.");
+        output.append("[package]\n\nPrint newline-separated, ordered list of all dependencies of the package.\n\n--license Additionally prints license of the depended packages.");
       else if(command == "depends1" || command == "deps1")
         output.append("[package]\n\nPrint newline-separated, ordered list of immediate dependencies of the package.");
       else if(command == "depends-manifest" || command == "deps-manifest")
@@ -275,6 +287,33 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     }
     return true;
   }
+  // COMMAND: list-licenses
+  else if(command == "list-licenses")
+  {
+    if(package_given || target.size() || top.size() || length_str.size() ||
+       zombie_only || deps_only || lang.size() || attrib.size())
+    {
+      rp.logError( "invalid option(s) given");
+      return false;
+    }
+    std::set<std::pair<std::string, std::vector<std::string> > > list;
+    rp.listLicenses(list);
+    for(std::set<std::pair<std::string, std::vector<std::string> > >::const_iterator it = list.begin();
+        it != list.end();
+        ++it)
+    {
+      output.append(it->first );
+      if(csv)output.append(" , ");
+      for(std::vector<std::string>::const_iterator jt = it->second.begin();
+                jt != it->second.end();
+                ++jt)
+	  {
+	    output.append(" " + *jt  );
+	  }
+      output.append( "\n");
+    }
+    return true;
+  }
   // COMMAND: list-duplicates
   else if(command == "list-duplicates")
   {
@@ -366,10 +405,31 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     std::vector<std::string> deps;
     if(!rp.deps(package, (command == "depends1" || command == "deps1"), deps))
       return false;
-    for(std::vector<std::string>::const_iterator it = deps.begin();
-        it != deps.end();
-        ++it)
-      output.append(*it + "\n");
+    if(license)
+    {
+
+    	std::set<std::pair<std::string, std::vector<std::string> > > pkgnames_licenses;
+    	rp.licenses(deps, pkgnames_licenses);
+        for(std::set<std::pair<std::string, std::vector<std::string> > >::const_iterator it = pkgnames_licenses.begin();
+            it != pkgnames_licenses.end();
+            ++it)
+        {
+        	output.append(it->first);
+        	if(csv)output.append(", ");
+        	for(std::vector<std::string>::const_iterator jt = it->second.begin();
+                jt != it->second.end(); ++jt) {
+            output.append(" " + *jt );
+           }
+         output.append("\n");
+        }
+    }
+    else
+    {
+    	for(std::vector<std::string>::const_iterator it = deps.begin();
+    	    it != deps.end();
+            ++it)
+    	  output.append(*it + "\n");
+    }
     return true;
   }
   // COMMAND: depends-manifests [package] (alias: deps-manifests)
@@ -843,7 +903,9 @@ parse_args(int argc, char** argv,
           ("zombie-only", "zombie-only")
           ("help", "help")
           ("-h", "help")
-          ("quiet,q", "quiet");
+          ("quiet,q", "quiet")
+          ("license", "license")
+          ("csv", "csv");
 
   po::positional_options_description pd;
   pd.add("command", 1).add("package", 1);

@@ -281,10 +281,22 @@ class ROSPACK_DECL Rosstackage
                   std::string& path);
 
     /**
+     * @brief List license(s) of a stackage whose name is passed.
+     * @param deps Names of the depended stackages.
+     * @param licenses Pairs of (package name, license(s)).
+     */
+    void licenses(std::vector<std::string>& deps, std::set<std::pair<std::string, std::vector<std::string> > >& licenses);
+    /**
      * @brief List names and paths of all stackages.
      * @param list Pairs of (name,path) are written here.
      */
     void list(std::set<std::pair<std::string, std::string> >& list);
+    /**
+    * @brief List names and licences of all stackages.
+    * @param list Pairs of (name,list of licenses) are written here.
+    */
+    void listLicenses(std::set<std::pair<std::string, std::vector<std::string> > >& list);
+
     /**
      * @brief Identify duplicate stackages.  Forces crawl.
      * @param dups Names of stackages that are found more than once while
