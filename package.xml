@@ -27,6 +27,7 @@
   <run_depend>python</run_depend>
   <run_depend>python-catkin-pkg</run_depend>
   <run_depend>python-rosdep</run_depend>
+  <run_depend>ros_environment</run_depend>
   <run_depend>tinyxml2</run_depend>
 
   <test_depend>python-coverage</test_depend>
