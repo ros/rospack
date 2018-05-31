@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add run_depend on ros_environment (`#88 <https://github.com/ros/rospack/issues/88>`_)
+
 2.5.0 (2018-01-30)
 -----------
 * skip warning if permission to read directory was denied (`#87 <https://github.com/ros/rospack/issues/87>`_)
