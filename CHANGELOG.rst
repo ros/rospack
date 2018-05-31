@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.1 (2018-05-31)
+------------------
 * add run_depend on ros_environment (`#88 <https://github.com/ros/rospack/issues/88>`_)
 
 2.5.0 (2018-01-30)
