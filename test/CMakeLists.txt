@@ -1,6 +1,6 @@
 include_directories(${PROJECT_SOURCE_DIR}/src)
 catkin_add_gtest(${PROJECT_NAME}-utest 
-          test/utest.cpp ${PROJECT_SOURCE_DIR}/src/rospack_cmdline.cpp ${PROJECT_SOURCE_DIR}/src/utils.cpp
+          test/utest.cpp
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 if(TARGET ${PROJECT_NAME}-utest)
   target_link_libraries(${PROJECT_NAME}-utest rospack)
