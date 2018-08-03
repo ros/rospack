@@ -33,7 +33,9 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <stdio.h>
 #include <time.h>
 #include <gtest/gtest.h>
@@ -42,6 +44,19 @@
 #include "rospack/rospack.h"
 #include "utils.h"
 
+#ifdef _WIN32
+int setenv(const char *name, const char *value, int overwrite)
+{
+  if(!overwrite)
+  {
+    size_t envsize = 0;
+    errno_t errcode = getenv_s(&envsize, NULL, 0, name);
+    if(errcode || envsize)
+      return errcode;
+  }
+  return _putenv_s(name, value);
+}
+#endif
 
 TEST(rospack, reentrant)
 {
