@@ -2,12 +2,18 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add delete whitespace settings for backward compatibility, regression from 2.4.0 (`#94 <https://github.com/ros/rospack/issues/94>`_)
+* fix build issue on Windows (`#90 <https://github.com/ros/rospack/issues/90>`_)
+* use namespace to avoid name conflict between tinyxml2 and msxml (`#89 <https://github.com/ros/rospack/issues/89>`_)
+
 2.5.1 (2018-05-31)
 ------------------
 * add run_depend on ros_environment (`#88 <https://github.com/ros/rospack/issues/88>`_)
 
 2.5.0 (2018-01-30)
------------
+------------------
 * skip warning if permission to read directory was denied (`#87 <https://github.com/ros/rospack/issues/87>`_)
 
 2.4.3 (2017-10-12)
