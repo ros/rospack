@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.2 (2018-09-05)
+------------------
 * add delete whitespace settings for backward compatibility, regression from 2.4.0 (`#94 <https://github.com/ros/rospack/issues/94>`_)
 * fix build issue on Windows (`#90 <https://github.com/ros/rospack/issues/90>`_)
 * use namespace to avoid name conflict between tinyxml2 and msxml (`#89 <https://github.com/ros/rospack/issues/89>`_)
