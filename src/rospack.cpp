@@ -163,6 +163,7 @@ class Stackage
              const std::string& manifest_name) :
             name_(name),
             path_(path),
+            manifest_(true, tinyxml2::COLLAPSE_WHITESPACE),
             manifest_path_(manifest_path),
             manifest_name_(manifest_name),
             manifest_loaded_(false),
