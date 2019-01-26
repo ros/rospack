@@ -1412,8 +1412,11 @@ Rosstackage::addStackage(const std::string& path)
   }
 
   // skip the stackage if it is not of correct type
-  if((manifest_name_ == ROSSTACK_MANIFEST_NAME && stackage->isPackage()) ||
-     (manifest_name_ == ROSPACK_MANIFEST_NAME && stackage->isStack()))
+  if( (stackage->is_wet_package_ &&
+       (manifest_name_ == ROSPACKAGE_MANIFEST_NAME)) ||
+      (!stackage->is_wet_package_ &&
+       (manifest_name_ == ROSSTACK_MANIFEST_NAME && stackage->isPackage()) ||
+       (manifest_name_ == ROSPACK_MANIFEST_NAME && stackage->isStack())) )
   {
     delete stackage;
     return;
