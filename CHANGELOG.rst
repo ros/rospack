@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.3 (2019-03-04)
+------------------
 * enable to run rosstack depends for wetpackages (`#91 <https://github.com/ros/rospack/issues/91>`_)
 
 2.5.2 (2018-09-05)
