@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* enable to run rosstack depends for wetpackages (`#91 <https://github.com/ros/rospack/issues/91>`_)
+
 2.5.2 (2018-09-05)
 ------------------
 * add delete whitespace settings for backward compatibility, regression from 2.4.0 (`#94 <https://github.com/ros/rospack/issues/94>`_)
