@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.4.5 (2019-06-07)
+------------------
 * add ros_environment as dependency (`#97 <https://github.com/ros/rospack/issues/97>`_)
 
 2.4.4 (2017-11-16)
