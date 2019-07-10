@@ -164,7 +164,6 @@ class ROSPACK_DECL Rosstackage
     void loadManifest(Stackage* stackage);
     void computeDeps(Stackage* stackage, bool ignore_errors=false, bool ignore_missing=false);
     void computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag, bool ignore_missing=false);
-    bool isSysPackage(const std::string& pkgname);
     void gatherDeps(Stackage* stackage, bool direct,
                     traversal_order_t order,
                     std::vector<Stackage*>& deps,
@@ -438,28 +437,6 @@ Dependency chains from roscpp to roslib:
      */
     bool vcs(const std::string& name, bool direct,
              std::vector<std::string>& vcs);
-    /**
-     * @brief Compute cpp exports declared in a package and its dependencies.
-     * Used by rosbuild.
-     * @param name The package to work on.
-     * @param type The option to pass to pkg-config for wet packages.
-     * @param attrib The value of the 'attrib' attribute to search for.
-     * @param deps_only If true, then only return information from the
-     * pacakge's dependencies; if false, then also include the package's
-     * own export information.
-     * @param flags The pairs of export flags and is-wet are written here.
-     * @return True if the flags were computed, false otherwise.
-     */
-    bool cpp_exports(const std::string& name, const std::string& type,
-                 const std::string& attrib, bool deps_only,
-                 std::vector<std::pair<std::string, bool> >& flags);
-    /**
-     * @brief Reorder the paths according to the workspace chaining.
-     * @param paths The paths.
-     * @param reordered The reordered paths are written here.
-     * @return True if the pathswere reordered, false otherwise.
-     */
-    bool reorder_paths(const std::string& paths, std::string& reordered);
     /**
      * @brief Compute exports declared in a package and its dependencies.
      * Used by rosbuild.
