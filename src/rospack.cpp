@@ -2112,56 +2112,69 @@ Rosstackage::validateCache()
     cache_max_age = atof(user_cache_time_str);
   if(cache_max_age == 0.0)
     return NULL;
-  struct stat s;
-  if(stat(cache_path.c_str(), &s) == 0)
-  {
-    double dt = difftime(time(NULL), s.st_mtime);
-    // Negative cache_max_age means it's always new enough.  It's dangerous
-    // for the user to set this, but rosbash uses it.
-    if ((cache_max_age > 0.0) && (dt > cache_max_age))
-      return NULL;
-  }
+  struct stat ls, s;
+  if(lstat(cache_path.c_str(), &ls) == -1)
+    return NULL;
+
+  double dt = difftime(time(NULL), ls.st_mtime);
+  // Negative cache_max_age means it's always new enough.  It's dangerous
+  // for the user to set this, but rosbash uses it.
+  if ((cache_max_age > 0.0) && (dt > cache_max_age))
+    return NULL;
+
   // try to open it
   FILE* cache = fopen(cache_path.c_str(), "r");
   if(!cache)
-    return NULL; // it's not readable by us. sad.
-
-  // see if ROS_PACKAGE_PATH matches
-  char linebuf[30000];
-  bool ros_package_path_ok = false;
-  const char* ros_package_path = getenv("ROS_PACKAGE_PATH");
-  for(;;)
+    return NULL;  // it's not readable by us. sad.
+  else
   {
-    if(!fgets(linebuf, sizeof(linebuf), cache))
-      break;
-    linebuf[strlen(linebuf)-1] = 0; // get rid of trailing newline
-    if (linebuf[0] == '#')
+    if(fstat(fileno(cache), &s) == -1)
+      return NULL;
+    if (ls.st_mode == s.st_mode && ls.st_ino == s.st_ino)
     {
-      if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
+      // see if ROS_PACKAGE_PATH matches
+      char linebuf[30000];
+      bool ros_package_path_ok = false;
+      const char* ros_package_path = getenv("ROS_PACKAGE_PATH");
+      for(;;)
       {
-        if(!ros_package_path)
+        if(!fgets(linebuf, sizeof(linebuf), cache))
+          break;
+        linebuf[strlen(linebuf)-1] = 0; // get rid of trailing newline
+        if (linebuf[0] == '#')
         {
-          if(!strlen(linebuf+18))
+          if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
+          {
+            if(!ros_package_path)
+            {
+              if(!strlen(linebuf+18))
+              ros_package_path_ok = true;
+            }
+            else if(!strcmp(linebuf+18, ros_package_path))
             ros_package_path_ok = true;
+          }
         }
-        else if(!strcmp(linebuf+18, ros_package_path))
-          ros_package_path_ok = true;
+        else
+          break; // we're out of the header. nothing more matters to this check.
+      }
+      if(ros_package_path_ok)
+      {
+        // seek to the beginning and pass back the stream (instead of closing
+        // and later reopening, which is a race condition, #1666)
+        fseek(cache, 0, SEEK_SET);
+        return cache;
+      }
+      else
+      {
+        fclose(cache);
+        return NULL;
       }
     }
     else
-      break; // we're out of the header. nothing more matters to this check.
-  }
-  if(ros_package_path_ok)
-  {
-    // seek to the beginning and pass back the stream (instead of closing
-    // and later reopening, which is a race condition, #1666)
-    fseek(cache, 0, SEEK_SET);
-    return cache;
-  }
-  else
-  {
-    fclose(cache);
-    return NULL;
+    {
+      fclose(cache);
+      return NULL;
+    }
   }
 }
 
