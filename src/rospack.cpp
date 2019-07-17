@@ -2173,7 +2173,8 @@ Rosstackage::validateCache()
     else
     {
       fclose(cache);
-      return NULL;
+      std::string errmsg = "cache stat mode does not match before open";
+      throw Exception(errmsg);
     }
   }
 }
