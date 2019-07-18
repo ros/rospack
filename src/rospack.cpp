@@ -181,7 +181,6 @@ class Stackage
       tinyxml2::XMLElement* root = get_manifest_root(this);
       tinyxml2::XMLElement* el = root->FirstChildElement("name");
       if(el)
-        el = root->FirstChildElement("name");
         name_ = el->GetText();
       // Get license texts, where there may be multiple elements for.
       std::string tagname_license = "license";
