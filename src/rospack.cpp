@@ -180,7 +180,7 @@ class Stackage
       // get name from package.xml instead of folder name
       tinyxml2::XMLElement* root = get_manifest_root(this);
       if(root->FirstChildElement("name"))
-        name_ = root->GetText();
+        name_ = root->FirstChildElement("name")->GetText();
       // Get license texts, where there may be multiple elements for.
       std::string tagname_license = "license";
       for(tinyxml2::XMLElement* el = root->FirstChildElement(tagname_license.c_str()); el; el = el->NextSiblingElement(tagname_license.c_str()))
