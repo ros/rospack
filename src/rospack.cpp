@@ -179,19 +179,17 @@ class Stackage
       assert(manifest_loaded_);
       // get name from package.xml instead of folder name
       tinyxml2::XMLElement* root = get_manifest_root(this);
-      for(tinyxml2::XMLElement* el = root->FirstChildElement("name"); el; el = el->NextSiblingElement("name"))
-      {
+      tinyxml2::XMLElement* el = root->FirstChildElement("name");
+      if(el)
         name_ = el->GetText();
-        break;
-      }
       // Get license texts, where there may be multiple elements for.
       std::string tagname_license = "license";
-      for(tinyxml2::XMLElement* el = root->FirstChildElement(tagname_license.c_str()); el; el = el->NextSiblingElement(tagname_license.c_str()))
+      for(el = root->FirstChildElement(tagname_license.c_str()); el; el = el->NextSiblingElement(tagname_license.c_str()))
       {
         licenses_.push_back(el->GetText());
       }
       // check if package is a metapackage
-      for(tinyxml2::XMLElement* el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
+      for(el = root->FirstChildElement("export"); el; el = el->NextSiblingElement("export"))
       {
         if(el->FirstChildElement("metapackage"))
         {
