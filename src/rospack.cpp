@@ -2133,8 +2133,7 @@ Rosstackage::validateCache()
   if (ls.st_mode != s.st_mode || ls.st_ino != s.st_ino)
   {
     fclose(cache);
-    std::string errmsg = "cache stat mode does not match before open";
-    throw Exception(errmsg);
+    throw Exception("cache stat mode does not match before open");
   }
 
   // see if ROS_PACKAGE_PATH matches
