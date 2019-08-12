@@ -2148,10 +2148,10 @@ Rosstackage::validateCache()
             if(!ros_package_path)
             {
               if(!strlen(linebuf+18))
-              ros_package_path_ok = true;
+                ros_package_path_ok = true;
             }
             else if(!strcmp(linebuf+18, ros_package_path))
-            ros_package_path_ok = true;
+              ros_package_path_ok = true;
           }
         }
         else
