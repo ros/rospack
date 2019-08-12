@@ -2059,7 +2059,9 @@ Rosstackage::writeCache()
     {
       FILE *cache = fopen(tmp_cache_path, "w");
 #else
+    mode_t mask = umask(S_IRWXU);
     int fd = mkstemp(tmp_cache_path);
+    umask(mask);
     if (fd < 0)
     {
       fprintf(stderr, "[rospack] Unable to create temporary cache file %s: %s\n",
