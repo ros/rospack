@@ -2125,7 +2125,7 @@ Rosstackage::validateCache()
   // try to open it
   FILE* cache = fopen(cache_path.c_str(), "r");
   if(!cache)
-    return NULL;  // it's not readable by us. sad.
+    return NULL; // it's not readable by us. sad.
 
   struct stat s;
   if(fstat(fileno(cache), &s) == -1)
