@@ -2112,7 +2112,7 @@ Rosstackage::validateCache()
     cache_max_age = atof(user_cache_time_str);
   if(cache_max_age == 0.0)
     return NULL;
-  struct stat ls, s;
+  struct stat ls;
   if(lstat(cache_path.c_str(), &ls) == -1)
     return NULL;
 
@@ -2127,6 +2127,7 @@ Rosstackage::validateCache()
   if(!cache)
     return NULL;  // it's not readable by us. sad.
 
+  struct stat s;
   if(fstat(fileno(cache), &s) == -1)
     return NULL;
   if (ls.st_mode == s.st_mode && ls.st_ino == s.st_ino)
