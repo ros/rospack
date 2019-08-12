@@ -2112,19 +2112,32 @@ Rosstackage::validateCache()
     cache_max_age = atof(user_cache_time_str);
   if(cache_max_age == 0.0)
     return NULL;
-  struct stat s;
-  if(stat(cache_path.c_str(), &s) == 0)
-  {
-    double dt = difftime(time(NULL), s.st_mtime);
-    // Negative cache_max_age means it's always new enough.  It's dangerous
-    // for the user to set this, but rosbash uses it.
-    if ((cache_max_age > 0.0) && (dt > cache_max_age))
-      return NULL;
-  }
+  struct stat ls;
+  if(lstat(cache_path.c_str(), &ls) == -1)
+    return NULL;
+
+  double dt = difftime(time(NULL), ls.st_mtime);
+  // Negative cache_max_age means it's always new enough.  It's dangerous
+  // for the user to set this, but rosbash uses it.
+  if ((cache_max_age > 0.0) && (dt > cache_max_age))
+    return NULL;
+
   // try to open it
   FILE* cache = fopen(cache_path.c_str(), "r");
   if(!cache)
     return NULL; // it's not readable by us. sad.
+
+  struct stat s;
+  if(fstat(fileno(cache), &s) == -1)
+  {
+    fclose(cache);
+    return NULL;
+  }
+  if (ls.st_mode != s.st_mode || ls.st_ino != s.st_ino)
+  {
+    fclose(cache);
+    throw Exception("cache stat mode does not match before open");
+  }
 
   // see if ROS_PACKAGE_PATH matches
   char linebuf[30000];
