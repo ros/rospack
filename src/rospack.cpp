@@ -2126,56 +2126,54 @@ Rosstackage::validateCache()
   FILE* cache = fopen(cache_path.c_str(), "r");
   if(!cache)
     return NULL;  // it's not readable by us. sad.
-  else
+
+  if(fstat(fileno(cache), &s) == -1)
+    return NULL;
+  if (ls.st_mode == s.st_mode && ls.st_ino == s.st_ino)
   {
-    if(fstat(fileno(cache), &s) == -1)
-      return NULL;
-    if (ls.st_mode == s.st_mode && ls.st_ino == s.st_ino)
+    // see if ROS_PACKAGE_PATH matches
+    char linebuf[30000];
+    bool ros_package_path_ok = false;
+    const char* ros_package_path = getenv("ROS_PACKAGE_PATH");
+    for(;;)
     {
-      // see if ROS_PACKAGE_PATH matches
-      char linebuf[30000];
-      bool ros_package_path_ok = false;
-      const char* ros_package_path = getenv("ROS_PACKAGE_PATH");
-      for(;;)
+      if(!fgets(linebuf, sizeof(linebuf), cache))
+        break;
+      linebuf[strlen(linebuf)-1] = 0; // get rid of trailing newline
+      if (linebuf[0] == '#')
       {
-        if(!fgets(linebuf, sizeof(linebuf), cache))
-          break;
-        linebuf[strlen(linebuf)-1] = 0; // get rid of trailing newline
-        if (linebuf[0] == '#')
+        if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
         {
-          if(!strncmp("#ROS_PACKAGE_PATH=", linebuf, 18))
+          if(!ros_package_path)
           {
-            if(!ros_package_path)
-            {
-              if(!strlen(linebuf+18))
-                ros_package_path_ok = true;
-            }
-            else if(!strcmp(linebuf+18, ros_package_path))
+            if(!strlen(linebuf+18))
               ros_package_path_ok = true;
           }
+          else if(!strcmp(linebuf+18, ros_package_path))
+            ros_package_path_ok = true;
         }
-        else
-          break; // we're out of the header. nothing more matters to this check.
-      }
-      if(ros_package_path_ok)
-      {
-        // seek to the beginning and pass back the stream (instead of closing
-        // and later reopening, which is a race condition, #1666)
-        fseek(cache, 0, SEEK_SET);
-        return cache;
       }
       else
-      {
-        fclose(cache);
-        return NULL;
-      }
+        break; // we're out of the header. nothing more matters to this check.
+    }
+    if(ros_package_path_ok)
+    {
+      // seek to the beginning and pass back the stream (instead of closing
+      // and later reopening, which is a race condition, #1666)
+      fseek(cache, 0, SEEK_SET);
+      return cache;
     }
     else
     {
       fclose(cache);
-      std::string errmsg = "cache stat mode does not match before open";
-      throw Exception(errmsg);
+      return NULL;
     }
+  }
+  else
+  {
+    fclose(cache);
+    std::string errmsg = "cache stat mode does not match before open";
+    throw Exception(errmsg);
   }
 }
 
