@@ -2129,7 +2129,10 @@ Rosstackage::validateCache()
 
   struct stat s;
   if(fstat(fileno(cache), &s) == -1)
+  {
+    fclose(cache);
     return NULL;
+  }
   if (ls.st_mode != s.st_mode || ls.st_ino != s.st_ino)
   {
     fclose(cache);
