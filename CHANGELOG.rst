@@ -2,6 +2,13 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use condition attributes to specify Python 2 and 3 dependencies (`#107 <https://github.com/ros/rospack/issues/107>`_)
+* for fixing potential TOCTOU issue (`#104 <https://github.com/ros/rospack/issues/104>`_)
+* fixing mkstemp without securely setting mask/unmask (`#106 <https://github.com/ros/rospack/issues/106>`_)
+* fixing code unreachable (`#105 <https://github.com/ros/rospack/issues/105>`_)
+
 2.5.3 (2019-03-04)
 ------------------
 * enable to run rosstack depends for wetpackages (`#91 <https://github.com/ros/rospack/issues/91>`_)
