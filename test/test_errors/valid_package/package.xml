@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>valid_package</name>
+  <depend>base</depend>
+  <depend>base2</depend>
+  <depend>python</depend>
+</package>
