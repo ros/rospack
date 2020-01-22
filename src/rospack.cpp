@@ -1304,14 +1304,13 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
     logError(std::string("no such package ") + name);
     return false;
   }
-  bool result = true;
   try
   {
     for(boost::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
         it != stackages_.end();
         ++it)
     {
-      result &= computeDeps(it->second, true, ignore_missing);
+      computeDeps(it->second, true, ignore_missing);
       std::vector<Stackage*> deps_vec;
       gatherDeps(it->second, direct, POSTORDER, deps_vec);
       for(std::vector<Stackage*>::const_iterator iit = deps_vec.begin();
@@ -1331,7 +1330,7 @@ Rosstackage::depsOnDetail(const std::string& name, bool direct,
     logError(e.what());
     return false;
   }
-  return result;
+  return true;
 }
 
 bool

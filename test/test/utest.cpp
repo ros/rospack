@@ -381,15 +381,16 @@ TEST(rospack, multiple_errors)
 
   // depends-on
   ret = rp.run("depends-on base");
-  EXPECT_NE(ret, 0);
+  EXPECT_EQ(ret, 0);
   EXPECT_TRUE(outputEqual(rp.getOutput(), {"direct_deps_valid", "valid_package", "invalid_package_one", "invalid_package_two", "invalid_roslang_package"}));
 
   // depends-on1
   ret = rp.run("depends-on1 base");
+  EXPECT_EQ(ret, 0);
   EXPECT_TRUE(outputEqual(rp.getOutput(), "valid_package"));
 
   ret = rp.run("depends-on1 valid_package");
-  EXPECT_NE(ret, 0);
+  EXPECT_EQ(ret, 0);
   EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"direct_deps_valid", "invalid_package_one"}));
 
   // Reset old path, for other tests
