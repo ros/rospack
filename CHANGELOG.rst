@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.5 (2020-01-24)
+------------------
 * bump to CMake 3.0.2 to avoid CMP0048 warning (`#114 <https://github.com/ros/rospack/issues/114>`_)
 * only depend on catkin_pkg/rosdep-modules (`#109 <https://github.com/ros/rospack/issues/109>`_)
 * rework validateCache for portability. (`#108 <https://github.com/ros/rospack/issues/108>`_)
