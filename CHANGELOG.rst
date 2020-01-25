@@ -2,6 +2,12 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* bump to CMake 3.0.2 to avoid CMP0048 warning (`#114 <https://github.com/ros/rospack/issues/114>`_)
+* only depend on catkin_pkg/rosdep-modules (`#109 <https://github.com/ros/rospack/issues/109>`_)
+* rework validateCache for portability. (`#108 <https://github.com/ros/rospack/issues/108>`_)
+
 2.5.4 (2019-10-03)
 ------------------
 * use condition attributes to specify Python 2 and 3 dependencies (`#107 <https://github.com/ros/rospack/issues/107>`_)
