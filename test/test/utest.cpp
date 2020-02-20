@@ -348,7 +348,7 @@ TEST(rospack, multiple_errors)
   // depends-manifests
   ret = rp.run("depends-manifests invalid_package_one");
   EXPECT_NE(ret, 0);
-  EXPECT_TRUE(outputEndsWith(rp.getOutput(), std::vector<std::string> {"valid_package/package.xml", "base/manifest.xml", "base2/manifest.xml"}));
+  EXPECT_TRUE(outputEndsWith(rp.getOutput(), std::vector<std::string> {"valid_package/manifest.xml", "base/manifest.xml", "base2/manifest.xml"}));
 
   // depends-indent
   ret = rp.run("depends-indent invalid_package_one");
@@ -360,24 +360,6 @@ TEST(rospack, multiple_errors)
   EXPECT_NE(ret, 0);
   EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"Dependency chains from invalid_package_two to base:",
                                                                     "* invalid_package_two -> invalid_package_one -> valid_package -> base"}));
-
-  // rosdep
-  ret = rp.run("rosdep valid_package");
-  EXPECT_EQ(ret, 0);
-  EXPECT_TRUE(outputEqual(rp.getOutput(), "name: python"));
-
-  ret = rp.run("rosdep invalid_package_one");
-  EXPECT_NE(ret, 0);
-  EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"name: python", "name: python3"}));
-
-  // rosdep0
-  ret = rp.run("rosdep0 valid_package");
-  EXPECT_EQ(ret, 0);
-  EXPECT_TRUE(outputEqual(rp.getOutput(), "name: python"));
-
-  ret = rp.run("rosdep0 invalid_package_one");
-  EXPECT_NE(ret, 0);
-  EXPECT_TRUE(outputEqual(rp.getOutput(), "name: python3"));
 
   // depends-on
   ret = rp.run("depends-on base");

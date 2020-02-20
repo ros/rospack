@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<package format="2">
-  <name>invalid_package_one</name>
-  <depend>valid_package</depend>
-  <depend>blacklisted_catkin_package_dont_accept_pull_requests_with_this_name</depend>
-  <depend>python3</depend>
-  <depend>geometry_msgs</depend>
-</package>
