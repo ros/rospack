@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.0 (2020-03-02)
+------------------
 * declare specific boost dependencies (`#115 <https://github.com/ros/rospack/issues/115>`_)
 
 2.5.5 (2020-01-24)
