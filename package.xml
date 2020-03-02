@@ -17,7 +17,9 @@
   <author>Morgan Quigley</author>
   <author>Dirk Thomas</author>
 
-  <depend>boost</depend>
+  <depend>libboost-filesystem-dev</depend>
+  <depend>libboost-program-options-dev</depend>
+  <depend>libboost-system-dev</depend>
   <depend>pkg-config</depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python</depend>
   <depend condition="$ROS_PYTHON_VERSION == 3">python3</depend>
