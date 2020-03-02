@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* declare specific boost dependencies (`#115 <https://github.com/ros/rospack/issues/115>`_)
+
 2.5.5 (2020-01-24)
 ------------------
 * bump to CMake 3.0.2 to avoid CMP0048 warning (`#114 <https://github.com/ros/rospack/issues/114>`_)
