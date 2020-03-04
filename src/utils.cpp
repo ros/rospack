@@ -28,7 +28,11 @@
 #include <string>
 #include <vector>
 #include <boost/algorithm/string.hpp>
+#if BOOST_VERSION < 106500
 #include <boost/tr1/unordered_set.hpp>
+#else
+#include <boost/unordered_set.hpp>
+#endif
 
 #include "utils.h"
 
@@ -41,7 +45,11 @@ deduplicate_tokens(const std::string& instring,
                    std::string& outstring)
 {
   std::vector<std::string> vec;
+#if BOOST_VERSION < 106500
   std::tr1::unordered_set<std::string> set;
+#else
+  boost::unordered_set<std::string> set;
+#endif
   boost::split(vec, instring,
                boost::is_any_of("\t "),
                boost::token_compress_on);

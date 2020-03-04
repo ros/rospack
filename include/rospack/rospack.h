@@ -105,8 +105,16 @@ and Rosstack.
 #ifndef ROSPACK_ROSPACK_H
 #define ROSPACK_ROSPACK_H
 
+#include <boost/version.hpp>
+
+#if BOOST_VERSION < 106500
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
+#else
+#include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
+#endif
+
 #include <list>
 #include <map>
 #include <set>
@@ -194,8 +202,13 @@ class ROSPACK_DECL Rosstackage
     std::string tag_;
     bool quiet_;
     std::vector<std::string> search_paths_;
+#if BOOST_VERSION < 106500
     std::tr1::unordered_map<std::string, std::vector<std::string> > dups_;
     std::tr1::unordered_map<std::string, Stackage*> stackages_;
+#else
+    boost::unordered_map<std::string, std::vector<std::string> > dups_;
+    boost::unordered_map<std::string, Stackage*> stackages_;
+#endif
     Stackage* findWithRecrawl(const std::string& name);
     void log(const std::string& level, const std::string& msg, bool append_errno);
     void clearStackages();
@@ -205,7 +218,11 @@ class ROSPACK_DECL Rosstackage
                      int depth,
                      bool collect_profile_data,
                      std::vector<DirectoryCrawlRecord*>& profile_data,
+#if BOOST_VERSION < 106500
                      std::tr1::unordered_set<std::string>& profile_hash);
+#else
+                     boost::unordered_set<std::string>& profile_hash);
+#endif
     bool isStackage(const std::string& path);
     void loadManifest(Stackage* stackage);
     void computeDeps(Stackage* stackage, bool ignore_errors=false, bool ignore_missing=false);
@@ -217,7 +234,11 @@ class ROSPACK_DECL Rosstackage
                     bool no_recursion_on_wet=false);
     void gatherDepsFull(Stackage* stackage, bool direct,
                         traversal_order_t order, int depth,
+#if BOOST_VERSION < 106500
                         std::tr1::unordered_set<Stackage*>& deps_hash,
+#else
+                        boost::unordered_set<Stackage*>& deps_hash,
+#endif
                         std::vector<Stackage*>& deps,
                         bool get_indented_deps,
                         std::vector<std::string>& indented_deps,
