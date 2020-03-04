@@ -107,7 +107,7 @@ and Rosstack.
 
 #include <boost/version.hpp>
 
-#if BOOST_VERSION <= 106500
+#if BOOST_VERSION < 106500
 #include <boost/tr1/unordered_set.hpp>
 #include <boost/tr1/unordered_map.hpp>
 #else
@@ -202,7 +202,7 @@ class ROSPACK_DECL Rosstackage
     std::string tag_;
     bool quiet_;
     std::vector<std::string> search_paths_;
-#if BOOST_VERSION <= 106500
+#if BOOST_VERSION < 106500
     std::tr1::unordered_map<std::string, std::vector<std::string> > dups_;
     std::tr1::unordered_map<std::string, Stackage*> stackages_;
 #else
@@ -213,19 +213,14 @@ class ROSPACK_DECL Rosstackage
     void log(const std::string& level, const std::string& msg, bool append_errno);
     void clearStackages();
     void addStackage(const std::string& path);
-#if BOOST_VERSION <= 106500
     void crawlDetail(const std::string& path,
                      bool force,
                      int depth,
                      bool collect_profile_data,
                      std::vector<DirectoryCrawlRecord*>& profile_data,
+#if BOOST_VERSION < 106500
                      std::tr1::unordered_set<std::string>& profile_hash);
 #else
-    void crawlDetail(const std::string& path,
-                     bool force,
-                     int depth,
-                     bool collect_profile_data,
-                     std::vector<DirectoryCrawlRecord*>& profile_data,
                      boost::unordered_set<std::string>& profile_hash);
 #endif
     bool isStackage(const std::string& path);
@@ -237,23 +232,17 @@ class ROSPACK_DECL Rosstackage
                     traversal_order_t order,
                     std::vector<Stackage*>& deps,
                     bool no_recursion_on_wet=false);
-#if BOOST_VERSION <= 106500
     void gatherDepsFull(Stackage* stackage, bool direct,
                         traversal_order_t order, int depth,
+#if BOOST_VERSION < 106500
                         std::tr1::unordered_set<Stackage*>& deps_hash,
-                        std::vector<Stackage*>& deps,
-                        bool get_indented_deps,
-                        std::vector<std::string>& indented_deps,
-                        bool no_recursion_on_wet=false);
 #else
-    void gatherDepsFull(Stackage* stackage, bool direct,
-                        traversal_order_t order, int depth,
                         boost::unordered_set<Stackage*>& deps_hash,
+#endif
                         std::vector<Stackage*>& deps,
                         bool get_indented_deps,
                         std::vector<std::string>& indented_deps,
                         bool no_recursion_on_wet=false);
-#endif
     std::string getCachePath();
     std::string getCacheHash();
     bool readCache();
