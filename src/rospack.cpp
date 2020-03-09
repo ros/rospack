@@ -1640,10 +1640,11 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
     }
     if(!dep_pkgname)
     {
-      if(!ignore_errors)
+      result = false;
+      if(!ignore_errors && !quiet_)
       {
         std::string errmsg = std::string("bad depend syntax (no 'package/stack' attribute) in manifest ") + stackage->name_ + " at " + stackage->manifest_path_;
-        throw Exception(errmsg);
+        logError(errmsg);
       }
     }
     else if(dep_pkgname == stackage->name_)
