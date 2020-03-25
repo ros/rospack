@@ -30,8 +30,12 @@
 
   <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-catkin-pkg-modules</exec_depend>
   <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-catkin-pkg-modules</exec_depend>
-  <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-rosdep-modules</exec_depend>
-  <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-rosdep-modules</exec_depend>
+  <!-- This package really only depends on python-rosdep-modules, but in order
+       to keep installing the rosdep command-line tool in Melodic we depend on
+       python-rosdep.
+  -->
+  <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-rosdep</exec_depend>
+  <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-rosdep</exec_depend>
   <exec_depend>ros_environment</exec_depend>
 
   <test_depend condition="$ROS_PYTHON_VERSION == 2">python-coverage</test_depend>
