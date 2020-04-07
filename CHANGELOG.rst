@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* best effort output on error (`#113 <https://github.com/ros/rospack/issues/113>`_)
+
 2.6.0 (2020-03-02)
 ------------------
 * declare specific boost dependencies (`#115 <https://github.com/ros/rospack/issues/115>`_)
