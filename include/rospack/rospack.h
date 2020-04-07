@@ -162,8 +162,8 @@ class ROSPACK_DECL Rosstackage
                      boost::unordered_set<std::string>& profile_hash);
     bool isStackage(const std::string& path);
     void loadManifest(Stackage* stackage);
-    void computeDeps(Stackage* stackage, bool ignore_errors=false, bool ignore_missing=false);
-    void computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag, bool ignore_missing=false);
+    bool computeDeps(Stackage* stackage, bool ignore_errors=false, bool ignore_missing=false);
+    bool computeDepsInternal(Stackage* stackage, bool ignore_errors, const std::string& depend_tag, bool ignore_missing=false);
     bool isSysPackage(const std::string& pkgname);
     void gatherDeps(Stackage* stackage, bool direct,
                     traversal_order_t order,
@@ -184,7 +184,7 @@ class ROSPACK_DECL Rosstackage
     bool expandExportString(Stackage* stackage,
                             const std::string& instring,
                             std::string& outstring);
-    void depsWhyDetail(Stackage* from,
+    bool depsWhyDetail(Stackage* from,
                        Stackage* to,
                        std::list<std::list<Stackage*> >& acc_list);
 

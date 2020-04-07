@@ -232,6 +232,153 @@ TEST(rospack, env_change)
   setenv("ROS_PACKAGE_PATH", oldrpp, 1);
 }
 
+
+namespace
+{
+void trimAll(std::vector<std::string> &inout)
+{
+  for (ssize_t i = inout.size() - 1; i >= 0; --i)
+  {
+    boost::trim(inout[i]);
+    // Remove empty ones
+    if (inout[i].empty()) inout.erase(inout.begin() + i);
+  }
+}
+
+::testing::AssertionResult outputEqual(std::string output, const std::string &expected, bool trim = true)
+{
+  if (trim) boost::trim(output);
+  if (output == expected) return ::testing::AssertionSuccess();
+  return ::testing::AssertionFailure() << "Output did not match: " <<  output;
+}
+
+::testing::AssertionResult outputEqual(std::string output, const std::vector<std::string> &expected, bool trim = true)
+{
+  boost::trim(output);
+  std::vector<std::string> output_lines;
+  boost::split( output_lines, output, []( char c) { return c == '\n'; });
+  if (trim) trimAll( output_lines);
+  if ( output_lines.size() != expected.size())
+    return ::testing::AssertionFailure() << "output line count did not match expected: " << output_lines.size() << std::endl << boost::join( output_lines, "\n");
+  for ( size_t i = 0; i < output_lines.size(); ++i)
+  {
+    for ( size_t j = i + 1; j < output_lines.size(); ++j)
+    {
+      if ( output_lines[i] == output_lines[j])
+        return ::testing::AssertionFailure() << "output contained a duplicate: " << output_lines[i];
+    }
+  }
+  for (auto &dep : output_lines)
+  {
+    bool found = false;
+    for (auto &line : expected)
+    {
+      if (line != dep) continue;
+      found = true;
+      break;
+    }
+    if (!found)
+      return ::testing::AssertionFailure() << "output contained '" << dep << "' which was not expected!";
+  }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult outputEndsWith(std::string output, const std::vector<std::string> &expected, bool trim = true)
+{
+  boost::trim(output);
+  std::vector<std::string> output_lines;
+  boost::split( output_lines, output, []( char c) { return c == '\n' || c == ' '; });
+  if (trim) trimAll( output_lines);
+  if (output_lines.size() != expected.size())
+    return ::testing::AssertionFailure() << "output line count did not match expected: " << output_lines.size() << std::endl << boost::join( output_lines, "\n");
+  for (size_t i = 0; i < output_lines.size(); ++i)
+  {
+    for (size_t j = i + 1; j < output_lines.size(); ++j)
+    {
+      if (output_lines[i] == output_lines[j])
+        return ::testing::AssertionFailure() << "output contained a duplicate: " << output_lines[i];
+    }
+  }
+  for (auto &dep : output_lines)
+  {
+    bool found = false;
+    for (auto &line : expected)
+    {
+      if (dep.length() < line.length()) continue;
+      if (line != dep.substr(dep.length() - line.length())) continue;
+      found = true;
+      break;
+    }
+    if (!found)
+      return ::testing::AssertionFailure() << "output contained '" << dep << "' which was not expected!";
+  }
+  return ::testing::AssertionSuccess();
+}
+}
+
+TEST(rospack, multiple_errors)
+{
+  // Get old path for resetting later, to avoid cross-talk with other tests
+  char* oldrpp = getenv("ROS_PACKAGE_PATH");
+  // Switch to RPP=/test_errors
+  char buf[1024];
+  std::string rr = std::string(getcwd(buf, sizeof(buf))) + "/test_errors";
+  setenv("ROS_PACKAGE_PATH", rr.c_str(), 1);
+  rospack::ROSPack rp;
+  std::string output;
+  int ret = rp.run("deps valid_package");
+  EXPECT_EQ(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"base", "base2"}));
+
+  // one error
+  ret = rp.run("deps invalid_package_one");
+  EXPECT_NE(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"valid_package", "base", "base2"} ));
+
+  // two errors
+  ret = rp.run("deps invalid_package_two");
+  EXPECT_NE(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), {"invalid_package_one", "valid_package", "base", "base2", "another_valid_package"}));
+
+  // depends1
+  ret = rp.run("depends1 direct_deps_valid");
+  EXPECT_NE(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"valid_package", "invalid_package_one"}));
+
+  // depends-manifests
+  ret = rp.run("depends-manifests invalid_package_one");
+  EXPECT_NE(ret, 0);
+  EXPECT_TRUE(outputEndsWith(rp.getOutput(), std::vector<std::string> {"valid_package/manifest.xml", "base/manifest.xml", "base2/manifest.xml"}));
+
+  // depends-indent
+  ret = rp.run("depends-indent invalid_package_one");
+  EXPECT_NE(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"valid_package", "  base", "  base2"}, false));
+
+  // depends-why
+  ret = rp.run("depends-why --target=base invalid_package_two");
+  EXPECT_NE(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"Dependency chains from invalid_package_two to base:",
+                                                                    "* invalid_package_two -> invalid_package_one -> valid_package -> base"}));
+
+  // depends-on
+  ret = rp.run("depends-on base");
+  EXPECT_EQ(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), {"direct_deps_valid", "valid_package", "invalid_package_one", "invalid_package_two", "invalid_roslang_package"}));
+
+  // depends-on1
+  ret = rp.run("depends-on1 base");
+  EXPECT_EQ(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), "valid_package"));
+
+  ret = rp.run("depends-on1 valid_package");
+  EXPECT_EQ(ret, 0);
+  EXPECT_TRUE(outputEqual(rp.getOutput(), std::vector<std::string> {"direct_deps_valid", "invalid_package_one"}));
+
+  // Reset old path, for other tests
+  setenv("ROS_PACKAGE_PATH", oldrpp, 1);
+}
+
 int main(int argc, char **argv)
 {
   // Quiet some warnings
