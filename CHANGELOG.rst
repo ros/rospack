@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.1 (2020-04-06)
+------------------
 * best effort output on error (`#113 <https://github.com/ros/rospack/issues/113>`_)
 
 2.6.0 (2020-03-02)
