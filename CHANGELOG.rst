@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.2 (2020-05-13)
+------------------
 * fix umask for rospack cache files, regression from 2.5.4 (`#119 <https://github.com/ros/rospack/issues/119>`_)
 
 2.6.1 (2020-04-06)
