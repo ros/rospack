@@ -2076,7 +2076,7 @@ Rosstackage::writeCache()
     {
       FILE *cache = fopen(tmp_cache_path, "w");
 #else
-    mode_t mask = umask(S_IRWXU);
+    mode_t mask = umask(S_IXUSR  | S_IRWXG | S_IRWXO);
     int fd = mkstemp(tmp_cache_path);
     umask(mask);
     if (fd < 0)
