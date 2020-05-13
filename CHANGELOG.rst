@@ -2,6 +2,10 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix umask for rospack cache files, regression from 2.5.4 (`#119 <https://github.com/ros/rospack/issues/119>`_)
+
 2.5.5 (2020-01-24)
 ------------------
 * bump to CMake 3.0.2 to avoid CMP0048 warning (`#114 <https://github.com/ros/rospack/issues/114>`_)
