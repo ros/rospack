@@ -6,7 +6,7 @@
   <name>rospack</name>
   <version>2.6.2</version>
   <description>ROS Package Tool</description>
-  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <maintainer email="jacob@openrobotics.org">Jacob Perron</maintainer>
   <license>BSD</license>
 
   <url type="website">http://wiki.ros.org/rospack</url>
