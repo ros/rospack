@@ -551,6 +551,24 @@ Rosstackage::listDuplicatesWithPaths(std::map<std::string, std::vector<std::stri
   }
 }
 
+void
+Rosstackage::listLicenses(std::set<std::pair<std::string, std::vector<std::string> > >& list)
+{
+  for(boost::unordered_map<std::string, Stackage*>::const_iterator it = stackages_.begin();
+      it != stackages_.end();
+      ++it)
+  {
+    std::pair<std::string, std::vector<std::string> > item;
+    item.first = it->first;
+    for(std::vector<std::string>::const_iterator jt = it->second->licenses_.begin();
+        jt != it->second->licenses_.end();
+        ++jt) {
+      item.second.push_back(*jt);
+    }
+    list.insert(item);
+  }
+}
+
 bool
 Rosstackage::deps(const std::string& name, bool direct,
                   std::vector<std::string>& deps)
@@ -683,6 +701,35 @@ Rosstackage::depsManifests(const std::string& name, bool direct,
   {
     logError(e.what());
     return false;
+  }
+  return result;
+}
+
+bool
+Rosstackage::depsLicenses(const std::string& name, bool direct,
+                           std::vector<std::pair<std::string, std::vector<std::string> > >& deps)
+{
+  std::vector<Stackage*> stackages;
+  // Disable errors for the first try
+  bool old_quiet = quiet_;
+  bool result = true;
+  setQuiet(true);
+  if(!depsDetail(name, direct, stackages))
+  {
+    // Recrawl
+    crawl(search_paths_, true);
+    stackages.clear();
+    setQuiet(old_quiet);
+    if(!depsDetail(name, direct, stackages))
+      result = false;
+  }
+  setQuiet(old_quiet);
+  for(std::vector<Stackage*>::const_iterator it = stackages.begin();
+      it != stackages.end();
+      ++it)
+  {
+    std::vector<std::string> licenses;
+    deps.push_back(std::pair<std::string, std::vector<std::string> >((*it)->name_, (*it)->licenses_));
   }
   return result;
 }
@@ -2293,6 +2340,7 @@ Rospack::usage()
           "    cflags-only-other [--deps-only] [package]\n"
           "    depends           [package] (alias: deps)\n"
           "    depends-indent    [package] (alias: deps-indent)\n"
+          "    depends-licenses  [package] (alias: deps-licenses)\n"
           "    depends-manifests [package] (alias: deps-manifests)\n"
           "    depends-msgsrv    [package] (alias: deps-msgsrv)\n"
           "    depends-on        [package]\n"
@@ -2307,6 +2355,7 @@ Rospack::usage()
           "    libs-only-other [--deps-only] [package]\n"
           "    list\n"
           "    list-duplicates\n"
+          "    list-licenses\n"
           "    list-names\n"
           "    plugins --attrib=<attrib> [--top=<toppkg>] [package]\n"
           "    profile [--length=<length>] [--zombie-only]\n"
