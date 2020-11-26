@@ -307,6 +307,12 @@ class ROSPACK_DECL Rosstackage
      * @param deps If dependencies are computed, then they're written here.
      * @return True if dependencies were computed, false otherwise.
      */
+    void listLicenses(std::set<std::pair<std::string, std::vector<std::string> > >& list);
+    /**
+     * @brief Identify duplicate stackages.  Forces crawl.
+     * @param dups Names of stackages and its licenses that are found more
+     *             than once whilecrawling are written here.
+     */
     bool deps(const std::string& name, bool direct, std::vector<std::string>& deps);
     /**
      * @brief Compute reverse dependencies of a stackage (i.e., stackages
@@ -350,6 +356,18 @@ class ROSPACK_DECL Rosstackage
      * @param manifests The list of absolute paths to manifests of stackages
      *                  that the given stackage depends on is written here.
      * @return True if the manifest list was computed, false otherwise.
+     */
+    bool depsLicenses(const std::string& name, bool direct,
+                      std::vector<std::pair<std::string, std::vector<std::string> > >& deps);
+    /**
+     * @brief Compute reverse dependencies of a stackage (i.e., stackages
+     *        that depend on this stackage).  Forces crawl.
+     * @param name The stackage to work on.
+     * @param direct If true, then compute only direct dependencies.  If
+     *               false, then compute full (including indirect)
+     *               dependencies.
+     * @param deps If dependencies with licenses are computed, then they're written here.
+     * @return True if dependencies were computed, false otherwise.
      */
     bool depsManifests(const std::string& name, bool direct,
                        std::vector<std::string>& manifests);
