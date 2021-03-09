@@ -1630,6 +1630,76 @@ Rosstackage::computeDepsInternal(Stackage* stackage, bool ignore_errors, const s
       dep_ele;
       dep_ele = dep_ele->NextSiblingElement(depend_tag.c_str()))
   {
+    // check condition
+    const char* condition = dep_ele->Attribute("condition");
+    if ( condition != NULL )
+    {
+      std::istringstream condition_stream(condition);
+      std::string l, op, r;
+      condition_stream >> l;
+      condition_stream >> op;
+      condition_stream >> r;
+      // get environment variable if it starts with $
+      if ( l.rfind("$", 0) == 0 )
+      {
+        char* env = std::getenv(l.erase(0, 1).c_str());
+        if ( env != NULL )
+        {
+          l = std::string(env);
+        }
+        else
+        {
+          l = std::string("");
+        }
+      }
+      if ( r.rfind("$", 0) == 0 )
+      {
+        char* env = std::getenv(r.erase(0, 1).c_str());
+        if ( env != NULL )
+        {
+          r = std::string(env);
+        }
+        else
+        {
+          r = std::string("");
+        }
+      }
+      if ( !l.empty() && !r.empty() )
+      {
+        int li, ri;
+        li = stoi( l );
+        ri = stoi( r );
+        if ( op == "=="  && !( li == ri ) )
+        {
+          continue;
+        }
+        else if ( op == "!="  && !( li != ri ) )
+        {
+          continue;
+        }
+        else if ( op == "<"  && !( li < ri ) )
+        {
+          continue;
+        }
+        else if ( op == "<="  && !( li <= ri ) )
+        {
+          continue;
+        }
+        else if ( op == ">"  && !( li > ri ) )
+        {
+          continue;
+        }
+        else if ( op == ">="  && !( li >= ri ) )
+        {
+          continue;
+        }
+      }
+      else
+      {
+        continue;
+      }
+    }
+    //
     if (!stackage->is_wet_package_)
     {
       dep_pkgname = dep_ele->Attribute(tag_.c_str());
