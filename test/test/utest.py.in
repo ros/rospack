@@ -636,7 +636,7 @@ class RospackTestCase(unittest.TestCase):
 
         self.rospack_succeed("deps", "depends-on")
         tests = [
-            (["plugins", "deps_dup", "deps", "deps_higher"], "base"),
+            (["plugins", "deps_dup", "deps", "deps_higher", "deps_condition"], "base"),
             (["deps_higher","deps_dup"], "deps"),
             ([], "depth-0"),
             (depth_list, "depth-100"),
@@ -648,8 +648,8 @@ class RospackTestCase(unittest.TestCase):
         self.rospack_succeed("deps", "depends-on")
         tests = [
             (["deps_higher"], "deps"),
-            (["deps", "deps_dup", "plugins"], "base"),
-            (["deps", "deps_dup"], "base_two"),            
+            (["deps", "deps_dup", "plugins", "deps_condition"], "base"),
+            (["deps", "deps_dup", "deps_condition"], "base_two"),
             ]
         self.check_unordered_list("depends-on1", tests)
 
@@ -660,6 +660,14 @@ class RospackTestCase(unittest.TestCase):
             (["deps_nonexistent"], "nonexistentpackage"),
             ]
         self.check_ordered_list("depends-on", tests)
+
+    def test_deps_condition(self):
+        pass
+        self.rospack_succeed("deps_condition", "depends-on")
+        tests = [
+            (["base", "base_two"], "deps_condition"),
+            ]
+        self.check_unordered_list("depends", tests)
 
     def test_lflags_base(self):
         self.rospack_succeed("base", "libs-only-l")
