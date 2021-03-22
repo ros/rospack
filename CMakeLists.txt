@@ -7,11 +7,19 @@ set(Python_ADDITIONAL_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
 find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES rospack ${PYTHON_LIBRARIES}
-  DEPENDS Boost TinyXML2
-)
+if(NOT APPLE)
+  catkin_package(
+    INCLUDE_DIRS include
+    LIBRARIES rospack ${PYTHON_LIBRARIES}
+    DEPENDS Boost TinyXML2
+  )
+else()
+  catkin_package(
+    INCLUDE_DIRS include
+    LIBRARIES rospack
+    DEPENDS Boost TinyXML2
+ )
+endif()
 
 #add_definitions(-Wall)
 
@@ -29,7 +37,17 @@ add_library(rospack
   src/rospack_cmdline.cpp
   src/utils.cpp
 )
-target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+
+if(NOT APPLE)
+  target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+else()
+  target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES})
+endif()
+
+if(APPLE)
+  set_target_properties(rospack PROPERTIES
+                        LINK_FLAGS "-undefined dynamic_lookup")
+endif()
 
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
