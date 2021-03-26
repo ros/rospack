@@ -7,9 +7,14 @@ set(Python_ADDITIONAL_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
 find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
+set(package_libraries rospack)
+if(NOT APPLE)
+  list(APPEND package_libraries ${PYTHON_LIBRARIES})
+endif()
+
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rospack ${PYTHON_LIBRARIES}
+  LIBRARIES ${package_libraries}
   DEPENDS Boost TinyXML2
 )
 
