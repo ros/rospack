@@ -37,11 +37,6 @@ add_library(rospack
 
 target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
-if(APPLE)
-  set_target_properties(rospack PROPERTIES
-                        LINK_FLAGS "-undefined dynamic_lookup")
-endif()
-
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
 set_target_properties(rospackexe PROPERTIES
