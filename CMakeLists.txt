@@ -9,7 +9,7 @@ find_package(TinyXML2 REQUIRED)
 
 set(package_libraries rospack)
 if(NOT APPLE)
-  list(APPEND package_libraries ${PYTHON_LIBRARIES}
+  list(APPEND package_libraries ${PYTHON_LIBRARIES})
 endif()
 
 catkin_package(
