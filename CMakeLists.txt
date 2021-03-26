@@ -7,19 +7,16 @@ set(Python_ADDITIONAL_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}"
 find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
+set(package_libraries rospack)
 if(NOT APPLE)
-  catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES rospack ${PYTHON_LIBRARIES}
-    DEPENDS Boost TinyXML2
-  )
-else()
-  catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES rospack
-    DEPENDS Boost TinyXML2
- )
+  list(APPEND package_libraries ${PYTHON_LIBRARIES}
 endif()
+
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES ${package_libraries}
+  DEPENDS Boost TinyXML2
+)
 
 #add_definitions(-Wall)
 
@@ -38,11 +35,7 @@ add_library(rospack
   src/utils.cpp
 )
 
-if(NOT APPLE)
-  target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
-else()
-  target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES})
-endif()
+target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 if(APPLE)
   set_target_properties(rospack PROPERTIES
