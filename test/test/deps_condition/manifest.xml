@@ -1,0 +1,8 @@
+<package>
+  <name>deps_condition</name>
+<depend condition="$NON_EXISTENT_PACKAGE == 0"
+        package="nonexistentpackage" />
+<depend condition="$ROS_VERSION == 1"
+        package="base_two" />
+<depend package="base"/>
+</package>
