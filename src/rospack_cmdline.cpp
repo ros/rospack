@@ -142,6 +142,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
         output.append("\n\nPrint newline-separated list of packages names for all packages.");
       else if(command == "list-duplicates")
         output.append("\n\nPrint newline-separated list of names of packages that are found more than once during the search.");
+      else if(command == "list-licenses")
+        output.append("\n\nPrint newline-separated list of packages names and licenses for all packages.");
       else if(command == "langs")
         output.append("\n\nPrint space-separated list of available language-specific client libraries.");
       else if(command == "depends" || command == "deps")
@@ -152,6 +154,8 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
         output.append("[package]\n\nPrint space-separated, ordered list of manifest.xml files for all dependencies of the package. Used internally by rosbuild.");
       else if(command == "depends-indent" || command == "deps-indent")
         output.append("[package]\n\nPrint newline-separated, indented list of the entire dependency chain for the package.");
+      else if(command == "depends-licenses" || command == "deps-licenses")
+        output.append("[package]\n\nPrint newline-separated, ordered list of all dependencies of the package with licenses.");
       else if(command == "depends-why" || command == "deps-why")
         output.append("--target=TARGET [package]\n\nPrint newline-separated presentation of all dependency chains from the package to TARGET. ");
       else if(command == "depends-msgsrv" || command == "deps-msgsrv")
@@ -301,6 +305,35 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
     }
     return true;
   }
+  // COMMAND: list-lisenses
+  else if(command == "list-licenses")
+  {
+    if(package_given || target.size() || top.size() || length_str.size() ||
+       zombie_only || deps_only || lang.size() || attrib.size())
+    {
+      rp.logError( "invalid option(s) given");
+      return false;
+    }
+    std::set<std::pair<std::string, std::vector<std::string> > > dups;
+    rp.listLicenses(dups);
+    // if there are dups, list-duplicates prints them and returns non-zero
+    for(std::set<std::pair<std::string, std::vector<std::string> > >::const_iterator it = dups.begin();
+        it != dups.end();
+        ++it)
+    {
+      output.append(it->first + " ");
+      for(std::vector<std::string>::const_iterator jt = it->second.begin();
+          jt != it->second.end();
+          ++jt)
+      {
+        if(jt != it->second.begin())
+          output.append(", ");
+        output.append(*jt);
+      }
+      output.append("\n");
+    }
+    return true;
+  }
   // COMMAND: langs
   else if(rp.getName() == ROSPACK_NAME && command == "langs")
   {
@@ -395,6 +428,39 @@ rospack_run(int argc, char** argv, rospack::Rosstackage& rp, std::string& output
       output.append(*it);
     }
     output.append("\n");
+    return result;
+  }
+  // COMMAND: depends-licenses [package] (alias: deps-licenses)
+  else if(command == "depends-licenses" || command == "deps-licenses")
+  {
+    if(!package.size())
+    {
+      rp.logError(std::string("no ") + rp.get_manifest_type() + " given");
+      return false;
+    }
+    if(target.size() || top.size() || length_str.size() ||
+       zombie_only || deps_only || lang.size() || attrib.size())
+    {
+      rp.logError( "invalid option(s) given");
+      return false;
+    }
+    std::vector<std::pair<std::string, std::vector<std::string> > >licenses;
+    bool result = rp.depsLicenses(package, false, licenses);
+    for(std::vector<std::pair<std::string, std::vector<std::string> > >::const_iterator it = licenses.begin();
+        it != licenses.end();
+        ++it)
+    {
+      output.append(it->first + " ");
+      for(std::vector<std::string>::const_iterator jt = it->second.begin();
+          jt != it->second.end();
+          ++jt)
+      {
+        if(jt != it->second.begin())
+          output.append(", ");
+        output.append(*jt);
+      }
+      output.append("\n");
+    }
     return result;
   }
   // COMMAND: depends-msgsrv [package] (alias: deps-msgsrv)
