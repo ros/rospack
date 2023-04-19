@@ -34,7 +34,10 @@ add_library(rospack
   src/rospack_cmdline.cpp
   src/utils.cpp
 )
-target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(rospack ${TinyXML2_LIBRARIES} ${Boost_LIBRARIES})
+if(NOT APPLE)
+  target_link_libraries(rospack ${PYTHON_LIBRARIES})
+endif()
 
 add_executable(rospackexe src/rospack_main.cpp)
 # Set the name, and make it a "global" executable
