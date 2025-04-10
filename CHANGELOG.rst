@@ -2,6 +2,12 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix OSX builds (`#126 <https://github.com/ros/rospack/issues/126>`_)
+* Update maintainer (`#121 <https://github.com/ros/rospack/issues/121>`_)
+* Contributors: Jacob Perron, Tobias Fischer
+
 2.6.2 (2020-05-13)
 ------------------
 * fix umask for rospack cache files, regression from 2.5.4 (`#119 <https://github.com/ros/rospack/issues/119>`_)
