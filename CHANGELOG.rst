@@ -2,8 +2,8 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.3 (2025-04-10)
+------------------
 * Fix OSX builds (`#126 <https://github.com/ros/rospack/issues/126>`_)
 * Update maintainer (`#121 <https://github.com/ros/rospack/issues/121>`_)
 * Contributors: Jacob Perron, Tobias Fischer
