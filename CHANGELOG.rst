@@ -2,6 +2,11 @@
 Changelog for package rospack
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Do not link to PYTHON_LIBRARIES on Apple (`#127 <https://github.com/ros/rospack/issues/127>`_)
+* Contributors: Tobias Fischer
+
 2.6.3 (2025-04-10)
 ------------------
 * Fix OSX builds (`#126 <https://github.com/ros/rospack/issues/126>`_)
